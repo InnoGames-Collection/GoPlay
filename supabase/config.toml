@@ -1,6 +1,6 @@
 # Supabase CLI project config. Lets `supabase functions deploy …` work from this
 # folder without `supabase init`. Project ref is the subdomain of your API URL.
-project_id = "aopmkdefqykctrxhflaq"
+project_id = "fkjyyvivqdjekwothkrj"
 
 # Score gate — called by signed-in players, so the user JWT must be verified.
 [functions.submit-score]
