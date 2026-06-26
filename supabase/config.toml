@@ -1,0 +1,43 @@
+# Supabase CLI project config. Lets `supabase functions deploy …` work from this
+# folder without `supabase init`. Project ref is the subdomain of your API URL.
+project_id = "aopmkdefqykctrxhflaq"
+
+# Score gate — called by signed-in players, so the user JWT must be verified.
+[functions.submit-score]
+verify_jwt = true
+
+# Send-SMS auth hook — called by Supabase Auth itself (not a user), so JWT
+# verification is off; it authenticates via the hook secret instead.
+[functions.send-sms]
+verify_jwt = false
+
+# Payment webhook — the PSP (TeleBirr) and the demo checkout page call this
+# server-to-server with no user JWT, so verification is off; the unguessable
+# provider_ref (and, in production, the signature check) is the trust boundary.
+[functions.payment-callback]
+verify_jwt = false
+
+# Tournament settlement — authorised by an admin JWT OR the x-cron-secret header
+# (for a scheduled job that has no user session), so gateway JWT checks are off
+# and the function authorises internally.
+[functions.settle-tournament]
+verify_jwt = false
+
+# Subscriptions — called by signed-in players to activate/cancel a plan, so the
+# user JWT must be verified.
+[functions.subscribe]
+verify_jwt = true
+
+# Draw settlement — authorised by an admin JWT OR the x-cron-secret header (for a
+# scheduled job with no user session), so gateway JWT checks are off and the
+# function authorises internally. Mirrors settle-tournament.
+[functions.settle-draws]
+verify_jwt = false
+
+# Ethiopian Runner economy — both called by signed-in players, so the user JWT
+# must be verified.
+[functions.runner-enter]
+verify_jwt = true
+
+[functions.runner-submit]
+verify_jwt = true

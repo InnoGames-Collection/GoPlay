@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0a0d18" />
+    <link rel="manifest" href="../manifest.webmanifest" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏃</text></svg>" />
+    <title>EthioRunner — GoPlay</title>
+  </head>
+  <body>
+    <div id="stage">
+      <canvas id="game"></canvas>
+      <div id="hud">
+        <button id="closeBtn" aria-label="Close" onclick="location.href='../'">✕</button>
+        <div class="hud-top">
+          <div class="hud-stats">
+            <div class="stat"><span data-i18n="play.score">Score</span><strong id="scoreVal">0</strong></div>
+            <div class="stat"><span data-i18n="play.coins">Run coins</span><strong id="coinsVal">0</strong></div>
+            <div class="stat biome"><span id="biomeVal">Jungle</span></div>
+          </div>
+          <div class="hud-buttons">
+            <button id="settingsBtn" aria-label="Settings">⚙</button>
+            <button id="muteBtn" aria-label="Sound">🔊</button>
+            <button id="pauseBtn" aria-label="Pause">⏸</button>
+          </div>
+        </div>
+        <div class="hud-powerups" id="powerChips"></div>
+      </div>
+
+      <div id="menuOverlay" class="overlay">
+        <div class="panel">
+          <h1>EthioRunner</h1>
+          <p class="controls" data-i18n="play.controls"></p>
+          <div class="shop">
+            <h3 data-i18n="play.skins">Runners</h3>
+            <div class="skin-row" id="skinRow"></div>
+          </div>
+          <div class="runner-tourney" id="runnerHub"></div>
+          <button id="startBtn" class="btn primary" data-i18n="play.play">Play</button>
+          <p class="hint" data-i18n="play.start"></p>
+        </div>
+      </div>
+
+      <div id="pauseOverlay" class="overlay hidden">
+        <div class="panel">
+          <h2 data-i18n="play.paused">Paused</h2>
+          <button id="resumeBtn" class="btn primary" data-i18n="play.resume">Resume</button>
+          <button id="restartBtn" class="btn" data-i18n="play.restart">Play again</button>
+        </div>
+      </div>
+
+      <div id="overOverlay" class="overlay hidden">
+        <div class="panel">
+          <h2 data-i18n="play.gameOver">Game over</h2>
+          <p id="newBest" class="new-best hidden" data-i18n="play.newBest"></p>
+          <div class="final">
+            <div class="stat"><span data-i18n="play.score">Score</span><strong id="finalScore">0</strong></div>
+            <div class="stat"><span data-i18n="play.coins">Run coins</span><strong id="finalCoins">0</strong></div>
+            <div class="stat"><span data-i18n="play.best">Best</span><strong id="finalBest">0</strong></div>
+          </div>
+          <div class="run-reward" id="runReward"></div>
+          <div class="runner-board-wrap">
+            <h3 data-i18n="play.leaderboard">Leaderboard</h3>
+            <div class="runner-board" id="runnerBoardOver"></div>
+          </div>
+          <button id="againBtn" class="btn primary" data-i18n="play.restart">Play again</button>
+        </div>
+      </div>
+
+      <div id="ftue" class="overlay hidden">
+        <div class="panel ftue">
+          <h2 data-i18n="play.howto">How to play</h2>
+          <ul class="ftue-list">
+            <li>⬅➡ <span data-i18n="play.ftueLane">Swipe or arrows to change lane</span></li>
+            <li>⬆ <span data-i18n="play.ftueJump">Swipe up / ▲ to jump</span></li>
+            <li>⬇ <span data-i18n="play.ftueSlide">Swipe down / ▼ to slide</span></li>
+            <li>🏆 <span data-i18n="play.ftueRank">Enter a tournament — best RP ranks</span></li>
+          </ul>
+          <button id="ftueBtn" class="btn primary" data-i18n="play.gotit">Got it</button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast hidden"></div>
+    </div>
+    <script type="module" src="/src/play/main.ts"></script>
+  </body>
+</html>

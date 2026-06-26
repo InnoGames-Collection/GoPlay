@@ -1,0 +1,1 @@
+import"./modulepreload-polyfill-B5Qt9EMX.js";import"./index-C0bumzTF.js";const e=new URLSearchParams(location.search);e.get("ref");e.get("order");e.get("amount");e.get("coins");decodeURIComponent(e.get("return")??"");const t=document.querySelector("#app");t.innerHTML="<p>Invalid checkout link.</p>";

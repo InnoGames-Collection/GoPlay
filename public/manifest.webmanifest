@@ -1,0 +1,20 @@
+{
+  "name": "GoPlay",
+  "short_name": "GoPlay",
+  "description": "GoPlay — free HTML5 arcade games",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0d18",
+  "theme_color": "#0a0d18",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

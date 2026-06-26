@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏃</text></svg>" />
+    <title>GoPlay — EthioRunner</title>
+    <script type="module" crossorigin src="./assets/hub-BuIvlF4Z.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="./assets/auth-CAIh3L2-.js">
+    <link rel="modulepreload" crossorigin href="./assets/index-C0bumzTF.js">
+    <link rel="modulepreload" crossorigin href="./assets/tournament-CRQJLyvb.js">
+    <link rel="stylesheet" crossorigin href="./assets/auth-DngoG11r.css">
+    <link rel="stylesheet" crossorigin href="./assets/hub-DvDSlMzX.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon">🏃</span><span class="brand-name" data-i18n="app.title">GoPlay</span></div>
+      <nav class="topnav">
+        <a href="#featured" class="nav-link active" data-i18n="hub.play">Play</a>
+        <a href="#tournaments" class="nav-link" data-i18n="hub.tournaments">Tournaments</a>
+        <a href="#season" class="nav-link" data-i18n="hub.season">Season</a>
+        <a href="admin/" class="nav-link" data-i18n="hub.admin">Admin</a>
+      </nav>
+      <div id="topBalances" class="top-balances"></div>
+      <div class="lang-toggle">
+        <button id="langEn" type="button">EN</button>
+        <button id="langAm" type="button">AM</button>
+      </div>
+    </header>
+
+    <main class="hub-main">
+      <section id="featured" class="featured-section"></section>
+      <section id="tournaments" class="tournaments-section">
+        <h2 class="section-title">🏆 <span data-i18n="hub.tournaments">Tournaments</span></h2>
+        <div id="tourneyList" class="tour-grid"></div>
+      </section>
+      <section id="season" class="season-section">
+        <h2 class="section-title">📊 <span data-i18n="hub.season">Season board</span></h2>
+        <div id="seasonBoard" class="season-board"><p class="muted-small">…</p></div>
+      </section>
+    </main>
+
+  </body>
+</html>
