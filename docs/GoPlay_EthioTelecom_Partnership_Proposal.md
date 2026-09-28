@@ -1,12 +1,12 @@
-# GAMEON TELE — ETHIO TELECOM PARTNERSHIP PROPOSAL
+# GoPlay — ETHIO TELECOM PARTNERSHIP PROPOSAL
 ## Digital Gaming & Entertainment Ecosystem for telebirr
 **Document Classification:** STRICTLY CONFIDENTIAL  
 **Target Audience:** Ethio Telecom Executive Leadership, Digital Business & Commercial Strategy Teams  
 **Date:** September 2026  
 **Presentation Deliverables:** 
-- PowerPoint Presentation (.PPTX): `/downloads/GameON_Tele_EthioTelecom_Partnership_Proposal.pptx`
-- PDF Presentation (.PDF): `/downloads/GameON_Tele_EthioTelecom_Partnership_Proposal.pdf`
-- Technical Source of Truth: Existing GameON Tele Application Codebase
+- PowerPoint Presentation (.PPTX): `/downloads/GoPlay_Tele_EthioTelecom_Partnership_Proposal.pptx`
+- PDF Presentation (.PDF): `/downloads/GoPlay_Tele_EthioTelecom_Partnership_Proposal.pdf`
+- Technical Source of Truth: Existing GoPlay Application Codebase
 
 ---
 
@@ -15,8 +15,8 @@
 1. [Slide 1: Cover Slide](#slide-1-cover-slide)
 2. [Slide 2: Executive Summary](#slide-2-executive-summary)
 3. [Slide 3: The Opportunity: VAS Transformation](#slide-3-the-opportunity-vas-transformation)
-4. [Slide 4: What is GameON Tele? (Four Core Pillars)](#slide-4-what-is-gameon-tele-four-core-pillars)
-5. [Slide 5: Why GameON Tele for Ethio Telecom?](#slide-5-why-gameon-tele-for-ethio-telecom)
+4. [Slide 4: What is GoPlay? (Four Core Pillars)](#slide-4-what-is-gameon-tele-four-core-pillars)
+5. [Slide 5: Why GoPlay for Ethio Telecom?](#slide-5-why-gameon-tele-for-ethio-telecom)
 6. [Slide 6: Customer Journey](#slide-6-customer-journey)
 7. [Slide 7: Current Game Portfolio (Verified from Codebase)](#slide-7-current-game-portfolio-verified-from-codebase)
 8. [Slide 8: Game Categories (Current vs. Proposed Architecture)](#slide-8-game-categories-current-vs-proposed-architecture)
@@ -29,7 +29,7 @@
 15. [Slide 15: 100+ Game Scalability Roadmap](#slide-15-100-game-scalability-roadmap)
 16. [Slide 16: Customer Engagement Flywheel](#slide-16-customer-engagement-flywheel)
 17. [Slide 17: Value to Ethio Telecom](#slide-17-value-to-ethio-telecom)
-18. [Slide 18: Value to GameON Tele](#slide-18-value-to-gameon-tele)
+18. [Slide 18: Value to GoPlay](#slide-18-value-to-gameon-tele)
 19. [Slide 19: Company Experience & Technical Capabilities](#slide-19-company-experience--technical-capabilities)
 20. [Slide 20: White-Label & Co-Branding Flexibility](#slide-20-white-label--co-branding-flexibility)
 21. [Slide 21: Partnership Operating Model](#slide-21-partnership-operating-model)
@@ -45,10 +45,10 @@
 
 ---
 
-## Slide 1: GAMEON TELE
+## Slide 1: GoPlay
 **Subtitle:** DIGITAL GAMING & ENTERTAINMENT PLATFORM  
 **Status / Category:** `EXECUTIVE PARTNERSHIP PROPOSAL`  
-- **Platform Title:** GAMEON TELE
+- **Platform Title:** GoPlay
 - **Strategic Subtitle:** DIGITAL GAMING & ENTERTAINMENT PLATFORM
 - **Concept:** `TELEBIRR + MOBILE GAMING + DIGITAL ENTERTAINMENT + COMPETITION + REWARDS`
 - **Presented To:** Ethio Telecom Executive Leadership, Digital Business & Commercial Teams
@@ -64,7 +64,7 @@
 *"An expandable digital gaming and entertainment platform designed to provide customers with convenient access to mobile games, competition, rewards and digital monetization opportunities."*
 
 ### End-to-End Customer Value Chain
-`TELEBIRR  ➔  GAME CENTER  ➔  GAMEON TELE  ➔  DISCOVER  ➔  SELECT  ➔  ACCESS  ➔  PLAY  ➔  SCORE  ➔  COMPETE  ➔  REWARD  ➔  RETURN`
+`TELEBIRR  ➔  GAME CENTER  ➔  GoPlay  ➔  DISCOVER  ➔  SELECT  ➔  ACCESS  ➔  PLAY  ➔  SCORE  ➔  COMPETE  ➔  REWARD  ➔  RETURN`
 
 #### Current Foundation [CURRENT]
 - 21 catalog games configured with 7 core interactive HTML5/WebGL game modules
@@ -85,7 +85,7 @@
 **Status / Category:** `STRATEGIC MARKET TRANSITION`  
 ### Traditional Telecom VAS vs. Digital Gaming SuperApp Ecosystem
 
-| Traditional VAS Architecture (Declining) | GameON Tele Digital Ecosystem (High Growth) |
+| Traditional VAS Architecture (Declining) | GoPlay Digital Ecosystem (High Growth) |
 | :--- | :--- |
 | **Flow:** `SMS SHORTCODE ➔ SUBSCRIBED ➔ STATIC CONTENT` | **Flow:** `SUPERAPP ➔ DISCOVER ➔ PLAY ➔ COMPETE ➔ REWARD` |
 | ✖ One-way static delivery (daily SMS tips, text horoscopes, ringback tones) | ✔ Rich interactive gameplay with instant zero-install mobile webview access |
@@ -95,7 +95,7 @@
 
 ---
 
-## Slide 4: What is GameON Tele?
+## Slide 4: What is GoPlay?
 **Subtitle:** Four Core Pillars of the Scalable Gaming Ecosystem  
 **Status / Category:** `CORE PLATFORM PILLARS`  
 ### 1. DISCOVER `[CURRENT]`
@@ -120,7 +120,7 @@
 
 ---
 
-## Slide 5: Why GameON Tele for Ethio Telecom?
+## Slide 5: Why GoPlay for Ethio Telecom?
 **Subtitle:** High-Value Strategic Alignment with National Digital Strategy  
 **Status / Category:** `STRATEGIC VALUE PROPOSITION`  
 ### Strategic Operator Benefits
@@ -150,7 +150,7 @@ Modular architecture designed to onboard dozens of vetted regional and internati
 **Status / Category:** `VERIFIED CODEBASE WORKFLOW`  
 ### End-to-End Customer Flow (Verified from Codebase)
 
-- **1. Access:** User opens GameON Tele icon inside telebirr SuperApp Mini-App directory.
+- **1. Access:** User opens GoPlay icon inside telebirr SuperApp Mini-App directory.
 - **2. Game Center:** Instant user authentication with telebirr balance and coin wallet initialization.
 - **3. Discover:** User browses curated hero banners, categories, and trending games.
 - **4. Selection:** Inspects game details, controls, ratings, and entry access rules.
@@ -158,7 +158,7 @@ Modular architecture designed to onboard dozens of vetted regional and internati
 - **6. Play:** Instant full-screen HTML5 game session launches in mobile webview.
 - **7. Score:** Game session completes; score is computed and verified against high-score record.
 - **8. Compete:** Score automatically posted to game-specific national leaderboard.
-- **9. Reward:** Top performers earn GameON coins or qualify for tournament prize payouts.
+- **9. Reward:** Top performers earn GoPlay coins or qualify for tournament prize payouts.
 - **10. Return:** Daily login rewards, rank change alerts, and tournaments drive repeat visits.
 
 ---
@@ -354,7 +354,7 @@ Localized Ethiopian cultural games, expanded trivia, and multi-difficulty casual
 Onboarding licensed HTML5 casual titles from verified global gaming publishers
 
 ### Phase 4: Developer SDK: 80+ Games [TARGET]
-Opening GameON Tele SDK to local Ethiopian developers and university tech hubs
+Opening GoPlay SDK to local Ethiopian developers and university tech hubs
 
 ### Phase 5: Scaled Ecosystem: 100+ Games [TARGET]
 Comprehensive entertainment portal covering every demographic and casual genre
@@ -396,7 +396,7 @@ A proprietary, rich gaming ecosystem creates an exclusive lifestyle moat that co
 
 ---
 
-## Slide 18: Value to GameON Tele
+## Slide 18: Value to GoPlay
 **Subtitle:** Strategic Synergy through National Scale and Trusted Infrastructure  
 **Status / Category:** `PARTNER VALUE PROPOSITION`  
 ### Unrivaled National Distribution
@@ -436,7 +436,7 @@ Demonstrated ability to produce authentic Ethiopian games (Dama, World Legends h
 **Subtitle:** Adaptive Branding Architectures Tailored to Ethio Telecom Strategy  
 **Status / Category:** `BRANDING ARCHITECTURE`  
 ### Option A: 'Powered by telebirr' (Co-Branded) `[CURRENT DESIGN]`
-GameON Tele operates with prominent telebirr co-branding, reinforcing the SuperApp wallet integration while highlighting specialized gaming curation.
+GoPlay operates with prominent telebirr co-branding, reinforcing the SuperApp wallet integration while highlighting specialized gaming curation.
 
 ### Option B: Full Ethio Telecom White-Label `[PROPOSED CAPABILITY]`
 Platform fully branded under Ethio Telecom corporate identity (e.g. 'TelePlay', 'EthioGames', or 'telebirr Game Hub') with custom corporate guidelines.
@@ -457,7 +457,7 @@ Dynamic theming engine allows seasonal reskinning for national holidays (Enkutat
 - ✔ Marketing & Promotion: National SMS campaigns, social media, and data bundling
 - ✔ Regulatory Oversight: Regulatory notifications, lottery/gaming compliance & approvals
 
-### GAMEON TELE RESPONSIBILITIES
+### GoPlay RESPONSIBILITIES
 
 - ✔ Platform & Infrastructure: Cloud hosting, 99.9% uptime SLA, low-latency CDN
 - ✔ Game Catalog: Continuous sourcing, localization, QA testing, and content refreshes
@@ -513,9 +513,9 @@ Non-intrusive brand placements, sponsored tournament cups, and native telecom pr
 **Status / Category:** `ILLUSTRATIVE COMMERCIAL SCENARIO`  
 > **Important Notice:** ILLUSTRATIVE COMMERCIAL SCENARIO — NOT A CONTRACTUAL COMMERCIAL OFFER. Subject to commercial negotiation, taxes, fees, payment economics, regulatory requirements, prize treatment, operating costs, and final agreement.
 
-### Proposed Baseline Split: Ethio Telecom (55%) / GameON Tele (45%)
+### Proposed Baseline Split: Ethio Telecom (55%) / GoPlay (45%)
 
-| Year | Gross Revenue (ETB) | Ethio Telecom Share (55%) | GameON Tele Share (45%) |
+| Year | Gross Revenue (ETB) | Ethio Telecom Share (55%) | GoPlay Share (45%) |
 | :--- | :--- | :--- | :--- |
 | Year 1 | 3.60M ETB | ~1.98M ETB | ~1.62M ETB |
 | Year 2 | 11.91M ETB | ~6.55M ETB | ~5.36M ETB |
@@ -525,7 +525,7 @@ Non-intrusive brand placements, sponsored tournament cups, and native telecom pr
 | 5-Year Total | 215.50M ETB | ~118.53M ETB | ~96.98M ETB |
 
 - Ethio Telecom captures ~118.53M ETB in high-margin non-voice revenue over 5 years
-- GameON Tele reinvests ~96.98M ETB into platform hosting, game licensing, and local developer ecosystem
+- GoPlay reinvests ~96.98M ETB into platform hosting, game licensing, and local developer ecosystem
 - Payment processing fees, prize allocations, and statutory taxes accounted for per contractual terms
 
 ---
@@ -652,8 +652,8 @@ Run one verified weekly telebirr tournament cup with 10,000 ETB in sponsored pri
 **Subtitle:** Building Ethiopia's Premier Digital Gaming & Lifestyle Ecosystem  
 **Status / Category:** `CLOSING STATEMENT`  
 - **Joint Vision:** "Transforming telecom connectivity into interactive, high-value digital lifestyle experiences for 75M+ Ethiopians."
-- **Partnership Equation:** `TELEBIRR × GAMEON TELE × GAMING × DIGITAL ENTERTAINMENT`
-- **Confidentiality:** Proposed strictly for strategic partnership discussion between GameON Tele and Ethio Telecom.
+- **Partnership Equation:** `TELEBIRR × GoPlay × GAMING × DIGITAL ENTERTAINMENT`
+- **Confidentiality:** Proposed strictly for strategic partnership discussion between GoPlay and Ethio Telecom.
 
 ---
 

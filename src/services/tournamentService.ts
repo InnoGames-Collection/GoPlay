@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Official Weekly Tournament Service
+ * GoPlay - Official Weekly Tournament Service
  * 
  * Central Tournament Logic & Configuration Engine:
  * - Weekly tournament cycle with live countdown timer
@@ -201,7 +201,7 @@ export const TournamentService = {
   getActiveConfig(): WeeklyTournamentConfig {
     if (typeof window !== 'undefined') {
       try {
-        const stored = localStorage.getItem('gameon_tournament_config');
+        const stored = localStorage.getItem('goplay_tournament_config');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed.selectedGameIds) && parsed.selectedGameIds.length > 0) {
@@ -224,7 +224,7 @@ export const TournamentService = {
         ...current,
         selectedGameIds: gameIds,
       };
-      localStorage.setItem('gameon_tournament_config', JSON.stringify(updated));
+      localStorage.setItem('goplay_tournament_config', JSON.stringify(updated));
     } catch {}
   },
 

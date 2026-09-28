@@ -8,7 +8,7 @@ TARGET_INSTANCE="innoserver-serv001"
 TARGET_ZONE="us-central1-a"
 TARGET_IP="34.41.116.217"
 TARGET_USER="yasabneh"
-REMOTE_PATH="/home/${TARGET_USER}/InnoGames/gameon-backend"
+REMOTE_PATH="/home/${TARGET_USER}/InnoGames/GoPlay/backend"
 
 echo "Connecting to GCP VM ${TARGET_INSTANCE} (${TARGET_IP})..."
 

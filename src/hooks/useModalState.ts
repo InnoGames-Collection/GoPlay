@@ -1,5 +1,5 @@
 /**
- * Hook for managing modal visibility and legal sheet tabs in GAMEON TELE
+ * Hook for managing modal visibility and legal sheet tabs in GoPlay
  */
 
 import { useState, useCallback } from "react";

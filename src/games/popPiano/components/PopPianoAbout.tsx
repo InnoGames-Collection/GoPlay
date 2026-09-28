@@ -42,7 +42,7 @@ export const PopPianoAbout: React.FC<PopPianoAboutProps> = ({ onBack }) => {
             <span>Pop Piano — Official Tournament Edition</span>
           </div>
           <p>
-            Pop Piano Tournament Edition is an authentic 40-level competitive rhythm game designed for precision tapping, reaction speed, and harmonic musical performance on TelePlay Ethiopia.
+            Pop Piano Tournament Edition is an authentic 40-level competitive rhythm game designed for precision tapping, reaction speed, and harmonic musical performance on GoPlay.
           </p>
         </div>
 

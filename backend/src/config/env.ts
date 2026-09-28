@@ -11,18 +11,18 @@ export const env = cleanEnv(process.env, {
   DOMAIN: str({ default: 'innopulseplatform.com' }),
 
   // PostgreSQL
-  DATABASE_URL: str({ default: 'postgresql://postgres:postgres@localhost:5432/gameon' }),
+  DATABASE_URL: str({ default: 'postgresql://postgres:postgres@localhost:5432/goplay' }),
   DB_MAX_CONNECTIONS: num({ default: 20 }),
 
   // Valkey / Redis
   VALKEY_URL: str({ default: 'redis://localhost:6379' }),
 
   // Security / Auth
-  JWT_SECRET: str({ default: 'gameon-tele-super-secret-jwt-key-prod-2026' }),
+  JWT_SECRET: str({ default: 'goplay-tele-super-secret-jwt-key-prod-2026' }),
   JWT_ACCESS_EXPIRES_IN: str({ default: '1h' }),
   JWT_REFRESH_EXPIRES_IN: str({ default: '7d' }),
-  GAME_TOKEN_SECRET: str({ default: 'gameon-tele-anti-cheat-round-token-secret-2026' }),
-  CRON_SECRET: str({ default: 'gameon-cron-secret-prod-2026' }),
+  GAME_TOKEN_SECRET: str({ default: 'goplay-tele-anti-cheat-round-token-secret-2026' }),
+  CRON_SECRET: str({ default: 'goplay-cron-secret-prod-2026' }),
 
   // Rate Limiting
   RATE_LIMIT_GENERAL: num({ default: 60 }), // 60 req/min

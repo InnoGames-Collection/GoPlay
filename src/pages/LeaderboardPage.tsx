@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Official Game-Specific Leaderboard & Rankings Page
+ * GoPlay - Official Game-Specific Leaderboard & Rankings Page
  * 
  * Strict Architecture:
  * - Leaderboard PER GAME where leaderboardEnabled === true
@@ -7,7 +7,7 @@
  * - Game selector pills: [ Candy Blast ] [ World Legends ] [ Helix Jump ] ...
  * - Player rank & score in the selected game
  * - Top 10 players with masked MSISDN (e.g. 091*****123) for telebirr customer privacy
- * - Rewards in GameON coins
+ * - Rewards in GoPlay coins
  */
 
 import React, { useState, useMemo } from 'react';

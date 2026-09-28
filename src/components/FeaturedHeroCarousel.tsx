@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Top Featured Hero Banner Carousel
+ * GoPlay - Top Featured Hero Banner Carousel
  * Features large attractive banners, game titles, category tags, rating,
  * and high-contrast Play & Details action buttons.
  */

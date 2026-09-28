@@ -1,5 +1,5 @@
 /**
- * Application Configuration for GAMEON TELE (telebirr Game Center)
+ * Application Configuration for GoPlay (telebirr Game Center)
  * Production Configuration
  */
 

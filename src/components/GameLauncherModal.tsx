@@ -1,5 +1,5 @@
 /**
- * TelePlay Ethiopia - Game Launcher & Session Bridge Modal
+ * GoPlay - Game Launcher & Session Bridge Modal
  * Clean, professional EthioTelecom mobile gaming container.
  * No Energy. No VIP. No advertising. No sponsor rewards.
  */

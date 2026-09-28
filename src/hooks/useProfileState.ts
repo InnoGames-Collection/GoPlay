@@ -1,5 +1,5 @@
 /**
- * Hook for managing UserProfile and Energy recharge lifecycle in GAMEON TELE
+ * Hook for managing UserProfile and Energy recharge lifecycle in GoPlay
  */
 
 import { useState, useEffect, useCallback } from "react";

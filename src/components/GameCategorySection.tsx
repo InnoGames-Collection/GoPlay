@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Category Carousel Section Component
+ * GoPlay - Category Carousel Section Component
  * Renders category titles, smooth horizontal swipeable container, partial next card peek,
  * and snap navigation.
  */

@@ -1,5 +1,5 @@
 /**
- * Hook for managing toast notifications in GAMEON TELE
+ * Hook for managing toast notifications in GoPlay
  */
 
 import { useState, useCallback } from "react";

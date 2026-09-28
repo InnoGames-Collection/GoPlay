@@ -1,5 +1,5 @@
 /**
- * Storage Service for TelePlay Ethiopia (GAMEON TELE)
+ * Storage Service for GoPlay (GoPlay)
  * Enterprise-grade client-side persistence with in-memory fallback,
  * quota protection, reactive change listeners, and defensive deserialization.
  */
@@ -100,7 +100,7 @@ class ResilientStorage {
   private testLocalStorage(): boolean {
     try {
       if (typeof window === "undefined" || !window.localStorage) return false;
-      const testKey = "__gameon_storage_test__";
+      const testKey = "__goplay_storage_test__";
       window.localStorage.setItem(testKey, "1");
       window.localStorage.removeItem(testKey);
       return true;

@@ -1,5 +1,5 @@
 /**
- * Formatting helpers for TelePlay Ethiopia
+ * Formatting helpers for GoPlay
  */
 
 export function formatCurrencyETB(amount: number): string {

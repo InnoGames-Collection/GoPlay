@@ -1,11 +1,11 @@
 /**
- * Multi-language localization dictionary for TelePlay Ethiopia
+ * Multi-language localization dictionary for GoPlay
  * Supports English, Amharic (አማርኛ), and Afaan Oromoo
  */
 
 export const TRANSLATIONS = {
   en: {
-    portalName: 'TelePlay Ethiopia',
+    portalName: 'GoPlay',
     portalTagline: 'EthioTelecom Official Gaming Hub',
     home: 'Home',
     games: 'Games',

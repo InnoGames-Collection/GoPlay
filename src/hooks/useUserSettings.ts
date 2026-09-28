@@ -1,5 +1,5 @@
 /**
- * Hook for user preferences and localization settings in GAMEON TELE
+ * Hook for user preferences and localization settings in GoPlay
  */
 
 import { useState, useCallback } from "react";

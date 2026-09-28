@@ -1,5 +1,5 @@
 /**
- * Central State Orchestrator Hook for GAMEON TELE (TelePlay Ethiopia)
+ * Central State Orchestrator Hook for GoPlay (GoPlay)
  * Composes specialized modular hooks into a cohesive enterprise architecture:
  * - Profile & Energy Lifecycle (useProfileState)
  * - Preferences & Localization (useUserSettings)

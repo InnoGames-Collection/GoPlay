@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Standardized Professional Game Card
+ * GoPlay - Standardized Professional Game Card
  * Ensures 100% identical physical dimensions, fixed responsive aspect ratio (2.3:1),
  * object-fit: cover, and premium visual treatment across all 20 games.
  */

@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Official Weekly Tournament Page
+ * GoPlay - Official Weekly Tournament Page
  * 
  * Strict Tournament Architecture:
  * - Weekly cycle with real-time countdown timer
@@ -10,7 +10,7 @@
  * - Deterministic tie handling (Best Score -> Timestamp)
  * - Top 10 overall tournament rankings with Masked MSISDNs, Ethiopian names, Best Score, and originating game
  * - Separation between Game Scores, Tournament Rankings, and Prize distribution
- * - Conforms to official telebirr / GameON Tele design language (#1688C9, #8BCB3D)
+ * - Conforms to official telebirr / GoPlay design language (#1688C9, #8BCB3D)
  */
 
 import React, { useState, useMemo, useEffect } from 'react';

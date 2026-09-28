@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Recently Played Games Horizontal Strip
+ * GoPlay - Recently Played Games Horizontal Strip
  * Only renders when the user has actually played games, showing a clean horizontal strip.
  */
 

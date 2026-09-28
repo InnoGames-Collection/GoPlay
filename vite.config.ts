@@ -15,15 +15,15 @@ export default defineConfig(() => {
             const url = req.url || '';
             if (url.includes('.pptx')) {
               res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
-              res.setHeader('Content-Disposition', 'attachment; filename="GameON_Tele_EthioTelecom_Partnership_Proposal.pptx"');
+              res.setHeader('Content-Disposition', 'attachment; filename="GoPlay_EthioTelecom_Partnership_Proposal.pptx"');
               res.setHeader('Access-Control-Allow-Origin', '*');
             } else if (url.includes('.zip')) {
               res.setHeader('Content-Type', 'application/zip');
-              res.setHeader('Content-Disposition', 'attachment; filename="GameON_Tele_EthioTelecom_Partnership_Proposal_Bundle.zip"');
+              res.setHeader('Content-Disposition', 'attachment; filename="GoPlay_EthioTelecom_Partnership_Proposal_Bundle.zip"');
               res.setHeader('Access-Control-Allow-Origin', '*');
             } else if (url.includes('.pdf')) {
               res.setHeader('Content-Type', 'application/pdf');
-              res.setHeader('Content-Disposition', 'inline; filename="GameON_Tele_EthioTelecom_Partnership_Proposal.pdf"');
+              res.setHeader('Content-Disposition', 'inline; filename="GoPlay_EthioTelecom_Partnership_Proposal.pdf"');
               res.setHeader('Access-Control-Allow-Origin', '*');
             }
             next();

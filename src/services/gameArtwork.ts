@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Official High-Definition 3D Game Promotional Key-Art Engine
+ * GoPlay - Official High-Definition 3D Game Promotional Key-Art Engine
  * Generates bespoke, cinema-grade promotional key-art posters and banners (960x540)
  * matching modern mobile gaming ecosystems (Google Play, Samsung Gaming Hub, App Store).
  *

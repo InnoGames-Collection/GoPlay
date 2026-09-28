@@ -1,10 +1,10 @@
 /**
- * GameON Tele - Native telebirr SuperApp Mini-App Header
+ * GoPlay - Native telebirr SuperApp Mini-App Header
  * 
  * Strict Layout Rules:
  * - NO EthioTelecom corporate logo in header.
  * - Left: telebirr SuperApp indicator ("telebirr Game Center")
- * - Center: "GAMEON TELE" brand wordmark
+ * - Center: "GoPlay" brand wordmark
  * - Right: Coin balance chip (`🪙 50`) + "BUY COINS" / Add action
  */
 

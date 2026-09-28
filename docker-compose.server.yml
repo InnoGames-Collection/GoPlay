@@ -2,25 +2,25 @@
 # GoPlay — Complete Production Stack (Frontend + Backend + Dedicated Admin + DB + Cache)
 # Target: GCP Compute Engine VM (innoserver-serv001: 34.41.116.217)
 # Port Block:
-#   - 3300: gameon-web (Customer Gaming Portal)
-#   - 3302: gameon-api (Player Fastify API)
-#   - 3303: gameon-admin (Dedicated Admin & Auditor Operations Console)
-#   - 5434: gameon-postgres (PostgreSQL 16)
-#   - 6384: gameon-valkey (Valkey 8)
+#   - 3300: goplay-web (Customer Gaming Portal)
+#   - 3302: goplay-api (Player Fastify API)
+#   - 3303: goplay-admin (Dedicated Admin & Auditor Operations Console)
+#   - 5434: goplay-postgres (PostgreSQL 16)
+#   - 6384: goplay-valkey (Valkey 8)
 # ==============================================================================
 
 services:
   # ── PostgreSQL 16 Enterprise Relational Store ────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: gameon-postgres
+    container_name: goplay-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-gameon}
-      POSTGRES_USER: ${POSTGRES_USER:-gameon_app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gameon_secure_prod_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-goplay}
+      POSTGRES_USER: ${POSTGRES_USER:-goplay_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}
     volumes:
-      - gameon_pgdata:/var/lib/postgresql/data
+      - goplay_pgdata:/var/lib/postgresql/data
       - ./backend/db/migrations:/docker-entrypoint-initdb.d:ro
     ports:
       - "127.0.0.1:5434:5432"
@@ -29,7 +29,7 @@ services:
         limits:
           memory: 512M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gameon_app} -d ${POSTGRES_DB:-gameon}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-goplay_app} -d ${POSTGRES_DB:-goplay}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -37,7 +37,7 @@ services:
   # ── Valkey 8.x Distributed High-Performance Cache ───────────────────────────
   valkey:
     image: valkey/valkey:8-alpine
-    container_name: gameon-valkey
+    container_name: goplay-valkey
     restart: unless-stopped
     command: ["valkey-server", "--maxmemory", "96mb", "--maxmemory-policy", "allkeys-lru"]
     ports:
@@ -57,7 +57,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: gameon-api
+    container_name: goplay-api
     restart: unless-stopped
     command: ["node", "dist/index.js"]
     environment:
@@ -65,11 +65,11 @@ services:
       PORT: 3302
       HOST: 0.0.0.0
       DOMAIN: innopulseplatform.com
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-gameon_app}:${POSTGRES_PASSWORD:-gameon_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-gameon}?sslmode=disable"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-goplay_app}:${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-goplay}?sslmode=disable"
       VALKEY_URL: "redis://valkey:6379"
-      JWT_SECRET: ${JWT_SECRET:-gameon-tele-super-secret-jwt-key-prod-2026}
-      GAME_TOKEN_SECRET: ${GAME_TOKEN_SECRET:-gameon-tele-anti-cheat-round-token-secret-prod-2026}
-      CRON_SECRET: ${CRON_SECRET:-gameon-cron-secret-prod-2026}
+      JWT_SECRET: ${JWT_SECRET:-goplay-tele-super-secret-jwt-key-prod-2026}
+      GAME_TOKEN_SECRET: ${GAME_TOKEN_SECRET:-goplay-tele-anti-cheat-round-token-secret-prod-2026}
+      CRON_SECRET: ${CRON_SECRET:-goplay-cron-secret-prod-2026}
       RATE_LIMIT_GENERAL: 60
       TELEBIRR_MODE: ${TELEBIRR_MODE:-live}
       TELEBIRR_APP_KEY: ${TELEBIRR_APP_KEY:-}
@@ -100,7 +100,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: gameon-admin
+    container_name: goplay-admin
     restart: unless-stopped
     command: ["node", "dist/admin/adminServer.js"]
     environment:
@@ -109,9 +109,9 @@ services:
       ADMIN_PORT: 3303
       HOST: 0.0.0.0
       DOMAIN: innopulseplatform.com
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-gameon_app}:${POSTGRES_PASSWORD:-gameon_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-gameon}?sslmode=disable"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-goplay_app}:${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-goplay}?sslmode=disable"
       VALKEY_URL: "redis://valkey:6379"
-      JWT_SECRET: ${JWT_SECRET:-gameon-tele-super-secret-jwt-key-prod-2026}
+      JWT_SECRET: ${JWT_SECRET:-goplay-tele-super-secret-jwt-key-prod-2026}
       MAGIC_LINK_SECRET: ${MAGIC_LINK_SECRET:-goplay-tele-admin-magic-link-secret-2026}
       BREVO_API_KEY: ${BREVO_API_KEY:-}
       BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL:-innospher@gmail.com}
@@ -140,7 +140,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
-    container_name: gameon-web
+    container_name: goplay-web
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -162,4 +162,4 @@ services:
       start_period: 5s
 
 volumes:
-  gameon_pgdata:
+  goplay_pgdata:

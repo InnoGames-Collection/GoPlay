@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Game-Specific Leaderboard Engine
+ * GoPlay - Game-Specific Leaderboard Engine
  * Provides independent, game-specific rankings, scores, and masked MSISDN top players.
  */
 

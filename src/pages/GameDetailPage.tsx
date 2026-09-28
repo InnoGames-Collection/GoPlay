@@ -1,5 +1,5 @@
 /**
- * Game Detail Page Component for TelePlay Ethiopia
+ * Game Detail Page Component for GoPlay
  * Displays large original artwork, title, full description, controls, difficulty,
  * best score, coin requirements, Play button, Leaderboard button, and Back button.
  */
@@ -74,8 +74,8 @@ export const GameDetailPage: React.FC<GameDetailPageProps> = ({
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `${game.title} - TelePlay Ethiopia`,
-        text: `Play ${game.title} on TelePlay Ethiopia! My high score is ${userScore} points.`,
+        title: `${game.title} - GoPlay`,
+        text: `Play ${game.title} on GoPlay! My high score is ${userScore} points.`,
         url: window.location.href,
       }).catch(() => {});
     }

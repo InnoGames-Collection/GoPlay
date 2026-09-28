@@ -1,5 +1,5 @@
 /**
- * Tournament Card Component for TelePlay Ethiopia
+ * Tournament Card Component for GoPlay
  * White card surface, Deep Blue: #0057A8, Green: #78BE20
  * Displays Tournament status (Upcoming, Live, Ended), schedule,
  * entry requirements, reward pool, and player's current rank/score.

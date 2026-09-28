@@ -1,9 +1,9 @@
 /**
- * GameON Tele - Customer Profile & Account Page
+ * GoPlay - Customer Profile & Account Page
  * 
- * Compliant with GameON Tele guidelines:
+ * Compliant with GoPlay guidelines:
  * - NO customer login screen: User is pre-authenticated by telebirr SuperApp
- * - telebirr Identity: MSISDN, telebirr balance, GameON coin balance
+ * - telebirr Identity: MSISDN, telebirr balance, GoPlay coin balance
  * - In-app Coin Topup & All-Access Subscription Management
  * - Game History & Personal High Scores
  * - Clean, responsive UI with zero shortcode dependencies

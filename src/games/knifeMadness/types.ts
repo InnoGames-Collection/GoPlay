@@ -1,6 +1,6 @@
 /**
  * KNIFE MADNESS - Core Type Definitions
- * Professional 3D Knife Throwing Game for Gameworld
+ * Professional 3D Knife Throwing Game for GoPlay
  */
 
 export type GameState = 

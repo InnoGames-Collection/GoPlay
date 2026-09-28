@@ -1,5 +1,5 @@
 /**
- * TelePlay Ethiopia Reward & Prize Disbursement Service
+ * GoPlay Reward & Prize Disbursement Service
  * 
  * Handles:
  * 1. Claiming tournament and weekly prize winnings

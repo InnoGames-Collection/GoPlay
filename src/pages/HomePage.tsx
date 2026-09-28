@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Official Customer Home Portal
+ * GoPlay - Official Customer Home Portal
  * 
  * InnoArcade Vertical 2-Column Discovery Architecture:
  * - Top Featured Hero Carousel with promotional banner

@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Game Details & Instructions Modal
+ * GoPlay - Game Details & Instructions Modal
  */
 
 import React from 'react';

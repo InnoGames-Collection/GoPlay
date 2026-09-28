@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Customer Entitlement & Access Control Service
+ * GoPlay - Customer Entitlement & Access Control Service
  * 
  * Manages game entitlement logic:
  * - FREE: immediate unrestricted access
@@ -14,8 +14,8 @@ import { StorageService } from './storageService';
 
 export type { GameEntitlement };
 
-const ENTITLEMENTS_STORAGE_KEY = 'gameon_tele_entitlements_v1';
-const RECENTLY_PLAYED_KEY = 'gameon_tele_recent_games_v1';
+const ENTITLEMENTS_STORAGE_KEY = 'goplay_tele_entitlements_v1';
+const RECENTLY_PLAYED_KEY = 'goplay_tele_recent_games_v1';
 
 export const EntitlementService = {
   getEntitlements(): Record<string, GameEntitlement> {

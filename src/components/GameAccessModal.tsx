@@ -1,7 +1,7 @@
 /**
- * GameON Tele - Game Access & Entitlement Modal
+ * GoPlay - Game Access & Entitlement Modal
  * Handles Free instant access, Coin deduction confirmations, and telebirr Subscription authorizations.
- * Compliant with GameON Tele spec: No shortcodes, no SMS, direct in-app telebirr authorization.
+ * Compliant with GoPlay spec: No shortcodes, no SMS, direct in-app telebirr authorization.
  */
 
 import React, { useState } from 'react';

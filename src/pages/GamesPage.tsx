@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Official Game Catalog Discovery Page
+ * GoPlay - Official Game Catalog Discovery Page
  * 
  * Category-driven discovery:
  * - Category filter pills: [ All Games ] [ Action ] [ Arcade ] [ Puzzle ] [ Racing ] [ Sports ] [ Board ] [ Music ]

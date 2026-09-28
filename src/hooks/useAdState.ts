@@ -1,5 +1,5 @@
 /**
- * Hook for managing AdMob ads lifecycle in GAMEON TELE
+ * Hook for managing AdMob ads lifecycle in GoPlay
  */
 
 import { useState, useCallback } from "react";

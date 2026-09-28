@@ -1,7 +1,7 @@
 /**
- * GameON Tele - Telebirr SuperApp In-App Subscription & Passes
+ * GoPlay - Telebirr SuperApp In-App Subscription & Passes
  * 
- * Compliant with GameON Tele specifications:
+ * Compliant with GoPlay specifications:
  * - NO SMS shortcode flows, no 977, no "Send OK".
  * - Direct in-app telebirr SuperApp wallet billing.
  * - Manages active game subscriptions and passes with expiration tracking.

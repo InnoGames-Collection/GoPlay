@@ -1,5 +1,5 @@
 /**
- * Core type definitions for TelePlay Ethiopia (EthioTelecom Gaming Portal)
+ * Core type definitions for GoPlay (EthioTelecom Gaming Portal)
  */
 
 export type NavigationTab = 'home' | 'games' | 'tournament' | 'leaderboard' | 'profile' | 'admin';
@@ -95,7 +95,7 @@ export interface GameDefinition {
   isTrending?: boolean;
   instructions: string[];
   controlsDescription: string;
-  // GameON Tele extensions:
+  // GoPlay extensions:
   accessType?: 'FREE' | 'COIN' | 'SUBSCRIPTION' | 'PURCHASE' | 'TRIAL';
   isFree?: boolean;
   requiresCoins?: boolean;

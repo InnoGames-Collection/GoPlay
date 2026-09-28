@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# GAMEON TELE — Closed-Loop Agentic Deployment Engine
+# GoPlay — Enterprise Production Deployment Engine
 # Target: GCP Compute Engine VM (innoserver-serv001: 34.41.116.217)
 # ==============================================================================
 set -Eeuo pipefail
@@ -68,12 +68,12 @@ for i in {1..30}; do
 done
 
 echo "Probing $API_CANARY_URL..."
-curl -s -f "$API_CANARY_URL" | grep -q "GAMEON TELE"
+curl -s -f "$API_CANARY_URL" | grep -q "GoPlay"
 echo "✅ Canary 2 Passed: API Service Domain Probe Healthy"
 
 # Disarm trap
 trap - EXIT
 
 echo "=============================================================================="
-echo "🎉 [DEPLOYMENT CERTIFIED] GAMEON TELE Live on innopulseplatform.com"
+echo "🎉 [DEPLOYMENT CERTIFIED] GoPlay Live on innopulseplatform.com"
 echo "=============================================================================="

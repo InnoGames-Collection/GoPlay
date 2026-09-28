@@ -1,5 +1,5 @@
 /**
- * Game Registry for GameON Tele (telebirr Game Center)
+ * Game Registry for GoPlay (telebirr Game Center)
  * Bridges the data-driven GameCatalog (scalable to 100+ games) with GameDefinition interface.
  */
 

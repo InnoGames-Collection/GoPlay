@@ -1,5 +1,5 @@
 /**
- * Structured Enterprise Logger for GAMEON TELE
+ * Structured Enterprise Logger for GoPlay
  * Provides standardized log levels, context tagging, and safe output in production.
  */
 
@@ -62,5 +62,5 @@ class Logger {
   }
 }
 
-export const logger = new Logger("GAMEON");
+export const logger = new Logger("GoPlay");
 export const createLogger = (tag: string) => new Logger(tag);

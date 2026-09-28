@@ -1,6 +1,6 @@
-# GameON Tele - Complete Banner & Cover Sizing Guidelines
+# GoPlay - Complete Banner & Cover Sizing Guidelines
 
-This document outlines the standard image dimensions, aspect ratios, safe zones, and file recommendations for GoPlay / GameON Tele across mobile phones and web browsers.
+This document outlines the standard image dimensions, aspect ratios, safe zones, and file recommendations for GoPlay / GoPlay across mobile phones and web browsers.
 
 ---
 

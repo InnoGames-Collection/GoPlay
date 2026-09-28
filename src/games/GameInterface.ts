@@ -1,5 +1,5 @@
 /**
- * Standard Interface contracts for independent games in TelePlay Ethiopia.
+ * Standard Interface contracts for independent games in GoPlay.
  * Allows plug-and-play modular integration for external or bundled game engines.
  */
 

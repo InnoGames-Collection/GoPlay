@@ -1,4 +1,4 @@
-# Multi-Stage Production Dockerfile for GAMEON TELE Backend
+# Multi-Stage Production Dockerfile for GoPlay Backend
 # Stage 1: Build
 FROM node:20-alpine AS builder
 

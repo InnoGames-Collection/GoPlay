@@ -1,5 +1,5 @@
 /**
- * Terms of Service, Privacy Policy & Data Safety Modal for TelePlay Ethiopia
+ * Terms of Service, Privacy Policy & Data Safety Modal for GoPlay
  * Compliant with Ethiopian Communications Authority (ECA) & EthioTelecom VAS Guidelines.
  */
 
@@ -53,7 +53,7 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-black text-white">EthioTelecom Legal & Trust Center</h3>
-              <p className="text-[11px] text-blue-100">TelePlay Ethiopia Platform Compliance & Privacy</p>
+              <p className="text-[11px] text-blue-100">GoPlay Platform Compliance & Privacy</p>
             </div>
           </div>
 
@@ -98,7 +98,7 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
             <div className="space-y-3">
               <h4 className="text-sm font-black text-slate-900">1. Service Acceptance & TelePlay Platform Rules</h4>
               <p>
-                By accessing TelePlay Ethiopia via mobile browser, EthioTelecom SuperApp integration, or USSD gateway (*999#), you agree to be bound by these Terms of Service. TelePlay is an official Value-Added Service (VAS) operated in partnership with EthioTelecom.
+                By accessing GoPlay via mobile browser, EthioTelecom SuperApp integration, or USSD gateway (*999#), you agree to be bound by these Terms of Service. TelePlay is an official Value-Added Service (VAS) operated in partnership with EthioTelecom.
               </p>
 
               <h4 className="text-sm font-black text-slate-900">2. Direct Carrier Billing & TeleBirr Wallets</h4>
@@ -135,7 +135,7 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
 
               <h4 className="text-sm font-black text-slate-900">3. No Unnecessary Permissions</h4>
               <p>
-                TelePlay Ethiopia operates with zero invasive device permissions. We never request access to your camera, microphone, device contacts, or external storage.
+                GoPlay operates with zero invasive device permissions. We never request access to your camera, microphone, device contacts, or external storage.
               </p>
             </div>
           )}

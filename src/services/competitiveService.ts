@@ -1,5 +1,5 @@
 /**
- * Competitive System Service for TelePlay Ethiopia
+ * Competitive System Service for GoPlay
  * 
  * Implements:
  * 1. Leaderboards for all 6 individual games + Global rankings

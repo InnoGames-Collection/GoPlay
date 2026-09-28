@@ -1,5 +1,5 @@
 /**
- * GameON Tele - Pricing & Wallet Packages
+ * GoPlay - Pricing & Wallet Packages
  * Direct telebirr SuperApp instant billing for game coins and all-access passes.
  */
 

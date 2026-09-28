@@ -2,7 +2,7 @@
  * ============================================================================
  * [INTERNAL NOTICE: DEMO DATA LAYER]
  * This file contains strictly labeled simulated demonstration data for
- * TelePlay Ethiopia. No real customer personal data or production records are
+ * GoPlay. No real customer personal data or production records are
  * exposed. It ensures full offline portal functionality and predictable UI preview.
  * ============================================================================
  */
