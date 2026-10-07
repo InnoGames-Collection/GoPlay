@@ -64,7 +64,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     if (res.success) {
       setOtpSent(true);
-      setDemoCodeHint(res.demoOtp || '123456');
+      setDemoCodeHint(res.demoOtp || null);
       setCountdown(60);
       showToast('info', 'Verification Code Sent', res.message);
     } else {

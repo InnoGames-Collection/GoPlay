@@ -11,5 +11,5 @@ export const cache = new Redis(env.VALKEY_URL, {
 });
 
 cache.on('error', (err) => {
-  console.warn('[Valkey Warning] TelePlus cache connection error, continuing gracefully:', err.message);
+  console.warn('[Valkey Warning] GoPlay cache connection error, continuing gracefully:', err.message);
 });

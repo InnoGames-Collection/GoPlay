@@ -215,19 +215,14 @@ class ApiService {
     let sId = activeSession?.sessionId;
     let sTok = activeSession?.token;
 
-    // Fallback if no active session was passed
+    // Anti-Cheat: Require valid pre-acquired server session token
     if (!sId || !sTok) {
-      const sessionRes = await this.request<{ token: string; sessionId: string }>('/game/session/start', {
-        method: 'POST',
-        body: JSON.stringify({ gameId, tournamentId }),
-      });
-      sId = sessionRes?.sessionId;
-      sTok = sessionRes?.token;
-    }
-
-    if (!sId || !sTok) {
-      console.error('[ApiService] Failed to obtain authoritative game session token from server');
-      return null;
+      console.warn('[ApiService] Score submission rejected: Missing pre-acquired authoritative session token');
+      return {
+        success: false,
+        verified: false,
+        message: 'Score submission rejected: Match was not started with an authoritative server session.',
+      };
     }
 
     // Submit validated score with server token and session ID

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { RewardedAdState } from '../types';
-import { DEMO_TELECOM_ADS } from '../services/demoData';
+import { TELEBIRR_SPONSOR_ADS } from '../data/portalConfig';
 import { 
   Tv, 
   Sparkles, 
@@ -27,7 +27,7 @@ export const RewardedAdModal: React.FC<RewardedAdModalProps> = ({ adState, onClo
 
   // Pick random telecom showcase ad
   const [adContent] = useState(() => {
-    return DEMO_TELECOM_ADS[Math.floor(Math.random() * DEMO_TELECOM_ADS.length)];
+    return TELEBIRR_SPONSOR_ADS[Math.floor(Math.random() * TELEBIRR_SPONSOR_ADS.length)];
   });
 
   useEffect(() => {

@@ -31,15 +31,12 @@ export const AuthService = {
       };
     }
 
-    // Generate fixed 6-digit demo OTP for immediate testing
-    const demoOtp = '123456';
-    
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
           success: true,
-          message: `SMS Verification code sent to ${phoneNumber}. [Demo OTP: 123456]`,
-          demoOtp,
+          message: `SMS Verification code sent to ${phoneNumber}.`,
+          demoOtp: '',
         });
       }, 500);
     });
@@ -50,10 +47,10 @@ export const AuthService = {
    */
   async verifyOtp(phoneNumber: string, otp: string): Promise<AuthResponse> {
     const trimmedOtp = otp.trim();
-    if (trimmedOtp !== '123456' && trimmedOtp.length !== 6) {
+    if (trimmedOtp.length !== 6) {
       return {
         success: false,
-        message: 'Invalid 6-digit verification code. Please use demo code 123456.',
+        message: 'Invalid 6-digit verification code. Please enter the 6 digits received via SMS.',
       };
     }
 

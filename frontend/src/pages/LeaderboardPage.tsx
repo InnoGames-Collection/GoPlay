@@ -33,12 +33,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
   profile,
   onPlayGame,
 }) => {
-  // 1. Exactly 5 leaderboard sections:
-  // 1. Crazy Color
-  // 2. Fruit Ninja
-  // 3. Helix Jump
-  // 4. Pop Piano
-  // 5. Overall Best
+  // 1. Tournament and game leaderboard sections
   const tournamentGames = useMemo(() => {
     return TournamentService.getActiveTournamentGames();
   }, []);

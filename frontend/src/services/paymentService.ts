@@ -58,21 +58,37 @@ export const PaymentService = {
       msisdnMasked: maskedPhone,
     };
 
-    // Step 1: Initial Processing Dispatch
-    onStatusChange?.('PROCESSING', 'Contacting EthioTelecom billing gateway...');
+    // Dispatch real payment request to backend API
+    try {
+      const token = localStorage.getItem('goplay_access_token');
+      const res = await fetch('/api/payments/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          itemType: request.itemType,
+          packageId: request.itemType === 'ENERGY_PACK' ? 'ENERGY_PACK_5' : undefined,
+        }),
+      });
 
-    // Carrier gateway latency simulation
-    await new Promise((r) => setTimeout(r, 600));
+      const data = await res.json().catch(() => null);
 
-    // Validation 1: TeleBirr linked / Balance check
-    if (request.method === 'TELEBIRR') {
-      onStatusChange?.('PROCESSING', 'Verifying TeleBirr account balance...');
-      await new Promise((r) => setTimeout(r, 500));
-
-      if (profile.telebirrBalance < request.amountETB) {
+      if (res.ok && (data?.status === 'SUCCESS' || data?.status === 'PENDING')) {
+        tx.status = data.status === 'SUCCESS' ? 'SUCCESS' : 'PROCESSING';
+        tx.transactionId = data?.transaction?.transactionId || txId;
+        tx.referenceCode = data?.checkoutUrl || 'TB_GATEWAY_PENDING';
+        StorageService.recordPaymentTransaction(tx);
+        onStatusChange?.(tx.status, data?.message || 'Payment initiated with TeleBirr.');
+        return {
+          status: tx.status,
+          transaction: tx,
+          message: data?.message || 'Payment processed successfully.',
+        };
+      } else {
         tx.status = 'FAILED';
-        tx.errorCode = 'INSUFFICIENT_FUNDS';
-        tx.errorMessage = `Insufficient TeleBirr balance (${profile.telebirrBalance} ETB). Required: ${request.amountETB} ETB.`;
+        tx.errorMessage = data?.message || 'Telebirr payment initiation failed.';
         StorageService.recordPaymentTransaction(tx);
         onStatusChange?.('FAILED', tx.errorMessage);
         return {
@@ -81,29 +97,17 @@ export const PaymentService = {
           message: tx.errorMessage,
         };
       }
+    } catch (err: any) {
+      tx.status = 'FAILED';
+      tx.errorMessage = err?.message || 'Network error reaching payment gateway.';
+      StorageService.recordPaymentTransaction(tx);
+      onStatusChange?.('FAILED', tx.errorMessage);
+      return {
+        status: 'FAILED',
+        transaction: tx,
+        message: tx.errorMessage,
+      };
     }
-
-    // Validation 2: Direct Carrier Airtime Check
-    if (request.method === 'ETHIO_AIRTIME') {
-      onStatusChange?.('PROCESSING', 'Verifying EthioTelecom SIM airtime quota...');
-      await new Promise((r) => setTimeout(r, 600));
-    }
-
-    // Success path
-    onStatusChange?.('PROCESSING', 'Finalizing carrier authorization...');
-    await new Promise((r) => setTimeout(r, 400));
-
-    tx.status = 'SUCCESS';
-    tx.referenceCode = 'REF_TB_' + Math.random().toString(36).substring(2, 9).toUpperCase();
-    StorageService.recordPaymentTransaction(tx);
-
-    onStatusChange?.('SUCCESS', `Payment of ${request.amountETB} ETB confirmed!`);
-
-    return {
-      status: 'SUCCESS',
-      transaction: tx,
-      message: `Payment of ${request.amountETB} ETB authorized via ${request.method === 'TELEBIRR' ? 'TeleBirr' : 'Airtime'}.`,
-    };
   },
 
   /**

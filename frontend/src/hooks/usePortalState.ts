@@ -27,7 +27,7 @@ import { AuthService } from '../services/authService';
 import { AdMobService } from '../services/adMobService';
 import { PaymentService } from '../services/paymentService';
 import { RewardService } from '../services/rewardService';
-import { DAILY_REWARD_LADDER } from '../services/demoData';
+import { DAILY_REWARD_LADDER } from '../data/portalConfig';
 import { apiService } from '../services/apiService';
 
 export function usePortalState() {

@@ -12,8 +12,8 @@ import { GameLeaderboardService } from './gameLeaderboardService';
 export const GAME_ENTRY_COIN_COST = 10;
 
 // Controlled Development / Testing Flag:
-// In testing mode, allows instant play without blocking on coin balance
-export const DEV_TESTING_MODE = true;
+// Disabled in production to ensure entry fees and server authoritativeness are enforced
+export const DEV_TESTING_MODE = false;
 
 export const GameBridgeService = {
   /**
@@ -138,11 +138,8 @@ export const GameBridgeService = {
       },
     };
 
-    // Calculate coin earnings based on performance
-    const coinsEarned = Math.max(5, Math.floor(validScore / 20));
+    // XP and level progression based on performance (Coins are strictly server-authoritative)
     const xpEarned = Math.max(10, Math.floor(validScore / 10));
-
-    const newCoins = (profile.coins || 0) + coinsEarned;
     const newXP = (profile.xp || 0) + xpEarned;
     const newLevel = 1 + Math.floor(newXP / 1000);
 
@@ -150,7 +147,7 @@ export const GameBridgeService = {
       ...profile,
       highScores: updatedHighScores,
       dailyScores: updatedDailyScores,
-      coins: newCoins,
+      coins: profile.coins, // Preserved: coins are modified strictly by the server
       xp: newXP,
       level: newLevel,
       trophiesCount: isNewHighScore ? (profile.trophiesCount || 0) + 1 : (profile.trophiesCount || 0),

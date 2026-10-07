@@ -2,8 +2,9 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { cache } from '../config/cache.js';
 
 export async function rateLimiter(req: FastifyRequest, reply: FastifyReply) {
-  // Rate limit by authenticated userId or normalized phone if available, fallback to IP
-  const identifier = req.user?.userId || req.user?.phone || req.ip || '127.0.0.1';
+  // Rate limit by authenticated userId, phone, telebirr client ID header, or IP
+  const telebirrClientId = req.headers['x-telebirr-client-id'] as string | undefined;
+  const identifier = req.user?.userId || req.user?.phone || telebirrClientId || req.ip || '127.0.0.1';
   const key = `rl:goplay:${identifier}`;
 
   try {

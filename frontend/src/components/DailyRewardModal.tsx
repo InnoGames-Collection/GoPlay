@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { UserProfile } from '../types';
-import { DAILY_REWARD_LADDER } from '../services/demoData';
+import { DAILY_REWARD_LADDER } from '../data/portalConfig';
 import { 
   X, 
   Flame, 

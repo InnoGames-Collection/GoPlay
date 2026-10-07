@@ -163,13 +163,11 @@ export const telebirrService = {
       return { success: false, statusCode: 400, message: 'Missing order identifier (outTradeNo)' };
     }
 
-    // Strict HMAC signature check in production or live mode
-    if (env.NODE_ENV === 'production' || env.TELEBIRR_MODE === 'live') {
-      const isValid = this.verifyWebhookSignature(payload);
-      if (!isValid) {
-        console.warn(`[Telebirr Webhook] Cryptographic signature check FAILED for order: ${outTradeNo}`);
-        return { success: false, statusCode: 401, message: 'Invalid cryptographic signature' };
-      }
+    // Strict fail-closed HMAC signature check across all environments
+    const isValid = this.verifyWebhookSignature(payload);
+    if (!isValid) {
+      console.warn(`[Telebirr Webhook] Cryptographic signature check FAILED for order: ${outTradeNo}`);
+      return { success: false, statusCode: 401, message: 'Invalid cryptographic signature' };
     }
 
     const client = await getClient();

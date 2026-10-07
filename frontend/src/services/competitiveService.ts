@@ -29,12 +29,12 @@ const STORAGE_KEYS = {
   GAME_LEADERBOARDS: 'teleplay_ethio_game_lbs_v1',
 };
 
-// Live Contenders list from authoritative backend
-const DEMO_WEEKLY_CONTENDERS: { phone: string; masked: string; totalPoints: number; bestScoresCount: number; timestamp: number; reward: string }[] = [];
-const DEMO_MONTHLY_CONTENDERS: { phone: string; masked: string; totalPoints: number; bestScoresCount: number; timestamp: number; reward: string }[] = [];
+// Contenders list synchronized with authoritative backend
+const WEEKLY_CONTENDERS: { phone: string; masked: string; totalPoints: number; bestScoresCount: number; timestamp: number; reward: string }[] = [];
+const MONTHLY_CONTENDERS: { phone: string; masked: string; totalPoints: number; bestScoresCount: number; timestamp: number; reward: string }[] = [];
 
-export const WEEKLY_GAME_IDS = ['candy-blast', 'color-rush', 'world-legends'];
-export const MONTHLY_GAME_IDS = ['pop-piano', 'hill-rider', 'pop-balloon'];
+export const WEEKLY_GAME_IDS = ['crazy-colors', 'candy-blast', 'world-legends'];
+export const MONTHLY_GAME_IDS = ['pop-piano', 'juicy-match', 'bubble-sort'];
 
 /**
  * Returns the highest score on a given date among the specified eligible games.
@@ -442,7 +442,7 @@ export const CompetitiveService = {
     totalContenders: number;
   } {
     const isWeekly = period === 'weekly';
-    const contenders = isWeekly ? DEMO_WEEKLY_CONTENDERS : DEMO_MONTHLY_CONTENDERS;
+    const contenders = isWeekly ? WEEKLY_CONTENDERS : MONTHLY_CONTENDERS;
     const gameIds = isWeekly ? WEEKLY_GAME_IDS : MONTHLY_GAME_IDS;
 
     // Calculate user's total points and number of valid scored games

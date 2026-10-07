@@ -34,10 +34,18 @@ export const authService = {
       if (env.NODE_ENV === 'production' && env.TELEBIRR_MODE === 'live') {
         return {
           success: false,
-          message: 'Authentication failed: Telebirr MSISDN or session token is required.',
+          message: 'Authentication failed: Telebirr verified MSISDN or session token is required.',
         };
       }
       rawPhone = env.DEFAULT_TEST_MSISDN;
+    }
+
+    // In live production, require cryptographic container token alongside phone number
+    if (env.NODE_ENV === 'production' && env.TELEBIRR_MODE === 'live' && !telebirrToken) {
+      return {
+        success: false,
+        message: 'Authentication rejected: Missing cryptographic Telebirr H5 container session token.',
+      };
     }
 
     const { isValid, e164, local } = normalizeEthiopianPhone(rawPhone);
