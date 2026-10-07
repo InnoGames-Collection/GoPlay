@@ -55,16 +55,13 @@ for migration in db/migrations/*.sql; do
 done
 
 docker compose -f docker-compose.server.yml build api
-docker rm -f goplay-api 2>/dev/null || true
-docker compose -f docker-compose.server.yml up -d --force-recreate api
+docker compose -f docker-compose.server.yml up -d api
 
 docker compose -f docker-compose.server.yml build admin
-docker rm -f goplay-admin 2>/dev/null || true
-docker compose -f docker-compose.server.yml up -d --force-recreate admin
+docker compose -f docker-compose.server.yml up -d admin
 
 docker compose -f docker-compose.server.yml build web
-docker rm -f goplay-web 2>/dev/null || true
-docker compose -f docker-compose.server.yml up -d --force-recreate web
+docker compose -f docker-compose.server.yml up -d web
 
 echo "=============================================================================="
 echo "🩺 [STAGE 2: VERIFY] Canary Probes"
