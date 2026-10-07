@@ -16,6 +16,7 @@ ENV PORT=3303
 
 RUN npm install --no-audit express@^4.21.2 && npm cache clean --force
 
+COPY package.json ./
 COPY server.js ./
 COPY --from=builder /app/dist ./dist
 

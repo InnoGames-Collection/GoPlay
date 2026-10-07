@@ -12,7 +12,7 @@ const API_URL = process.env.API_URL || (process.env.NODE_ENV === 'production' ? 
 
 // Transparent API Proxy fallback if Nginx is bypassed
 app.use('/api', (req, res) => {
-  const targetUrl = new URL(req.url, API_URL + '/api');
+  const targetUrl = new URL(req.originalUrl, API_URL);
   const proxyReq = http.request(
     targetUrl,
     {
