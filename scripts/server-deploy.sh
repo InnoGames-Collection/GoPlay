@@ -1,48 +1,36 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# GoPlay — Enterprise Production Deployment Engine
+# GoPlay — Enterprise Production Deployment Engine (Telebirr Game Center)
 # Target: GCP Compute Engine VM (innoserver-serv001: 34.41.116.217)
+# Ports: Web: 3300 | API: 3302 | Admin: 3303 | DB: 5434 | Valkey: 6384
 # ==============================================================================
 set -Eeuo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 
-echo "📥 Pulling latest updates from origin main..."
-git pull origin main
-
 WEB_CANARY="http://127.0.0.1:3300/health"
-ADMIN_CANARY="http://127.0.0.1:3303/health"
 API_CANARY="http://127.0.0.1:3302/health"
+ADMIN_CANARY="http://127.0.0.1:3303/health"
 
 rollback() {
   local exit_code=$?
   if [ $exit_code -ne 0 ]; then
-    echo "❌ [DEPLOYMENT FAILURE] Exit code $exit_code detected. Initiating self-healing rollback..."
+    echo "❌ [DEPLOYMENT FAILURE] Exit code $exit_code detected. Restarting services..."
     docker compose -f docker-compose.server.yml restart || true
-    echo "⚠️ Rollback completed."
   fi
 }
 trap rollback EXIT
 
 echo "=============================================================================="
-echo "🚀 [STAGE 1: OBSERVE] System Topology & Swap Allocation Check"
+echo "🚀 [STAGE 1: ACT] Sequential Build & Deployment for GoPlay"
 echo "=============================================================================="
-TOTAL_SWAP=$(free -m | awk '/Swap:/ {print $2}')
-if [ "${TOTAL_SWAP:-0}" -lt 2000 ]; then
-  echo "⚠️ Warning: Host swap is under 2GB ($TOTAL_SWAP MB). Allocating 4GB swap buffer..."
-  if [ "$(id -u)" -eq 0 ]; then
-    fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile || true
-  else
-    sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile || true
-  fi
-fi
-free -h
 
-echo "=============================================================================="
-echo "🔨 [STAGE 2: ACT] Sequential Build & Deployment"
-echo "=============================================================================="
-# 1. Start Infrastructure (PostgreSQL & Valkey)
+# Stop and remove legacy deployment containers (gameon and previous goplay) to eliminate port/name collisions
+echo "🧹 Cleaning legacy deployment collisions (gameon-* and old goplay-*)..."
+docker stop gameon-web gameon-api gameon-admin gameon-postgres gameon-valkey goplay-web goplay-api goplay-admin goplay-postgres goplay-valkey 2>/dev/null || true
+docker rm -f gameon-web gameon-api gameon-admin gameon-postgres gameon-valkey goplay-web goplay-api goplay-admin goplay-postgres goplay-valkey 2>/dev/null || true
+
 docker compose -f docker-compose.server.yml up -d postgres valkey
 
 echo "⏳ Waiting for PostgreSQL & Valkey healthy state..."
@@ -55,7 +43,6 @@ for i in {1..30}; do
   sleep 1
 done
 
-# 2. Build and Launch API, Admin & Web
 docker compose -f docker-compose.server.yml build api
 docker compose -f docker-compose.server.yml up -d api
 
@@ -66,18 +53,16 @@ docker compose -f docker-compose.server.yml build web
 docker compose -f docker-compose.server.yml up -d web
 
 echo "=============================================================================="
-echo "🩺 [STAGE 3: VERIFY] Synthetic Canary Probes"
+echo "🩺 [STAGE 2: VERIFY] Canary Probes"
 echo "=============================================================================="
-echo "Probing Web ($WEB_CANARY)..."
 for i in {1..30}; do
-  if curl -s -f "$WEB_CANARY" | grep -q "healthy"; then
-    echo "✅ Canary 1 Passed: Web Portal Healthy (Port 3300)"
+  if curl -s -f "$API_CANARY" | grep -q "healthy"; then
+    echo "✅ Canary 1 Passed: Fastify API Healthy (Port 3302)"
     break
   fi
   sleep 2
 done
 
-echo "Probing Admin ($ADMIN_CANARY)..."
 for i in {1..30}; do
   if curl -s -f "$ADMIN_CANARY" | grep -q "healthy"; then
     echo "✅ Canary 2 Passed: Admin Console Healthy (Port 3303)"
@@ -86,22 +71,28 @@ for i in {1..30}; do
   sleep 2
 done
 
-echo "Probing API ($API_CANARY)..."
 for i in {1..30}; do
-  if curl -s -f "$API_CANARY" | grep -q "healthy"; then
-    echo "✅ Canary 3 Passed: Fastify Backend Healthy (Port 3302)"
+  if curl -s -f "$WEB_CANARY" | grep -q "healthy"; then
+    echo "✅ Canary 3 Passed: Web Client Healthy (Port 3300)"
     break
   fi
   sleep 2
 done
 
-# Seed initial baseline data if empty
-echo "Seeding initial database state if required..."
-docker compose -f docker-compose.server.yml exec -T api node dist/db/seed.js || true
+# Nginx vhost linking if on host
+if [ -d "/etc/nginx/conf.d/products" ] && [ -f "deploy/nginx/goplay.conf" ]; then
+  echo "🌐 Updating Nginx virtual host in /etc/nginx/conf.d/products/..."
+  sudo cp deploy/nginx/goplay.conf /etc/nginx/conf.d/products/goplay.conf || true
+  sudo rm -f /etc/nginx/sites-enabled/goplay.conf || true
+  sudo nginx -t && sudo systemctl reload nginx || true
+elif [ -d "/etc/nginx/sites-available" ] && [ -f "deploy/nginx/goplay.conf" ]; then
+  echo "🌐 Updating Nginx virtual host in /etc/nginx/sites-available/..."
+  sudo cp deploy/nginx/goplay.conf /etc/nginx/sites-available/goplay.conf || true
+  sudo ln -sf /etc/nginx/sites-available/goplay.conf /etc/nginx/sites-enabled/ || true
+  sudo nginx -t && sudo systemctl reload nginx || true
+fi
 
-# Disarm trap
 trap - EXIT
-
 echo "=============================================================================="
-echo "🎉 [DEPLOYMENT CERTIFIED] GoPlay Live on innopulseplatform.com"
+echo "🎉 [DEPLOYMENT CERTIFIED] GoPlay Live on goplay.innopulseplatform.com"
 echo "=============================================================================="

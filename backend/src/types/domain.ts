@@ -35,6 +35,8 @@ export interface UserProfile {
   trophiesCount: number;
   telebirrId?: string;
   role?: 'player' | 'admin';
+  isBanned?: boolean;
+  banReason?: string;
 }
 
 export interface UserPreferences {
@@ -74,7 +76,7 @@ export interface Tournament {
   entryRequirement: string;
   startDate: string;
   endDate: string;
-  status: 'Upcoming' | 'Live' | 'Ended';
+  status: 'Upcoming' | 'Live' | 'Ended' | 'ACTIVE' | 'FINALIZED';
   participantsCount: number;
   sponsor: string;
   playerRank?: number;
@@ -137,4 +139,43 @@ export interface PaymentTransaction {
   errorCode?: string;
   errorMessage?: string;
   referenceCode?: string;
+}
+
+export interface WalletTransaction {
+  id: string;
+  userId: string;
+  type: 'TELEBIRR_PURCHASE' | 'TOURNAMENT_ENTRY_FEE' | 'TOURNAMENT_PRIZE_PAYOUT' | 'DAILY_REWARD' | 'ADMIN_ADJUSTMENT';
+  coinsDelta: number;
+  balanceAfter: number;
+  referenceId: string;
+  description: string;
+  idempotencyKey: string;
+  createdAt: string;
+}
+
+export interface TournamentPayout {
+  id: string;
+  tournamentId: string;
+  userId: string;
+  msisdn: string;
+  rank: number;
+  prizeETB: number;
+  prizeCoins: number;
+  status: 'PENDING' | 'PROCESSING' | 'DISBURSED' | 'FAILED';
+  telebirrB2cRef?: string;
+  idempotencyKey: string;
+  settledAt?: string;
+  createdAt: string;
+  errorMessage?: string;
+}
+
+export interface CatalogGameDb {
+  gameId: string;
+  title: string;
+  category: string;
+  isFree: boolean;
+  requiresCoins: boolean;
+  isEnabled: boolean;
+  maxScorePerSec: number;
+  maxScore: number;
 }

@@ -1,10 +1,9 @@
 import pg from 'pg';
 import { env } from './env.js';
-import pino from 'pino';
 
-const logger = pino({ name: 'Database' });
+const { Pool } = pg;
 
-export const pool = new pg.Pool({
+export const pool = new Pool({
   connectionString: env.DATABASE_URL,
   max: env.DB_MAX_CONNECTIONS,
   idleTimeoutMillis: 30000,
@@ -12,7 +11,7 @@ export const pool = new pg.Pool({
 });
 
 pool.on('error', (err) => {
-  logger.error({ err }, 'Unexpected PostgreSQL client error');
+  console.error('[PostgreSQL Error] Database error:', err);
 });
 
 export async function query<T extends pg.QueryResultRow = any>(
@@ -24,11 +23,14 @@ export async function query<T extends pg.QueryResultRow = any>(
     const res = await pool.query<T>(text, params);
     const duration = Date.now() - start;
     if (duration > 1000) {
-      logger.warn({ text, duration, rows: res.rowCount }, 'Slow database query detected');
+      console.warn(`[Slow Query] ${duration}ms: ${text}`);
     }
     return res;
-  } catch (err) {
-    logger.error({ err, text, params }, 'Database query error');
+  } catch (err: any) {
+    const sanitizedParams = params
+      ? params.map((p) => (typeof p === 'string' && p.length > 8 ? `${p.slice(0, 3)}***` : p))
+      : undefined;
+    console.error('[Database Error]', { message: err?.message, text, sanitizedParams });
     throw err;
   }
 }

@@ -1,9 +1,6 @@
 import { query } from '../config/database.js';
 import { authService } from './authService.js';
 import { SubscriptionPlan, UserProfile } from '../types/domain.js';
-import pino from 'pino';
-
-const logger = pino({ name: 'SubscriptionService' });
 
 export interface PlanDetails {
   id: SubscriptionPlan;
@@ -21,35 +18,35 @@ export interface PlanDetails {
 export const SUBSCRIPTION_PLANS: PlanDetails[] = [
   {
     id: 'daily',
-    title: 'Daily Pass',
+    title: 'Daily VIP Pass',
     name: 'Daily Pass',
-    priceETB: 10,
-    durationLabel: '24 Hours (10 ETB)',
+    priceETB: 3,
+    durationLabel: '24 Hours (3 ETB)',
     durationDays: 1,
     badge: 'Daily',
-    features: ['Unlimited free games access for 24h', 'Exclusive VIP avatar badges', 'telebirr Instant Billing'],
+    features: ['Unlimited casual games access for 24h', 'Infinite Energy Refill', 'telebirr Instant Checkout'],
   },
   {
     id: 'weekly',
-    title: 'Weekly Pass',
+    title: 'Weekly VIP Pass',
     name: 'Weekly Pass',
-    priceETB: 25,
-    durationLabel: '7 Days (25 ETB)',
+    priceETB: 10,
+    durationLabel: '7 Days (10 ETB)',
     durationDays: 7,
     popular: true,
     recommended: true,
     badge: 'Popular',
-    features: ['Unlimited free games access for 7 days', 'Double XP leveling speed', 'telebirr Instant Billing'],
+    features: ['Unlimited casual games access for 7 days', 'Infinite Energy + Double XP', 'telebirr Instant Checkout'],
   },
   {
     id: 'monthly',
-    title: 'Monthly Pass',
+    title: 'Monthly VIP Champion',
     name: 'Monthly Pass',
-    priceETB: 50,
-    durationLabel: '30 Days (50 ETB)',
+    priceETB: 30,
+    durationLabel: '30 Days (30 ETB)',
     durationDays: 30,
     badge: 'Best Value',
-    features: ['Unlimited free games access for 30 days', 'Exclusive Champion VIP badge', 'telebirr Instant Billing'],
+    features: ['Unlimited casual games access for 30 days', 'Infinite Energy + VIP Profile Badge', 'telebirr Instant Checkout'],
   },
 ];
 
@@ -83,7 +80,7 @@ export const subscriptionService = {
     // Record / Update subscription in PostgreSQL
     await query(
       `INSERT INTO subscriptions (user_id, msisdn, service_id, plan, is_active, auto_renew, expires_at)
-       VALUES ($1, $2, 4, $3, TRUE, TRUE, $4)
+       VALUES ($1, $2, 'srv_godigital', $3, TRUE, TRUE, $4)
        ON CONFLICT (msisdn, service_id) DO UPDATE
          SET user_id = EXCLUDED.user_id, is_active = TRUE, plan = EXCLUDED.plan,
              expires_at = EXCLUDED.expires_at, auto_renew = TRUE`,
@@ -91,7 +88,7 @@ export const subscriptionService = {
     );
 
     const updatedProfile = await authService.getProfile(userId);
-    logger.info({ userId, plan, expiresAt }, 'Subscription activated via TeleBirr');
+    console.log(`[Subscription Activated] User ${userId} subscribed to ${plan} until ${expiresAt}`);
 
     return {
       success: true,

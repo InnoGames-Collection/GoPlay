@@ -1,10 +1,10 @@
 # ==============================================================================
-# GoPlay — Complete Production Stack (Frontend + Backend + Dedicated Admin + DB + Cache)
+# GoPlay — Complete Production Stack (Web + Admin + API + Postgres + Valkey)
 # Target: GCP Compute Engine VM (innoserver-serv001: 34.41.116.217)
-# Port Block:
-#   - 3300: goplay-web (Customer Gaming Portal)
-#   - 3302: goplay-api (Player Fastify API)
-#   - 3303: goplay-admin (Dedicated Admin & Auditor Operations Console)
+# Port Block (per ITG/shared-infra/PORT_ALLOCATION_CREDENTIALS_AND_ONBOARDING.md):
+#   - 3300: goplay-web (Competitive & Tournament Games Portal for telebirr)
+#   - 3302: goplay-api (Fastify Telebirr C2B/B2C API)
+#   - 3303: goplay-admin (Operations & Auditor Console)
 #   - 5434: goplay-postgres (PostgreSQL 16)
 #   - 6384: goplay-valkey (Valkey 8)
 # ==============================================================================
@@ -16,12 +16,12 @@ services:
     container_name: goplay-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-goplay}
+      POSTGRES_DB: ${POSTGRES_DB:-goplay_db}
       POSTGRES_USER: ${POSTGRES_USER:-goplay_app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}
     volumes:
       - goplay_pgdata:/var/lib/postgresql/data
-      - ./backend/db/migrations:/docker-entrypoint-initdb.d:ro
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
     ports:
       - "127.0.0.1:5434:5432"
     deploy:
@@ -29,7 +29,7 @@ services:
         limits:
           memory: 512M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-goplay_app} -d ${POSTGRES_DB:-goplay}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-goplay_app} -d ${POSTGRES_DB:-goplay_db}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -52,31 +52,28 @@ services:
       timeout: 3s
       retries: 5
 
-  # ── Player & Game Center Fastify API ────────────────────────────────────────
+  # ── GoPlay Fastify API ───────────────────────────────────────────────────────
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: goplay-api
     restart: unless-stopped
-    command: ["node", "dist/index.js"]
     environment:
       NODE_ENV: production
       PORT: 3302
       HOST: 0.0.0.0
       DOMAIN: innopulseplatform.com
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-goplay_app}:${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-goplay}?sslmode=disable"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-goplay_app}:${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-goplay_db}?sslmode=disable"
       VALKEY_URL: "redis://valkey:6379"
-      JWT_SECRET: ${JWT_SECRET:-goplay-tele-super-secret-jwt-key-prod-2026}
-      GAME_TOKEN_SECRET: ${GAME_TOKEN_SECRET:-goplay-tele-anti-cheat-round-token-secret-prod-2026}
-      CRON_SECRET: ${CRON_SECRET:-goplay-cron-secret-prod-2026}
-      RATE_LIMIT_GENERAL: 60
+      JWT_SECRET: ${JWT_SECRET:-goplay-telebirr-jwt-secret-key-prod-2026}
       TELEBIRR_MODE: ${TELEBIRR_MODE:-live}
       TELEBIRR_APP_KEY: ${TELEBIRR_APP_KEY:-}
       TELEBIRR_APP_ID: ${TELEBIRR_APP_ID:-}
       TELEBIRR_CHECKOUT_URL: ${TELEBIRR_CHECKOUT_URL:-https://telebirr.et/checkout}
-      TELEBIRR_NOTIFY_URL: ${TELEBIRR_NOTIFY_URL:-https://goplay.innopulseplatform.com/api/webhooks/telebirr/callback}
+      TELEBIRR_NOTIFY_URL: ${TELEBIRR_NOTIFY_URL:-https://goplay-api.innopulseplatform.com/api/v1/payments/webhook}
       TELEBIRR_RETURN_URL: ${TELEBIRR_RETURN_URL:-https://goplay.innopulseplatform.com/#/profile}
+      DEFAULT_TEST_MSISDN: ${DEFAULT_TEST_MSISDN:-0977057270}
     ports:
       - "127.0.0.1:3302:3302"
     deploy:
@@ -95,28 +92,16 @@ services:
       retries: 5
       start_period: 5s
 
-  # ── Dedicated Admin & Telecom Auditor Operations Console ────────────────────
+  # ── Dedicated Admin Console ─────────────────────────────────────────────────
   admin:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: ./admin
+      dockerfile: Dockerfile.admin
     container_name: goplay-admin
     restart: unless-stopped
-    command: ["node", "dist/admin/adminServer.js"]
     environment:
       NODE_ENV: production
       PORT: 3303
-      ADMIN_PORT: 3303
-      HOST: 0.0.0.0
-      DOMAIN: innopulseplatform.com
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-goplay_app}:${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-goplay}?sslmode=disable"
-      VALKEY_URL: "redis://valkey:6379"
-      JWT_SECRET: ${JWT_SECRET:-goplay-tele-super-secret-jwt-key-prod-2026}
-      MAGIC_LINK_SECRET: ${MAGIC_LINK_SECRET:-goplay-tele-admin-magic-link-secret-2026}
-      BREVO_API_KEY: ${BREVO_API_KEY:-}
-      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL:-innospher@gmail.com}
-      BREVO_SENDER_NAME: "GoPlay Operations Console"
-      ADMIN_PORTAL_URL: ${ADMIN_PORTAL_URL:-https://goplay-admin.innopulseplatform.com}
     ports:
       - "127.0.0.1:3303:3303"
     deploy:
@@ -124,9 +109,7 @@ services:
         limits:
           memory: 256M
     depends_on:
-      postgres:
-        condition: service_healthy
-      valkey:
+      api:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3303/health || exit 1"]
@@ -135,10 +118,10 @@ services:
       retries: 5
       start_period: 5s
 
-  # ── Public Web Portal (React 19 / Catalog Games) ─────────────────────────────
+  # ── Public Player Web Portal (Competitive & Tournament Games) ───────────────
   web:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile.web
     container_name: goplay-web
     restart: unless-stopped
@@ -150,7 +133,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 384M
     depends_on:
       api:
         condition: service_healthy

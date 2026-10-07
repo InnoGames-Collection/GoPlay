@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Workstation Remote Trigger for GCP GCE Instance (innoserver-serv001)
+# Workstation Remote Trigger for GoPlay on GCP VM (innoserver-serv001)
 # ==============================================================================
 set -Eeuo pipefail
 
@@ -10,7 +10,7 @@ TARGET_IP="34.41.116.217"
 TARGET_USER="yasabneh"
 REMOTE_PATH="/home/${TARGET_USER}/InnoGames/GoPlay"
 
-echo "Connecting to GCP VM ${TARGET_INSTANCE} (${TARGET_IP})..."
+echo "Connecting to GCP VM ${TARGET_INSTANCE} (${TARGET_IP}) for GoPlay..."
 
 if command -v gcloud &>/dev/null; then
   echo "Executing deployment via gcloud OS Login..."

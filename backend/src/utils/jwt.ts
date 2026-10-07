@@ -5,6 +5,17 @@ export interface AuthJwtPayload {
   userId: string;
   phone: string;
   role: 'player' | 'admin';
+  tokenType?: 'player';
+}
+
+export type AdminRole = 'SUPER_ADMIN' | 'TOURNAMENT_OPERATOR' | 'FINANCIAL_AUDITOR' | 'SUPPORT_AGENT';
+
+export interface AdminJwtPayload {
+  adminId: string;
+  username: string;
+  email: string;
+  role: AdminRole;
+  tokenType: 'admin';
 }
 
 export interface GameRoundJwtPayload {
@@ -17,13 +28,13 @@ export interface GameRoundJwtPayload {
 }
 
 export function signAccessToken(payload: AuthJwtPayload): string {
-  return jwt.sign(payload, env.JWT_SECRET, {
+  return jwt.sign({ ...payload, tokenType: 'player' }, env.JWT_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRES_IN as any,
   });
 }
 
 export function signRefreshToken(payload: AuthJwtPayload): string {
-  return jwt.sign(payload, env.JWT_SECRET, {
+  return jwt.sign({ ...payload, tokenType: 'player' }, env.JWT_SECRET, {
     expiresIn: env.JWT_REFRESH_EXPIRES_IN as any,
   });
 }
@@ -31,6 +42,24 @@ export function signRefreshToken(payload: AuthJwtPayload): string {
 export function verifyAuthToken(token: string): AuthJwtPayload | null {
   try {
     return jwt.verify(token, env.JWT_SECRET) as AuthJwtPayload;
+  } catch {
+    return null;
+  }
+}
+
+export function signAdminToken(payload: Omit<AdminJwtPayload, 'tokenType'>): string {
+  return jwt.sign({ ...payload, tokenType: 'admin' }, env.JWT_SECRET, {
+    expiresIn: '8h', // 8-hour administrative session window
+  });
+}
+
+export function verifyAdminToken(token: string): AdminJwtPayload | null {
+  try {
+    const decoded = jwt.verify(token, env.JWT_SECRET) as any;
+    if (decoded && decoded.tokenType === 'admin' && decoded.adminId) {
+      return decoded as AdminJwtPayload;
+    }
+    return null;
   } catch {
     return null;
   }
