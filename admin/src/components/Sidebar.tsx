@@ -39,8 +39,8 @@ interface SidebarProps {
   currentAdmin: AdminUser | null;
   availableAdmins: AdminUser[];
   onSwitchAdmin: (adminId: string) => void;
-  systemMode: 'DEMO' | 'PRODUCTION';
-  onToggleMode: (mode: 'DEMO' | 'PRODUCTION') => void;
+  systemMode?: 'PRODUCTION';
+  onToggleMode?: (mode: 'PRODUCTION') => void;
   onLogout: () => void;
 }
 
@@ -50,8 +50,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentAdmin,
   availableAdmins,
   onSwitchAdmin,
-  systemMode,
-  onToggleMode,
   onLogout,
 }) => {
   const [showAdminMenu, setShowAdminMenu] = React.useState(false);
@@ -102,22 +100,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Operating Mode Indicator & Switch */}
+        {/* Operating Mode Indicator */}
         <div className="mt-3.5 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
           <div className="flex items-center space-x-1.5 text-slate-400">
-            <Database className="w-3.5 h-3.5 text-slate-400" />
+            <Database className="w-3.5 h-3.5 text-emerald-400" />
             <span className="font-mono text-[11px]">DATASET:</span>
           </div>
-          <button
-            onClick={() => onToggleMode(systemMode === 'DEMO' ? 'PRODUCTION' : 'DEMO')}
-            className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider border cursor-pointer ${
-              systemMode === 'PRODUCTION'
-                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30'
-                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
-            }`}
-          >
-            {systemMode}
-          </button>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+            LIVE PROD
+          </span>
         </div>
       </div>
 

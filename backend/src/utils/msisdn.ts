@@ -10,13 +10,14 @@ export interface NormalizedPhone {
   isValid: boolean;
   e164: string;         // +251911234567
   local: string;        // 0911234567
-  masked: string;       // 0911*****567
+  masked: string;       // +25191****4567
+  localMasked: string;  // 0911*****567
   mnoMsisdn: string;    // 251911234567 (used by Partner MT API)
 }
 
 export function normalizeEthiopianPhone(input: string): NormalizedPhone {
   if (!input) {
-    return { isValid: false, e164: '', local: '', masked: '', mnoMsisdn: '' };
+    return { isValid: false, e164: '', local: '', masked: '', localMasked: '', mnoMsisdn: '' };
   }
 
   const digits = input.replace(/\D/g, '');
@@ -40,15 +41,17 @@ export function normalizeEthiopianPhone(input: string): NormalizedPhone {
     const e164 = `+251${nationalNumber}`;
     const local = `0${nationalNumber}`;
     const mnoMsisdn = `251${nationalNumber}`;
-    // Mask: 0911*****567
-    const masked = `${local.slice(0, 4)}*****${local.slice(-3)}`;
+    // Compliance Mask: +25191****5678
+    const masked = `+251${nationalNumber.slice(0, 2)}****${nationalNumber.slice(-4)}`;
+    const localMasked = `${local.slice(0, 4)}*****${local.slice(-3)}`;
 
     return {
       isValid: true,
       e164,
       local,
       masked,
-      mnoMsisdn
+      localMasked,
+      mnoMsisdn,
     };
   }
 
@@ -57,6 +60,7 @@ export function normalizeEthiopianPhone(input: string): NormalizedPhone {
     e164: input,
     local: input,
     masked: input,
-    mnoMsisdn: digits
+    localMasked: input,
+    mnoMsisdn: digits,
   };
 }

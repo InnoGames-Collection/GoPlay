@@ -234,7 +234,7 @@ export interface AuditLogEntry {
 }
 
 export interface DashboardStats {
-  mode: 'DEMO' | 'PRODUCTION';
+  mode: 'PRODUCTION';
   kpis: {
     activeSubscribers: number;
     totalPlayers: number;

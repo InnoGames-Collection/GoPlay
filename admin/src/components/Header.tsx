@@ -15,8 +15,8 @@ import { NavPage } from './Sidebar';
 interface HeaderProps {
   currentPage: NavPage;
   currentAdmin: AdminUser | null;
-  systemMode: 'DEMO' | 'PRODUCTION';
-  onToggleMode: (mode: 'DEMO' | 'PRODUCTION') => void;
+  systemMode?: 'PRODUCTION';
+  onToggleMode?: (mode: 'PRODUCTION') => void;
   onRefresh: () => void;
   onLogout: () => void;
   isRefreshing?: boolean;
@@ -25,8 +25,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   currentPage,
   currentAdmin,
-  systemMode,
-  onToggleMode,
   onRefresh,
   onLogout,
   isRefreshing = false,
@@ -131,19 +129,14 @@ export const Header: React.FC<HeaderProps> = ({
           <span>UTC+3 EAT</span>
         </div>
 
-        {/* Mode Switcher */}
-        <button
-          onClick={() => onToggleMode(systemMode === 'DEMO' ? 'PRODUCTION' : 'DEMO')}
-          title="Toggle Dataset Mode: Switch between realistic demo staging data and clean live production data"
-          className={`flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-lg border font-mono font-medium transition-colors cursor-pointer ${
-            systemMode === 'PRODUCTION'
-              ? 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100'
-              : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'
-          }`}
+        {/* Live Production Data Badge */}
+        <div
+          title="Direct live connection to GCP VM, Cloud SQL PostgreSQL 16 & Valkey 8"
+          className="flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-lg border font-mono font-medium bg-emerald-50 border-emerald-200 text-emerald-700"
         >
-          <Database className="w-3.5 h-3.5" />
-          <span>{systemMode === 'PRODUCTION' ? 'LIVE PROD' : 'DEMO MODE'}</span>
-        </button>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>LIVE GCP POSTGRESQL</span>
+        </div>
 
         {/* Refresh button */}
         <button

@@ -64,30 +64,32 @@ export const auditLogService = {
     const values: any[] = [];
     let idx = 1;
 
-    if (params.action) {
-      conditions.push(`action = $${idx++}`);
+    if (params.action && params.action !== 'ALL') {
+      conditions.push(`aal.action = $${idx++}`);
       values.push(params.action);
     }
-    if (params.entityType) {
-      conditions.push(`entity_type = $${idx++}`);
+    if (params.entityType && params.entityType !== 'ALL') {
+      conditions.push(`aal.entity_type = $${idx++}`);
       values.push(params.entityType);
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const countRes = await pool.query(
-      `SELECT COUNT(*) as total FROM admin_audit_logs ${whereClause}`,
+      `SELECT COUNT(*) as total FROM admin_audit_logs aal ${whereClause}`,
       values
     );
     const total = parseInt(countRes.rows[0]?.total || '0', 10);
 
     values.push(limit, offset);
     const logsRes = await pool.query(
-      `SELECT id, admin_id, admin_username, action, entity_type, entity_id, 
-              old_value, new_value, ip_address, user_agent, timestamp
-         FROM admin_audit_logs
+      `SELECT aal.id, aal.admin_id, aal.admin_username, aal.action, aal.entity_type, aal.entity_id, 
+              aal.old_value, aal.new_value, aal.ip_address, aal.user_agent, aal.timestamp,
+              COALESCE(au.role, 'OPERATOR') as admin_role
+         FROM admin_audit_logs aal
+         LEFT JOIN admin_users au ON aal.admin_id = au.id::text
         ${whereClause}
-        ORDER BY timestamp DESC
+        ORDER BY aal.timestamp DESC
         LIMIT $${idx++} OFFSET $${idx++}`,
       values
     );

@@ -21,7 +21,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<NavPage>('DASHBOARD');
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
   const [availableAdmins, setAvailableAdmins] = useState<AdminUser[]>([]);
-  const [systemMode, setSystemMode] = useState<'DEMO' | 'PRODUCTION'>(getStoredSystemMode);
+  const [systemMode] = useState<'PRODUCTION'>('PRODUCTION');
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -37,7 +37,6 @@ export default function App() {
       setCurrentAdmin(authData.currentAdmin);
       setAvailableAdmins(authData.availableAdmins);
       setDashboardStats(statsData);
-      setSystemMode(statsData.mode);
     } catch (err) {
       console.error('Failed to initialize admin session:', err);
       setCurrentAdmin(null);
@@ -73,25 +72,6 @@ export default function App() {
     }
   };
 
-  const handleToggleMode = async (mode: 'DEMO' | 'PRODUCTION') => {
-    const confirmSwitch = window.confirm(
-      `Switch to ${mode} dataset mode?\n\n- DEMO: Includes realistic sample tournament participants, games & telemetry.\n- PRODUCTION: Direct live connection to GCP VM & PostgreSQL 16.`
-    );
-    if (!confirmSwitch) return;
-
-    try {
-      setIsRefreshing(true);
-      const res = await api.switchSystemMode(mode);
-      setSystemMode(res.mode);
-      setStoredSystemMode(res.mode);
-      await initApp();
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
   // If loading session
   if (initialLoading) {
     return (
@@ -118,7 +98,6 @@ export default function App() {
         availableAdmins={availableAdmins}
         onSwitchAdmin={handleSwitchAdmin}
         systemMode={systemMode}
-        onToggleMode={handleToggleMode}
         onLogout={handleLogout}
       />
 
@@ -129,7 +108,6 @@ export default function App() {
           currentPage={currentPage}
           currentAdmin={currentAdmin}
           systemMode={systemMode}
-          onToggleMode={handleToggleMode}
           onRefresh={initApp}
           onLogout={handleLogout}
           isRefreshing={isRefreshing}
