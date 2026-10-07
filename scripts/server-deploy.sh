@@ -9,6 +9,9 @@ set -Eeuo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 
+echo "📥 Syncing latest code from origin repository..."
+git pull origin main || true
+
 WEB_CANARY="http://127.0.0.1:3300/health"
 API_CANARY="http://127.0.0.1:3302/health"
 ADMIN_CANARY="http://127.0.0.1:3303/health"
@@ -41,6 +44,14 @@ for i in {1..30}; do
     break
   fi
   sleep 1
+done
+
+echo "📦 Ensuring database migrations are applied..."
+for migration in db/migrations/*.sql; do
+  if [ -f "$migration" ]; then
+    echo "  Executing migration: $(basename "$migration")..."
+    docker compose -f docker-compose.server.yml exec -T postgres psql -U goplay_app -d goplay_db -f - < "$migration" || true
+  fi
 done
 
 docker compose -f docker-compose.server.yml build api

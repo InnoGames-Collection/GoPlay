@@ -114,6 +114,7 @@ export interface LeaderboardEntry {
   userId: string;
   displayName: string;
   phoneNumberMasked: string; // e.g. +251 91 **** 456 (MSISDN masked)
+  playerMasked?: string;
   avatarId: string;
   score: number;
   gameId: string;

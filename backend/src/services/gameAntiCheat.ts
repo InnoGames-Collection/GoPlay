@@ -74,11 +74,26 @@ export const GameAntiCheat = {
 
     if (tournamentId) {
       const tourRes = await query(
-        `SELECT id, status FROM tournaments WHERE id = $1 AND status = 'ACTIVE' AND end_date > NOW()`,
+        `SELECT id, status, tournament_type FROM tournaments WHERE id = $1 AND status = 'ACTIVE' AND end_date > NOW()`,
         [tournamentId]
       );
       if (tourRes.rowCount === 0) {
         return { success: false, sessionId: '', sessionToken: '', message: 'Tournament expired or inactive' };
+      }
+
+      if (tourRes.rows[0]?.tournament_type === 'DAILY') {
+        const attemptRes = await query(
+          `SELECT id FROM daily_challenge_attempts WHERE user_id = $1 AND attempt_date = CURRENT_DATE`,
+          [userId]
+        );
+        if ((attemptRes.rowCount ?? 0) > 0) {
+          return {
+            success: false,
+            sessionId: '',
+            sessionToken: '',
+            message: 'Daily challenge is strictly once per day. You have already completed today\'s challenge.',
+          };
+        }
       }
     }
 
@@ -223,6 +238,21 @@ export const GameAntiCheat = {
                  submitted_at = NOW()`,
           [tournamentId, session.player_msisdn, masked, score, userId]
         );
+
+        // If daily tournament, authoritatively record attempt for today
+        const tourTypeRes = await client.query(
+          `SELECT tournament_type FROM tournaments WHERE id = $1`,
+          [tournamentId]
+        );
+        if (tourTypeRes.rows[0]?.tournament_type === 'DAILY') {
+          await client.query(
+            `INSERT INTO daily_challenge_attempts (user_id, tournament_id, attempt_date, score, session_id)
+             VALUES ($1, $2, CURRENT_DATE, $3, $4)
+             ON CONFLICT (user_id, attempt_date) DO UPDATE
+               SET score = GREATEST(daily_challenge_attempts.score, EXCLUDED.score)`,
+            [userId, tournamentId, score, sessionId]
+          );
+        }
 
         const rankRes = await client.query(
           `SELECT COUNT(*) + 1 AS rank

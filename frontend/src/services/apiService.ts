@@ -137,6 +137,18 @@ class ApiService {
   }
 
   /**
+   * Check player daily challenge attempt status
+   */
+  async getDailyStatus(): Promise<{
+    hasActiveDaily: boolean;
+    hasAttemptedToday: boolean;
+    attempt?: { id: string; score: number; created_at: string } | null;
+    activeTournament?: { id: string; title: string; game_id: string; prize_pool_etb: number } | null;
+  } | null> {
+    return this.request('/tournaments/daily-status');
+  }
+
+  /**
    * Fetch live tournament leaderboard from PostgreSQL
    */
   async getTournamentLeaderboard(tournamentId: string): Promise<TournamentLeaderboardItem[] | null> {

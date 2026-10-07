@@ -484,6 +484,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
   fastify.get('/admin/tournaments', { preHandler: [requireSupportOrAbove] }, async () => {
     const tournsRes = await pool.query(
       `SELECT t.id, t.title, t.game_id, t.start_date, t.end_date, t.prize_pool_etb, t.status,
+              COALESCE(t.tournament_type, 'STANDARD') as tournament_type,
               g.title as game_title, g.category as game_category,
               (SELECT COUNT(*) FROM tournament_entries te WHERE te.tournament_id = t.id) as total_entries
          FROM tournaments t
@@ -491,6 +492,70 @@ export async function adminRoutes(fastify: FastifyInstance) {
         ORDER BY t.start_date DESC`
     );
     return tournsRes.rows;
+  });
+
+  // Create Tournament with Strict Single Active Daily/Weekly Constraint
+  fastify.post('/admin/tournaments/create', { preHandler: [requireTournamentOperator] }, async (request, reply) => {
+    const admin = request.admin!;
+    const body = (request.body || {}) as {
+      id?: string;
+      title: string;
+      gameId: string;
+      startDate: string;
+      endDate: string;
+      prizePoolEtb?: number;
+      tournamentType?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'STANDARD';
+      status?: 'ACTIVE' | 'UPCOMING';
+    };
+
+    if (!body.title || !body.gameId || !body.endDate) {
+      return reply.status(400).send({ success: false, error: 'title, gameId, and endDate are required.' });
+    }
+
+    const tournType = body.tournamentType || 'STANDARD';
+    const status = body.status || 'ACTIVE';
+
+    if (status === 'ACTIVE' && (tournType === 'DAILY' || tournType === 'WEEKLY')) {
+      const activeCheck = await pool.query(
+        `SELECT id, title FROM tournaments WHERE tournament_type = $1 AND status = 'ACTIVE'`,
+        [tournType]
+      );
+      if (activeCheck.rowCount! > 0) {
+        return reply.status(409).send({
+          success: false,
+          error: `An active ${tournType} tournament already exists: "${activeCheck.rows[0].title}". You cannot create or activate multiple ${tournType.toLowerCase()} tournaments at once.`,
+        });
+      }
+    }
+
+    const tournId = body.id || `tourn_${tournType.toLowerCase()}_${Date.now()}`;
+    await pool.query(
+      `INSERT INTO tournaments (id, title, game_id, start_date, end_date, prize_pool_etb, status, tournament_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        tournId,
+        body.title,
+        body.gameId,
+        body.startDate || new Date().toISOString(),
+        body.endDate,
+        body.prizePoolEtb || 10000,
+        status,
+        tournType,
+      ]
+    );
+
+    await auditLogService.record({
+      adminId: admin.adminId,
+      adminUsername: admin.username,
+      action: 'TOURNAMENT_CREATED',
+      entityType: 'tournament',
+      entityId: tournId,
+      newValue: { title: body.title, tournamentType: tournType, status },
+      ipAddress: request.ip,
+      userAgent: request.headers['user-agent'],
+    });
+
+    return reply.send({ success: true, tournamentId: tournId });
   });
 
   fastify.get('/admin/tournaments/:id/leaderboard', { preHandler: [requireSupportOrAbove] }, async (request, reply) => {

@@ -193,7 +193,7 @@ export const TournamentService = {
     });
 
     const currentEntry = topEntries.find((e) => e.isCurrentUser);
-    const currentUserRank = currentEntry ? currentEntry.rank : (currentUserBestScore > 0 ? 11 : 0);
+    const currentUserRank = currentEntry ? currentEntry.rank : 0;
 
     return {
       config,
@@ -203,7 +203,7 @@ export const TournamentService = {
       currentUserBestGame,
       currentUserRank,
       currentUserScores,
-      totalParticipants: Math.max(topEntries.length, 1),
+      totalParticipants: topEntries.length,
       timeRemaining: this.getTimeRemaining(),
     };
   },

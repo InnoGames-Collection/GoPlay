@@ -36,6 +36,7 @@ export interface JuicyMatchSaveData {
   winStreak: number;
   dailyRewardDay: number; // 1 to 7
   lastDailyClaimTimestamp: number;
+  lastDailyChallengeDate?: string;
   stats: JuicyStats;
   achievements: Record<string, JuicyAchievementProgress>;
 }
@@ -214,5 +215,17 @@ export class JuicyStorage {
     this.save(data);
 
     return { day: currentDay, rewardDesc, coinsGained };
+  }
+
+  static recordDailyChallengeCompleted(): void {
+    const data = this.load();
+    data.lastDailyChallengeDate = new Date().toISOString().split('T')[0];
+    this.save(data);
+  }
+
+  static hasCompletedDailyChallengeToday(): boolean {
+    const data = this.load();
+    const today = new Date().toISOString().split('T')[0];
+    return data.lastDailyChallengeDate === today;
   }
 }

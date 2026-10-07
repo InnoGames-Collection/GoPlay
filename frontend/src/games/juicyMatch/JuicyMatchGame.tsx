@@ -885,6 +885,8 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
           <DailyChallengeModal
             saveData={saveData}
             onPlayChallenge={() => {
+              JuicyStorage.recordDailyChallengeCompleted();
+              setSaveData(JuicyStorage.load());
               setActiveModal('none');
               handleSelectLevelFromMap(saveData.highestUnlockedLevel || 1);
             }}

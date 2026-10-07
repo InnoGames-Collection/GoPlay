@@ -859,6 +859,8 @@ export const DailyChallengeModal: React.FC<DailyChallengeModalProps> = ({
   onClose,
 }) => {
   const currentDay = saveData.dailyRewardDay || 1;
+  const today = new Date().toISOString().split('T')[0];
+  const hasCompletedToday = saveData.lastDailyChallengeDate === today;
   const rewards = [
     '200 Coins',
     '150 Coins + 2 Shuffles',
@@ -900,19 +902,27 @@ export const DailyChallengeModal: React.FC<DailyChallengeModalProps> = ({
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="text-[10px] font-extrabold uppercase text-slate-400 mb-1">Today's Objective</div>
             <p className="text-xs font-bold text-slate-700">
-              Clear the current unlocked stage or replay with 3 Stars to claim daily bounty!
+              {hasCompletedToday
+                ? "You have already completed today's challenge. Come back tomorrow for the next challenge!"
+                : "Clear the current unlocked stage or replay with 3 Stars to claim daily bounty!"}
             </p>
           </div>
 
           <button
+            disabled={hasCompletedToday}
             onClick={() => {
+              if (hasCompletedToday) return;
               soundManager.playButtonClick();
               onPlayChallenge();
             }}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-black text-sm shadow-md border-b-4 border-pink-800 active:translate-y-0.5 transition-transform flex items-center justify-center gap-2 cursor-pointer"
+            className={`w-full py-3.5 rounded-2xl font-black text-sm shadow-md border-b-4 transition-transform flex items-center justify-center gap-2 ${
+              hasCompletedToday
+                ? 'bg-slate-300 border-slate-400 text-slate-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white border-pink-800 active:translate-y-0.5 cursor-pointer'
+            }`}
           >
-            <span>Play Today's Challenge</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{hasCompletedToday ? '✓ Already Completed Today' : "Play Today's Challenge"}</span>
+            {!hasCompletedToday && <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
 

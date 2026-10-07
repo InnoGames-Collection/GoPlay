@@ -37,6 +37,7 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({
   // 1. Live Countdown ticker & database entries
   const [ticker, setTicker] = useState(0);
   const [liveEntries, setLiveEntries] = useState<any[]>([]);
+  const [dailyStatus, setDailyStatus] = useState<any>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -48,6 +49,11 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({
   useEffect(() => {
     TournamentService.refreshLiveLeaderboard('tourn_crazy_colors_01').then((entries) => {
       if (entries) setLiveEntries(entries);
+    });
+    import('../services/apiService').then(({ apiService }) => {
+      apiService.getDailyStatus().then((res) => {
+        if (res) setDailyStatus(res);
+      });
     });
   }, []);
 
@@ -126,6 +132,45 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({
             </div>
           </div>
         </div>
+
+        {/* =========================================================================
+            DAILY CHALLENGE STATUS CARD (Strictly once per day enforcement)
+           ========================================================================= */}
+        {dailyStatus?.hasActiveDaily && (
+          <div className={`rounded-2xl border p-4 shadow-xs space-y-2 ${
+            dailyStatus.hasAttemptedToday
+              ? 'border-emerald-200 bg-emerald-50/80 text-emerald-900'
+              : 'border-amber-200 bg-amber-50/80 text-amber-900'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📅</span>
+                <div>
+                  <div className="text-xs font-black uppercase tracking-wider">
+                    {dailyStatus.activeTournament?.title || 'Daily Challenge'}
+                  </div>
+                  <div className="text-[11px] font-medium text-slate-600">
+                    {dailyStatus.hasAttemptedToday
+                      ? `Completed today: Score of ${dailyStatus.attempt?.score ?? 0} pts recorded.`
+                      : `Strictly 1 attempt per day. Prize Pool: ${dailyStatus.activeTournament?.prize_pool_etb || 5000} ETB`}
+                  </div>
+                </div>
+              </div>
+              <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                dailyStatus.hasAttemptedToday
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-amber-600 text-white animate-pulse'
+              }`}>
+                {dailyStatus.hasAttemptedToday ? '✓ Attempt Used' : 'Ready to Play'}
+              </span>
+            </div>
+            {dailyStatus.hasAttemptedToday && (
+              <p className="text-[10px] text-emerald-700 font-semibold italic">
+                Only one daily challenge attempt permitted per 24-hour cycle. Resets at midnight.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* =========================================================================
             2. PLAYER'S TOURNAMENT STANDING CARD

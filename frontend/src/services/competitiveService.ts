@@ -29,33 +29,9 @@ const STORAGE_KEYS = {
   GAME_LEADERBOARDS: 'teleplay_ethio_game_lbs_v1',
 };
 
-// Contenders using strictly 5-digit masked MSISDNs without customer names (e.g. 0912*****678)
-// Scores represent UNIFIED 0-400 averages across calendar days (Commands 41-58)
-const DEMO_WEEKLY_CONTENDERS = [
-  { phone: '0911234567', masked: '0911*****567', totalPoints: 382.4, bestScoresCount: 7, timestamp: 1724500000000, reward: '50K ETB' },
-  { phone: '0912876543', masked: '0912*****543', totalPoints: 364.1, bestScoresCount: 7, timestamp: 1724510000000, reward: '40K ETB' },
-  { phone: '0913456789', masked: '0913*****789', totalPoints: 348.6, bestScoresCount: 7, timestamp: 1724520000000, reward: '35K ETB' },
-  { phone: '0914333445', masked: '0914*****445', totalPoints: 321.0, bestScoresCount: 6, timestamp: 1724530000000, reward: '30K ETB' },
-  { phone: '0915999112', masked: '0915*****112', totalPoints: 298.3, bestScoresCount: 6, timestamp: 1724540000000, reward: '25K ETB' },
-  { phone: '0916888776', masked: '0916*****776', totalPoints: 265.7, bestScoresCount: 6, timestamp: 1724550000000, reward: '20K ETB' },
-  { phone: '0917222334', masked: '0917*****334', totalPoints: 228.4, bestScoresCount: 5, timestamp: 1724560000000, reward: '15K ETB' },
-  { phone: '0918555443', masked: '0918*****443', totalPoints: 189.1, bestScoresCount: 5, timestamp: 1724570000000, reward: '10K ETB' },
-  { phone: '0919777889', masked: '0919*****889', totalPoints: 142.5, bestScoresCount: 4, timestamp: 1724580000000, reward: '5K ETB' },
-  { phone: '0920111223', masked: '0920*****223', totalPoints: 96.0, bestScoresCount: 3, timestamp: 1724590000000, reward: '3K ETB' },
-];
-
-const DEMO_MONTHLY_CONTENDERS = [
-  { phone: '0911987654', masked: '0911*****654', totalPoints: 389.2, bestScoresCount: 30, timestamp: 1724400000000, reward: '50K ETB' },
-  { phone: '0912123987', masked: '0912*****987', totalPoints: 371.5, bestScoresCount: 30, timestamp: 1724410000000, reward: '40K ETB' },
-  { phone: '0913654321', masked: '0913*****321', totalPoints: 352.0, bestScoresCount: 29, timestamp: 1724420000000, reward: '35K ETB' },
-  { phone: '0914789012', masked: '0914*****012', totalPoints: 328.4, bestScoresCount: 28, timestamp: 1724430000000, reward: '30K ETB' },
-  { phone: '0915345678', masked: '0915*****678', totalPoints: 305.1, bestScoresCount: 28, timestamp: 1724440000000, reward: '25K ETB' },
-  { phone: '0916901234', masked: '0916*****234', totalPoints: 272.8, bestScoresCount: 26, timestamp: 1724450000000, reward: '20K ETB' },
-  { phone: '0917567890', masked: '0917*****890', totalPoints: 235.0, bestScoresCount: 24, timestamp: 1724460000000, reward: '15K ETB' },
-  { phone: '0918123456', masked: '0918*****456', totalPoints: 194.2, bestScoresCount: 22, timestamp: 1724470000000, reward: '10K ETB' },
-  { phone: '0919234567', masked: '0919*****567', totalPoints: 151.7, bestScoresCount: 19, timestamp: 1724480000000, reward: '5K ETB' },
-  { phone: '0920345678', masked: '0920*****678', totalPoints: 108.3, bestScoresCount: 15, timestamp: 1724490000000, reward: '3K ETB' },
-];
+// Live Contenders list from authoritative backend
+const DEMO_WEEKLY_CONTENDERS: { phone: string; masked: string; totalPoints: number; bestScoresCount: number; timestamp: number; reward: string }[] = [];
+const DEMO_MONTHLY_CONTENDERS: { phone: string; masked: string; totalPoints: number; bestScoresCount: number; timestamp: number; reward: string }[] = [];
 
 export const WEEKLY_GAME_IDS = ['candy-blast', 'color-rush', 'world-legends'];
 export const MONTHLY_GAME_IDS = ['pop-piano', 'hill-rider', 'pop-balloon'];
@@ -73,15 +49,6 @@ export function getDailyBestScore(
     const dayScores = profile.dailyScores[dateStr];
     return eligibleGameIds.reduce(
       (max, gId) => Math.max(max, Math.min(400, dayScores[gId] || 0)),
-      0
-    );
-  }
-
-  // Fallback: If it is today and dailyScores is not yet populated, check highScores of eligible games
-  const todayStr = new Date().toISOString().split('T')[0];
-  if (dateStr === todayStr && profile.highScores) {
-    return eligibleGameIds.reduce(
-      (max, gId) => Math.max(max, Math.min(400, profile.highScores[gId] || 0)),
       0
     );
   }
@@ -105,15 +72,6 @@ export function computeWeeklyPoints(profile: UserProfile): number {
     sumDailyBests += getDailyBestScore(dateStr, WEEKLY_GAME_IDS, profile);
   }
 
-  // If no daily scores are recorded yet, fall back to today's best across weekly games
-  if (sumDailyBests === 0 && profile.highScores) {
-    const bestToday = WEEKLY_GAME_IDS.reduce(
-      (max, gId) => Math.max(max, Math.min(400, profile.highScores[gId] || 0)),
-      0
-    );
-    sumDailyBests = bestToday;
-  }
-
   const weeklyAverage = sumDailyBests / 7;
   return Math.min(400, Math.round(weeklyAverage * 10) / 10);
 }
@@ -133,15 +91,6 @@ export function computeMonthlyPoints(profile: UserProfile): number {
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().split('T')[0];
     sumDailyBests += getDailyBestScore(dateStr, MONTHLY_GAME_IDS, profile);
-  }
-
-  // If no daily scores are recorded yet, fall back to today's best across monthly games
-  if (sumDailyBests === 0 && profile.highScores) {
-    const bestToday = MONTHLY_GAME_IDS.reduce(
-      (max, gId) => Math.max(max, Math.min(400, profile.highScores[gId] || 0)),
-      0
-    );
-    sumDailyBests = bestToday;
   }
 
   const monthlyAverage = sumDailyBests / daysInMonth;
@@ -398,6 +347,17 @@ export const CompetitiveService = {
         reason: `You need ${tournament.entryFeeEnergy} Energy to enter this tournament (Current: ${profile.energy}).`,
       };
     }
+    if (tournament.cycle === 'daily') {
+      const submissions = this.getTournamentSubmissions();
+      const sub = submissions[tournament.id];
+      if (sub && sub.userId === profile.id) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const subDate = (sub.timestamp || '').split('T')[0];
+        if (todayStr === subDate) {
+          return { allowed: false, reason: 'Daily challenge is strictly once per day. You have already completed today\'s challenge.' };
+        }
+      }
+    }
     return { allowed: true };
   },
 
@@ -580,7 +540,7 @@ export const CompetitiveService = {
       entries,
       userRank,
       userTotalPoints,
-      totalContenders: isWeekly ? 14250 : 28900,
+      totalContenders: candidateList.length,
     };
   },
 
@@ -650,47 +610,7 @@ export const CompetitiveService = {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.REWARD_TRANSACTIONS);
       if (!stored) {
-        // Initialize with default historical audit transactions for demo display
-        const defaults: RewardTransaction[] = [
-          {
-            id: 'tx_seed_001',
-            idempotencyKey: 'idemp_seed_weekly_walia_01',
-            userId: 'usr_demo_contender_1',
-            msisdnMasked: '+251 91 **** 567',
-            gameId: 'candy-blast',
-            gameTitle: 'Candy Blast',
-            tournamentId: 'tourney_weekly_candy_cup',
-            score: 28500,
-            rank: 1,
-            reward: '7,500 ETB Direct TeleBirr Cash Transfer',
-            rewardETB: 7500,
-            rewardCoins: 1000,
-            timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
-            status: 'DISBURSED',
-            verificationSource: 'SERVER_AUTHORITATIVE',
-            auditHash: '0x3E8F9A1C',
-          },
-          {
-            id: 'tx_seed_002',
-            idempotencyKey: 'idemp_seed_archery_masters_02',
-            userId: 'usr_demo_contender_2',
-            msisdnMasked: '+251 92 **** 432',
-            gameId: 'archery-strike',
-            gameTitle: 'Archery Strike',
-            tournamentId: 'tourney_weekly_archery_masters',
-            score: 890,
-            rank: 1,
-            reward: '10,000 ETB TeleBirr Cash',
-            rewardETB: 10000,
-            rewardCoins: 2000,
-            timestamp: new Date(Date.now() - 86400000 * 4).toISOString(),
-            status: 'DISBURSED',
-            verificationSource: 'SERVER_AUTHORITATIVE',
-            auditHash: '0x7B2A44D1',
-          },
-        ];
-        this.saveRewardTransactions(defaults);
-        return defaults;
+        return [];
       }
       return JSON.parse(stored);
     } catch {
