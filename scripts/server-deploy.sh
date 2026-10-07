@@ -44,13 +44,16 @@ for i in {1..30}; do
 done
 
 docker compose -f docker-compose.server.yml build api
-docker compose -f docker-compose.server.yml up -d api
+docker rm -f goplay-api 2>/dev/null || true
+docker compose -f docker-compose.server.yml up -d --force-recreate api
 
 docker compose -f docker-compose.server.yml build admin
-docker compose -f docker-compose.server.yml up -d admin
+docker rm -f goplay-admin 2>/dev/null || true
+docker compose -f docker-compose.server.yml up -d --force-recreate admin
 
 docker compose -f docker-compose.server.yml build web
-docker compose -f docker-compose.server.yml up -d web
+docker rm -f goplay-web 2>/dev/null || true
+docker compose -f docker-compose.server.yml up -d --force-recreate web
 
 echo "=============================================================================="
 echo "🩺 [STAGE 2: VERIFY] Canary Probes"
