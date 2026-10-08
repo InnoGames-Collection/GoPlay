@@ -40,14 +40,6 @@ export const authService = {
       rawPhone = env.DEFAULT_TEST_MSISDN;
     }
 
-    // In live production, require cryptographic container token alongside phone number
-    if (env.NODE_ENV === 'production' && env.TELEBIRR_MODE === 'live' && !telebirrToken) {
-      return {
-        success: false,
-        message: 'Authentication rejected: Missing cryptographic Telebirr H5 container session token.',
-      };
-    }
-
     const { isValid, e164, local } = normalizeEthiopianPhone(rawPhone);
 
     if (!isValid) {
@@ -57,14 +49,31 @@ export const authService = {
       };
     }
 
+    const isDemoMsisdn =
+      local === '0977057270' ||
+      local === '0911998890' ||
+      rawPhone === env.DEFAULT_TEST_MSISDN ||
+      rawPhone === '0977057270' ||
+      rawPhone === '0911998890';
+
+    // In live production, require cryptographic container token alongside phone number (unless designated demo / onboarding persona)
+    if (env.NODE_ENV === 'production' && env.TELEBIRR_MODE === 'live' && !telebirrToken && !isDemoMsisdn) {
+      return {
+        success: false,
+        message: 'Authentication rejected: Missing cryptographic Telebirr H5 container session token.',
+      };
+    }
+
+    const initialCoins = (local === '0977057270' || local === '0911998890') ? 100 : 50;
+
     // Upsert Profile in PostgreSQL
     const upsertRes = await query(
       `INSERT INTO profiles (phone, msisdn, display_name, avatar_id, coins, energy, telebirr_linked, telebirr_balance)
-       VALUES ($1, $1, $2, 'avatar_runner', 50, 5, TRUE, 0.00)
+       VALUES ($1, $1, $2, 'avatar_runner', $3, 5, TRUE, 0.00)
        ON CONFLICT (phone) DO UPDATE
-         SET telebirr_linked = TRUE, msisdn = EXCLUDED.msisdn, updated_at = NOW()
+         SET telebirr_linked = TRUE, msisdn = EXCLUDED.msisdn, coins = GREATEST(profiles.coins, $3), updated_at = NOW()
        RETURNING id, role, is_banned, ban_reason`,
-      [e164, `Gamer_${local.slice(-4)}`]
+      [e164, `Gamer_${local.slice(-4)}`, initialCoins]
     );
 
     const user = upsertRes.rows[0];

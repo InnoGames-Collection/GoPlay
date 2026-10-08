@@ -59,7 +59,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
       `SELECT id, username, email, role, is_active,
               (password_hash = crypt($2, password_hash)) AS is_password_valid
          FROM admin_users 
-        WHERE LOWER(username) = LOWER($1)`,
+        WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($1)`,
       [username, password]
     );
 

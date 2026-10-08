@@ -9,8 +9,10 @@ set -Eeuo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 
-echo "📥 Syncing latest code from origin repository..."
-git pull origin main || true
+if [ -d ".git" ]; then
+  echo "📥 Syncing latest code from origin repository..."
+  git pull origin main || true
+fi
 
 WEB_CANARY="http://127.0.0.1:3300/health"
 API_CANARY="http://127.0.0.1:3302/health"
@@ -29,10 +31,9 @@ echo "==========================================================================
 echo "🚀 [STAGE 1: ACT] Sequential Build & Deployment for GoPlay"
 echo "=============================================================================="
 
-# Stop and remove legacy deployment containers (gameon and previous goplay) to eliminate port/name collisions
-echo "🧹 Cleaning legacy deployment collisions (gameon-* and old goplay-*)..."
-docker stop gameon-web gameon-api gameon-admin gameon-postgres gameon-valkey goplay-web goplay-api goplay-admin goplay-postgres goplay-valkey 2>/dev/null || true
-docker rm -f gameon-web gameon-api gameon-admin gameon-postgres gameon-valkey goplay-web goplay-api goplay-admin goplay-postgres goplay-valkey 2>/dev/null || true
+# Stop and remove legacy conflicting containers if any
+docker stop gameon-web gameon-api gameon-admin 2>/dev/null || true
+docker rm -f gameon-web gameon-api gameon-admin 2>/dev/null || true
 
 docker compose -f docker-compose.server.yml up -d postgres valkey
 
@@ -93,6 +94,8 @@ done
 # Nginx vhost linking if on host
 if [ -d "/etc/nginx/conf.d/products" ] && [ -f "deploy/nginx/goplay.conf" ]; then
   echo "🌐 Updating Nginx virtual host in /etc/nginx/conf.d/products/..."
+  # Clean up legacy gameon vhosts that collided on goplay domain names
+  sudo rm -f /etc/nginx/conf.d/products/gameon-web.conf /etc/nginx/conf.d/products/gameon-api.conf /etc/nginx/conf.d/products/gameon-admin.conf || true
   sudo cp deploy/nginx/goplay.conf /etc/nginx/conf.d/products/goplay.conf || true
   sudo rm -f /etc/nginx/sites-enabled/goplay.conf || true
   sudo nginx -t && sudo systemctl reload nginx || true
