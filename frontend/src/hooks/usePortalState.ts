@@ -327,30 +327,23 @@ export function usePortalState() {
         onSuccess();
         setRewardedAdState((s) => ({ ...s, isOpen: false }));
         if (rewardType === 'energy') {
-          setProfile((curr) => {
-            const nextEnergy = Math.min(curr.maxEnergy, curr.energy + rewardAmount);
-            const upd = { ...curr, energy: nextEnergy };
-            StorageService.saveProfile(upd);
-            return upd;
+          apiService.claimAdReward(offer.id).then((res) => {
+            if (res.success && res.profile) {
+              setProfile(res.profile);
+              StorageService.saveProfile(res.profile);
+              showToast('energy', `+${rewardAmount} Energy Restored`, 'EthioTelecom sponsored boost granted!');
+            }
+          }).catch(() => {
+            setProfile((curr) => {
+              const nextEnergy = Math.min(curr.maxEnergy, curr.energy + rewardAmount);
+              const upd = { ...curr, energy: nextEnergy };
+              StorageService.saveProfile(upd);
+              return upd;
+            });
+            showToast('energy', `+${rewardAmount} Energy Restored`, 'EthioTelecom sponsored boost granted!');
           });
-          const tx: EnergyTransaction = {
-            transactionId: 'ETX_AD_' + Date.now().toString(36).toUpperCase(),
-            type: 'REWARDED_AD_BONUS',
-            amount: rewardAmount,
-            timestamp: new Date().toISOString(),
-            status: 'COMPLETED',
-            details: 'Rewarded Ad Sponsor Bonus',
-          };
-          StorageService.recordEnergyTransaction(tx);
-          setEnergyTransactions(StorageService.getEnergyTransactions());
-          showToast('energy', `+${rewardAmount} Energy Restored`, 'EthioTelecom sponsored boost granted!');
         } else if (rewardType === 'coins') {
-          setProfile((curr) => {
-            const upd = { ...curr, coins: curr.coins + rewardAmount };
-            StorageService.saveProfile(upd);
-            return upd;
-          });
-          showToast('success', `+${rewardAmount} Coins Claimed!`, 'Reward successfully deposited.');
+          showToast('info', 'Rewarded Ad Completed', 'Thank you for watching the sponsored partner highlight.');
         }
       },
     });
@@ -411,49 +404,25 @@ export function usePortalState() {
     setIsEnergyModalOpen(false);
   }, [purchaseEnergyPackage]);
 
-  // Daily Streak Claim
-  const claimDailyStreak = useCallback(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    if (profile.streak.hasClaimedToday && profile.streak.lastClaimedDate === today) {
+  // Daily Streak Claim (Server-Authoritative in PostgreSQL)
+  const claimDailyStreak = useCallback(async () => {
+    if (profile.streak.hasClaimedToday) {
       showToast('info', 'Already Claimed', 'Come back tomorrow for the next streak bonus!');
       return;
     }
 
-    const streakIndex = (profile.streak.current - 1) % DAILY_REWARD_LADDER.length;
-    const reward = DAILY_REWARD_LADDER[streakIndex];
-
-    const newCoins = profile.coins + reward.coins;
-    const newEnergy = Math.min(profile.maxEnergy, profile.energy + reward.energy);
-    const nextStreak = profile.streak.current + 1;
-
-    const updated: UserProfile = {
-      ...profile,
-      coins: newCoins,
-      energy: newEnergy,
-      streak: {
-        current: nextStreak,
-        lastClaimedDate: today,
-        hasClaimedToday: true,
-      },
-    };
-
-    setProfile(updated);
-    StorageService.saveProfile(updated);
-
-    if (reward.energy > 0) {
-      const tx: EnergyTransaction = {
-        transactionId: 'ETX_STREAK_' + Date.now().toString(36).toUpperCase(),
-        type: 'DAILY_REWARD',
-        amount: reward.energy,
-        timestamp: new Date().toISOString(),
-        status: 'COMPLETED',
-        details: `Day ${reward.day} Streak Bonus`,
-      };
-      StorageService.recordEnergyTransaction(tx);
-      setEnergyTransactions(StorageService.getEnergyTransactions());
+    try {
+      const res = await apiService.claimDailyStreak();
+      if (res.success && res.profile) {
+        setProfile(res.profile);
+        StorageService.saveProfile(res.profile);
+        showToast('success', `Day ${res.streakDay || 1} Streak Claimed!`, res.message || `+${res.coinsReward || 10} Coins added.`);
+      } else {
+        showToast('warning', 'Daily Streak Note', res.message || 'Streak already claimed for today.');
+      }
+    } catch (e: any) {
+      showToast('error', 'Claim Failed', e?.message || 'Could not claim daily streak reward.');
     }
-
-    showToast('success', `Day ${reward.day} Streak Claimed!`, `+${reward.coins} Coins & +${reward.energy} Energy added.`);
   }, [profile, showToast]);
 
   // Claim Reward Prize
@@ -468,15 +437,30 @@ export function usePortalState() {
     }
   }, [profile, showToast]);
 
-  // Subscribe to VIP Pass
+  // Subscribe to VIP Pass via Telebirr Gateway
   const handleSubscribe = useCallback(async (plan: SubscriptionPlan) => {
-    const res = await SubscriptionService.subscribe(plan);
-    if (res.success && res.profile) {
-      setProfile(res.profile);
-      setIsSubscriptionModalOpen(false);
-      showToast('success', 'VIP Activated', res.message);
-    } else {
-      showToast('error', 'Subscription Failed', res.message);
+    try {
+      const res = await apiService.activateSubscription(plan as any);
+      if (res.success) {
+        if (res.checkoutUrl) {
+          showToast('info', 'Redirecting to Telebirr...', 'Opening secure carrier checkout.');
+          setTimeout(() => {
+            window.location.href = res.checkoutUrl!;
+          }, 600);
+          return;
+        }
+        const fresh = await apiService.getProfile();
+        if (fresh) {
+          setProfile(fresh);
+          StorageService.saveProfile(fresh);
+        }
+        setIsSubscriptionModalOpen(false);
+        showToast('success', 'VIP Activated', res.message || 'VIP Subscription activated successfully.');
+      } else {
+        showToast('error', 'Subscription Failed', res.message || 'Telebirr subscription initiation failed.');
+      }
+    } catch (err: any) {
+      showToast('error', 'Subscription Error', err?.message || 'Could not connect to payment gateway.');
     }
   }, [showToast]);
 

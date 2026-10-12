@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { ArrowLeft, Trophy, Crown } from 'lucide-react';
 import { 
   WorldLegendsProgress, 
   getWorldLegendsLeaderboard 
 } from '../worldLegendsStorage';
+import { GameLeaderboardService } from '../../../services/gameLeaderboardService';
 
 const WOOD_MATERIAL = {
   hud: {
@@ -33,10 +34,17 @@ export const WordLegendLeaderboard: React.FC<WordLegendLeaderboardProps> = ({
 }) => {
   const totalScore = progress.totalScore || 0;
   const currentLevel = progress.unlockedLevel || 1;
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  useEffect(() => {
+    GameLeaderboardService.refreshLiveGameLeaderboard('world-legends')
+      .then(() => setRefreshTick((t) => t + 1))
+      .catch(() => {});
+  }, []);
 
   const { list, userRank, userEntry } = useMemo(() => {
     return getWorldLegendsLeaderboard(playerMsisdn, totalScore, currentLevel);
-  }, [playerMsisdn, totalScore, currentLevel]);
+  }, [playerMsisdn, totalScore, currentLevel, refreshTick]);
 
   return (
     <div

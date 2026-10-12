@@ -19,27 +19,12 @@ export const AuthService = {
    * Request 6-digit OTP code via EthioTelecom SMS gateway
    */
   async requestOtp(phoneNumber: string): Promise<{ success: boolean; message: string; demoOtp: string }> {
-    // Validate Ethiopian phone format
-    const cleaned = phoneNumber.replace(/\D/g, '');
-    const isEthio = cleaned.startsWith('2519') || cleaned.startsWith('2517') || cleaned.startsWith('09') || cleaned.startsWith('07') || cleaned.length === 9 || cleaned.length === 10 || cleaned.length === 12;
-    
-    if (!isEthio) {
-      return {
-        success: false,
-        message: 'Please enter a valid EthioTelecom phone number starting with 09 or 07.',
-        demoOtp: '',
-      };
-    }
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          message: `SMS Verification code sent to ${phoneNumber}.`,
-          demoOtp: '',
-        });
-      }, 500);
-    });
+    const res = await apiService.requestOtp(phoneNumber);
+    return {
+      success: res.success,
+      message: res.message,
+      demoOtp: res.demoOtp || '',
+    };
   },
 
   /**
@@ -54,34 +39,27 @@ export const AuthService = {
       };
     }
 
-    // Clean and normalize phone number (e.g. 0912345678)
-    let normalizedPhone = phoneNumber.replace(/\D/g, '');
-    if (normalizedPhone.startsWith('251')) {
-      normalizedPhone = '0' + normalizedPhone.slice(3);
-    }
-    if (!normalizedPhone.startsWith('0') && (normalizedPhone.startsWith('9') || normalizedPhone.startsWith('7'))) {
-      normalizedPhone = '0' + normalizedPhone;
-    }
-    if (!normalizedPhone) normalizedPhone = '0912345678';
-
     try {
-      const serverProfile = await apiService.loginWithTelebirr(normalizedPhone);
-      if (serverProfile) {
-        StorageService.saveProfile(serverProfile);
+      const res = await apiService.verifyOtp(phoneNumber, trimmedOtp);
+      if (res.success && res.profile) {
+        StorageService.saveProfile(res.profile);
         return {
           success: true,
-          message: 'Successfully authenticated with EthioTelecom.',
-          profile: serverProfile,
+          message: res.message || 'Successfully authenticated with EthioTelecom.',
+          profile: res.profile,
         };
       }
-    } catch (e) {
-      console.warn('[AuthService] Live login fallback:', e);
+      return {
+        success: false,
+        message: res.message || 'Authentication failed. Please verify your phone number.',
+      };
+    } catch (e: any) {
+      console.warn('[AuthService] Live login error:', e);
+      return {
+        success: false,
+        message: e?.message || 'Authentication failed. Please verify your phone number.',
+      };
     }
-
-    return {
-      success: false,
-      message: 'Authentication failed. Please verify your phone number or use an authorized demo MSISDN (0977057270 / 0911998890).',
-    };
   },
 
   /**

@@ -3,6 +3,8 @@
  * Tracks unlocked levels (1 to 40), level scores, total cumulative score, and sound settings.
  */
 
+import { GameLeaderboardService } from '../../services/gameLeaderboardService';
+
 export interface WorldLegendsProgress {
   unlockedLevel: number;
   completedLevels: number[];
@@ -162,24 +164,6 @@ export interface WorldLegendsLeaderboardEntry {
   isPlayer: boolean;
 }
 
-const SEED_WORLD_PLAYERS = [
-  { msisdnMasked: '25191*****38', score: 14850, level: 40 },
-  { msisdnMasked: '25192*****14', score: 13920, level: 39 },
-  { msisdnMasked: '25193*****88', score: 12640, level: 36 },
-  { msisdnMasked: '25191*****55', score: 11480, level: 33 },
-  { msisdnMasked: '25192*****91', score: 10250, level: 30 },
-  { msisdnMasked: '25191*****04', score: 9100, level: 27 },
-  { msisdnMasked: '25193*****72', score: 7950, level: 24 },
-  { msisdnMasked: '25192*****33', score: 6820, level: 21 },
-  { msisdnMasked: '25191*****69', score: 5640, level: 18 },
-  { msisdnMasked: '25193*****21', score: 4510, level: 15 },
-  { msisdnMasked: '25191*****85', score: 3480, level: 12 },
-  { msisdnMasked: '25192*****47', score: 2540, level: 9 },
-  { msisdnMasked: '25193*****19', score: 1680, level: 6 },
-  { msisdnMasked: '25191*****60', score: 920, level: 3 },
-  { msisdnMasked: '25192*****95', score: 380, level: 2 },
-];
-
 export function getWorldLegendsLeaderboard(
   playerMsisdn: string,
   playerScore: number,
@@ -193,12 +177,20 @@ export function getWorldLegendsLeaderboard(
     isPlayer: true,
   };
 
-  const allEntries: WorldLegendsLeaderboardEntry[] = [
-    ...SEED_WORLD_PLAYERS.map((p) => ({
-      ...p,
+  // Fetch live entries from unified PostgreSQL leaderboard engine
+  const liveResult = GameLeaderboardService.getLeaderboardForGame('world-legends');
+  const competitors: WorldLegendsLeaderboardEntry[] = (liveResult?.entries || [])
+    .filter((e) => !e.isCurrentUser)
+    .map((e) => ({
       rank: 0,
+      msisdnMasked: e.playerMasked || '25191*****00',
+      score: e.score,
+      level: Math.max(1, Math.round(e.score / 350)),
       isPlayer: false,
-    })),
+    }));
+
+  const allEntries: WorldLegendsLeaderboardEntry[] = [
+    ...competitors,
     playerEntry,
   ];
 
@@ -219,3 +211,4 @@ export function getWorldLegendsLeaderboard(
     userEntry: playerEntry,
   };
 }
+

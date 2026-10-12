@@ -77,13 +77,13 @@ export const subscriptionService = {
     const userRes = await query('SELECT phone FROM profiles WHERE id = $1', [userId]);
     const phone = userRes.rows[0]?.phone || '';
 
-    // Record / Update subscription in PostgreSQL
+    // Record / Update subscription in PostgreSQL subscriptions_v2
     await query(
-      `INSERT INTO subscriptions (user_id, msisdn, service_id, plan, is_active, auto_renew, expires_at)
-       VALUES ($1, $2, 'srv_godigital', $3, TRUE, TRUE, $4)
+      `INSERT INTO subscriptions_v2 (user_id, msisdn, service_id, plan, is_active, auto_renew, expires_at, updated_at)
+       VALUES ($1, $2, 'srv_goplay', $3, TRUE, TRUE, $4, NOW())
        ON CONFLICT (msisdn, service_id) DO UPDATE
          SET user_id = EXCLUDED.user_id, is_active = TRUE, plan = EXCLUDED.plan,
-             expires_at = EXCLUDED.expires_at, auto_renew = TRUE`,
+             expires_at = EXCLUDED.expires_at, auto_renew = TRUE, updated_at = NOW()`,
       [userId, phone, plan, expiresAt]
     );
 
@@ -99,7 +99,7 @@ export const subscriptionService = {
 
   async cancelSubscription(userId: string): Promise<{ success: boolean; message: string; profile: UserProfile }> {
     await query(
-      `UPDATE subscriptions SET auto_renew = FALSE, cancelled_at = NOW() WHERE user_id = $1`,
+      `UPDATE subscriptions_v2 SET auto_renew = FALSE, cancelled_at = NOW(), updated_at = NOW() WHERE user_id = $1`,
       [userId]
     );
 

@@ -19,15 +19,15 @@ import { UserProfile } from '../types';
 import { X, Coins as CoinsIcon, Check } from 'lucide-react';
 
 export interface CoinPackage {
-  id: string;
+  id: 'COIN_PACK_10' | 'COIN_PACK_25' | 'COIN_PACK_50';
   coins: number;
   priceBirr: number;
 }
 
 export const COIN_PACKAGES: CoinPackage[] = [
-  { id: 'pkg_5', coins: 5, priceBirr: 3 },
-  { id: 'pkg_10', coins: 10, priceBirr: 5 },
-  { id: 'pkg_25', coins: 25, priceBirr: 10 },
+  { id: 'COIN_PACK_10', coins: 10, priceBirr: 10 },
+  { id: 'COIN_PACK_25', coins: 25, priceBirr: 25 },
+  { id: 'COIN_PACK_50', coins: 50, priceBirr: 50 },
 ];
 
 interface EnergyModalProps {

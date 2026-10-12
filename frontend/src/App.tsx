@@ -20,6 +20,7 @@ import { CoinTopupModal } from './components/CoinTopupModal';
 import { GameDetailsModal } from './components/GameDetailsModal';
 import { TermsAndPrivacyModal } from './components/TermsAndPrivacyModal';
 import { MainMenuDrawer, MainMenuSection } from './components/MainMenuDrawer';
+import { AuthModal } from './components/AuthModal';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -51,6 +52,8 @@ export default function App() {
     handleGameFinished,
     lastGameSessionResult,
     // Modals
+    isAuthModalOpen,
+    setIsAuthModalOpen,
     isLegalModalOpen,
     setIsLegalModalOpen,
     legalModalTab,
@@ -310,6 +313,7 @@ export default function App() {
                 onLanguageChange={changeLanguage}
                 onPlayGame={handlePlayGame}
                 onOpenBuyCoins={() => setIsCoinTopupOpen(true)}
+                onOpenAuthModal={() => setIsAuthModalOpen(true)}
                 onProfileUpdate={setProfile}
               />
             )}
@@ -395,7 +399,23 @@ export default function App() {
         />
       )}
 
-      {/* 10. Floating Toast Notifications */}
+      {/* 10. telebirr SuperApp SSO Direct Authentication Modal */}
+      {isAuthModalOpen && (
+        <AuthModal
+          onClose={() => setIsAuthModalOpen(false)}
+          onSuccess={(newProfile) => {
+            setProfile(newProfile);
+            setIsAuthModalOpen(false);
+          }}
+          onOpenSubscribe={() => {
+            setIsAuthModalOpen(false);
+            setContentView('subscription');
+          }}
+          showToast={showToast}
+        />
+      )}
+
+      {/* 11. Floating Toast Notifications */}
       <NotificationToast toasts={toasts} onDismiss={dismissToast} />
     </div>
   );

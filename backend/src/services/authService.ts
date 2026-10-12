@@ -159,13 +159,14 @@ export const authService = {
     const subRow = hasSub ? subRes.rows[0] : null;
 
     // Streaks
-    const streakRes = await query(`SELECT * FROM user_streaks WHERE user_id = $1`, [userId]);
-    const streakRow = streakRes.rows[0] || { current_streak: 1, last_claimed: null };
-    const todayStr = new Date().toISOString().split('T')[0];
-    const lastClaimedStr = streakRow.last_claimed
-      ? new Date(streakRow.last_claimed).toISOString().split('T')[0]
-      : '';
-    const hasClaimedToday = lastClaimedStr === todayStr;
+    const streakRes = await query(
+      `SELECT current_streak, TO_CHAR(last_claimed, 'YYYY-MM-DD') AS last_claimed_str, (last_claimed = CURRENT_DATE) AS has_claimed_today
+         FROM user_streaks WHERE user_id = $1`,
+      [userId]
+    );
+    const streakRow = streakRes.rows[0] || { current_streak: 1, last_claimed_str: '', has_claimed_today: false };
+    const lastClaimedStr = streakRow.last_claimed_str || '';
+    const hasClaimedToday = Boolean(streakRow.has_claimed_today);
 
     // Energy regeneration check (1 energy every 10 min up to max_energy if not VIP)
     let currentEnergy = row.energy || 5;

@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { UserProfile, SubscriptionPlan } from '../../types';
 import { EntitlementService } from '../../services/entitlementService';
 import { StorageService } from '../../services/storageService';
+import { apiService } from '../../services/apiService';
 import { 
   CreditCard, 
   ArrowLeft, 
@@ -72,43 +73,39 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
 
   const activeSubs = EntitlementService.getActiveSubscriptionsList();
 
-  const handleSubscribe = (pass: typeof ALL_ACCESS_PASSES[0]) => {
+  const handleSubscribe = async (pass: typeof ALL_ACCESS_PASSES[0]) => {
     if (!profile) return;
     setErrorMsg(null);
     setSuccessMsg(null);
-
-    if (profile.telebirrBalance < pass.priceETB) {
-      setErrorMsg(`Insufficient telebirr balance (${profile.telebirrBalance.toFixed(2)} ETB). Required: ${pass.priceETB} ETB.`);
-      return;
-    }
-
     setIsProcessing(true);
-    setTimeout(() => {
-      let durationMs = 24 * 60 * 60 * 1000;
-      if (pass.id === 'weekly') durationMs = 7 * 24 * 60 * 60 * 1000;
-      if (pass.id === 'monthly') durationMs = 30 * 24 * 60 * 60 * 1000;
 
-      const updated: UserProfile = {
-        ...profile,
-        telebirrBalance: Math.max(0, profile.telebirrBalance - pass.priceETB),
-        coins: profile.coins,
-        subscription: {
-          plan: pass.id,
-          isActive: true,
-          expiresAt: Date.now() + durationMs,
-          autoRenew: true,
-        },
-      };
-
-      StorageService.saveProfile(updated);
-      if (onProfileUpdate) {
-        onProfileUpdate(updated);
+    try {
+      const res = await apiService.activateSubscription(pass.id);
+      if (res.success) {
+        if (res.checkoutUrl) {
+          setSuccessMsg('Redirecting to Telebirr Checkout...');
+          setTimeout(() => {
+            window.location.href = res.checkoutUrl!;
+          }, 600);
+          return;
+        }
+        const fresh = await apiService.getProfile();
+        if (fresh) {
+          StorageService.saveProfile(fresh);
+          if (onProfileUpdate) {
+            onProfileUpdate(fresh);
+          }
+        }
+        setSuccessMsg(`Successfully activated ${pass.name} subscription via telebirr!`);
+        setTimeout(() => setSuccessMsg(null), 3000);
+      } else {
+        setErrorMsg(res.message || 'Telebirr subscription initiation failed.');
       }
-
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Error communicating with Telebirr gateway.');
+    } finally {
       setIsProcessing(false);
-      setSuccessMsg(`Successfully activated ${pass.name} subscription via telebirr!`);
-      setTimeout(() => setSuccessMsg(null), 3000);
-    }, 400);
+    }
   };
 
   return (

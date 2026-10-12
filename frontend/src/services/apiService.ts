@@ -301,6 +301,111 @@ class ApiService {
   }
 
   /**
+   * Request SMS OTP from Fastify API
+   */
+  async requestOtp(phoneNumber: string): Promise<{ success: boolean; message: string; isDemo?: boolean; demoOtp?: string }> {
+    const res = await this.request<{ success: boolean; message: string; isDemo?: boolean; demoOtp?: string }>(
+      '/auth/request-otp',
+      {
+        method: 'POST',
+        body: JSON.stringify({ phoneNumber }),
+      }
+    );
+    return res || { success: false, message: 'Network error communicating with auth server.' };
+  }
+
+  /**
+   * Verify SMS OTP and load authenticated profile + tokens from PostgreSQL
+   */
+  async verifyOtp(phoneNumber: string, otp: string): Promise<{ success: boolean; message: string; profile?: UserProfile }> {
+    const res = await this.request<{
+      success: boolean;
+      message: string;
+      profile?: UserProfile;
+      tokens?: { accessToken: string; refreshToken: string };
+    }>('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ phoneNumber, otp }),
+    });
+
+    if (res?.success && res.profile) {
+      if (res.tokens?.accessToken) {
+        this.setToken(res.tokens.accessToken);
+      }
+      return { success: true, message: res.message, profile: res.profile };
+    }
+
+    return { success: false, message: res?.message || 'Authentication failed. Please check your verification code.' };
+  }
+
+  /**
+   * Claim daily login streak reward authoritatively from PostgreSQL
+   */
+  async claimDailyStreak(): Promise<{
+    success: boolean;
+    streakDay?: number;
+    coinsReward?: number;
+    energyReward?: number;
+    message?: string;
+    profile?: UserProfile;
+  }> {
+    const res = await this.request<{
+      success: boolean;
+      streakDay: number;
+      coinsReward: number;
+      energyReward: number;
+      message: string;
+      profile: UserProfile;
+    }>('/auth/streak/claim', {
+      method: 'POST',
+    });
+
+    if (res?.success && res.profile) {
+      return {
+        success: true,
+        streakDay: res.streakDay,
+        coinsReward: res.coinsReward,
+        energyReward: res.energyReward,
+        message: res.message,
+        profile: res.profile,
+      };
+    }
+
+    return { success: false, message: res?.message || 'Daily streak claim failed.' };
+  }
+
+  /**
+   * Claim sponsored ad energy reward authoritatively in PostgreSQL
+   */
+  async claimAdReward(adId?: string): Promise<{
+    success: boolean;
+    newEnergy?: number;
+    message?: string;
+    profile?: UserProfile;
+  }> {
+    const res = await this.request<{
+      success: boolean;
+      newEnergy: number;
+      message: string;
+      profile: UserProfile;
+    }>('/auth/ad-reward', {
+      method: 'POST',
+      body: JSON.stringify({ adId }),
+    });
+
+    if (res?.success && res.profile) {
+      return {
+        success: true,
+        newEnergy: res.newEnergy,
+        message: res.message,
+        profile: res.profile,
+      };
+    }
+
+    return { success: false, message: res?.message || 'Failed to claim ad reward.' };
+  }
+
+  /**
    * Fetch immutable wallet ledger
    */
   async getWalletLedger() {
