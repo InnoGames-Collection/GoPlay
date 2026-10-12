@@ -139,6 +139,7 @@ export const GameBridgeService = {
     };
 
     // XP and level progression based on performance (Coins are strictly server-authoritative)
+    const coinsEarned = 0;
     const xpEarned = Math.max(10, Math.floor(validScore / 10));
     const newXP = (profile.xp || 0) + xpEarned;
     const newLevel = 1 + Math.floor(newXP / 1000);

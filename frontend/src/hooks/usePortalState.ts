@@ -29,6 +29,7 @@ import { PaymentService } from '../services/paymentService';
 import { RewardService } from '../services/rewardService';
 import { DAILY_REWARD_LADDER } from '../data/portalConfig';
 import { apiService } from '../services/apiService';
+import { GameCatalog } from '../services/gameCatalog';
 
 export function usePortalState() {
   const [activeTab, setActiveTab] = useState<NavigationTab>('home');
@@ -139,6 +140,9 @@ export function usePortalState() {
             StorageService.saveProfile(serverProfile);
           }
         }
+
+        // Dynamically sync 12-game catalog rules (fees, coin requirements) with PostgreSQL
+        await GameCatalog.syncWithBackend();
       } catch (err) {
         console.warn('[usePortalState] Error synchronizing profile with backend:', err);
       }

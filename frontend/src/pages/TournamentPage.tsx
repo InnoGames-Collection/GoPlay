@@ -16,6 +16,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { UserProfile, GameDefinition } from '../types';
 import { TournamentService, OverallTournamentEntry } from '../services/tournamentService';
+import { apiService } from '../services/apiService';
 import { catalogGameToDefinition } from '../games/registry';
 import { 
   Swords, 
@@ -50,10 +51,8 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({
     TournamentService.refreshLiveLeaderboard('tourn_crazy_colors_01').then((entries) => {
       if (entries) setLiveEntries(entries);
     });
-    import('../services/apiService').then(({ apiService }) => {
-      apiService.getDailyStatus().then((res) => {
-        if (res) setDailyStatus(res);
-      });
+    apiService.getDailyStatus().then((res) => {
+      if (res) setDailyStatus(res);
     });
   }, []);
 

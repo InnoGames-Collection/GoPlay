@@ -65,24 +65,24 @@ export const RewardedAdModal: React.FC<RewardedAdModalProps> = ({ adState, onClo
         </div>
 
         {/* Ad Content Visual Frame */}
-        <div className="relative h-56 bg-slate-950 overflow-hidden flex items-center justify-center">
-          <img
-            src={adContent.videoBanner}
-            alt={adContent.title}
-            className="w-full h-full object-cover opacity-80"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-
-          {/* Ad Copy */}
-          <div className="absolute bottom-4 left-4 right-4 text-left">
-            <div className="inline-flex items-center gap-1 text-[11px] font-bold text-[#70C922] uppercase tracking-wider mb-1">
-              <Sparkles className="w-3.5 h-3.5" /> Sponsored Showcase
-            </div>
-            <h4 className="text-sm sm:text-base font-bold text-white leading-snug mb-1">
-              {adContent.title}
-            </h4>
-            <p className="text-xs text-slate-300 line-clamp-2">{adContent.tagline}</p>
+        <div 
+          className="relative h-56 overflow-hidden flex flex-col items-center justify-center p-6 text-center select-none"
+          style={{ background: `linear-gradient(135deg, #05234A 0%, ${adContent.accentColor}33 50%, #03132B 100%)` }}
+        >
+          <div 
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 shadow-lg border border-white/20"
+            style={{ backgroundColor: adContent.accentColor }}
+          >
+            <Tv className="w-8 h-8 text-white" />
           </div>
+
+          <div className="inline-flex items-center gap-1 text-[11px] font-bold text-[#70C922] uppercase tracking-wider mb-1">
+            <Sparkles className="w-3.5 h-3.5" /> Official Telecom Partner
+          </div>
+          <h4 className="text-base sm:text-lg font-black text-white leading-snug mb-1">
+            {adContent.brand}
+          </h4>
+          <p className="text-xs text-slate-300 max-w-xs">{adContent.tagline}</p>
 
           {/* Progress Bar */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-slate-800">

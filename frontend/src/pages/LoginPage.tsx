@@ -42,7 +42,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onOpenMenu,
   showToast,
 }) => {
-  const [phoneNumber, setPhoneNumber] = useState('0911428890');
+  const [phoneNumber, setPhoneNumber] = useState('0977057270');
   const [otpCode, setOtpCode] = useState('');
   const [isRequestingOtp, setIsRequestingOtp] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);

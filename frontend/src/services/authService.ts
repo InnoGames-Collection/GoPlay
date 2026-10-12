@@ -78,19 +78,9 @@ export const AuthService = {
       console.warn('[AuthService] Live login fallback:', e);
     }
 
-    const current = StorageService.getProfile();
-    const fallback: UserProfile = {
-      ...current,
-      phoneNumber: normalizedPhone,
-      isRegistered: true,
-      telebirrLinked: true,
-    };
-    StorageService.saveProfile(fallback);
-
     return {
-      success: true,
-      message: 'Successfully authenticated with EthioTelecom.',
-      profile: fallback,
+      success: false,
+      message: 'Authentication failed. Please verify your phone number or use an authorized demo MSISDN (0977057270 / 0911998890).',
     };
   },
 

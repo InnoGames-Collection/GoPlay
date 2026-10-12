@@ -4,6 +4,7 @@
  */
 
 import { getGameArtworkUrl } from './gameArtwork';
+import { apiService } from './apiService';
 
 export type GameAccessType = 'FREE' | 'COIN' | 'SUBSCRIPTION' | 'PURCHASE' | 'TRIAL';
 
@@ -550,5 +551,26 @@ export const GameCatalog = {
         g.tagline.toLowerCase().includes(q) ||
         g.genre.toLowerCase().includes(q)
     );
+  },
+
+  /**
+   * Synchronize game catalog rules (isFree, requiresCoins, coinCost) dynamically from PostgreSQL
+   */
+  async syncWithBackend(): Promise<void> {
+    try {
+      const backendGames = await apiService.getGamesCatalog();
+      if (backendGames && Array.isArray(backendGames)) {
+        backendGames.forEach((bg) => {
+          const local = INITIAL_GAME_CATALOG.find((g) => g.gameId === bg.gameId);
+          if (local) {
+            local.isFree = bg.isFree;
+            local.requiresCoins = bg.requiresCoins;
+            local.coinCost = bg.coinCost;
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('[GameCatalog] Backend sync error:', err);
+    }
   },
 };

@@ -94,8 +94,9 @@ done
 # Nginx vhost linking if on host
 if [ -d "/etc/nginx/conf.d/products" ] && [ -f "deploy/nginx/goplay.conf" ]; then
   echo "🌐 Updating Nginx virtual host in /etc/nginx/conf.d/products/..."
-  # Clean up legacy gameon vhosts that collided on goplay domain names
+  # Clean up legacy and colliding vhosts that collide on goplay domain names
   sudo rm -f /etc/nginx/conf.d/products/gameon-web.conf /etc/nginx/conf.d/products/gameon-api.conf /etc/nginx/conf.d/products/gameon-admin.conf || true
+  sudo rm -f /etc/nginx/conf.d/products/goplay-web.conf /etc/nginx/conf.d/products/goplay-api.conf /etc/nginx/conf.d/products/goplay-admin.conf || true
   sudo cp deploy/nginx/goplay.conf /etc/nginx/conf.d/products/goplay.conf || true
   sudo rm -f /etc/nginx/sites-enabled/goplay.conf || true
   sudo nginx -t && sudo systemctl reload nginx || true
