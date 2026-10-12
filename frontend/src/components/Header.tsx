@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             title="GoPlay"
           >
-            <GoPlayLogo size="sm" />
+            <GoPlayLogo size="lg" className="h-7 sm:h-8" />
           </div>
         </div>
 
