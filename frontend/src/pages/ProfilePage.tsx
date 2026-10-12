@@ -98,8 +98,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   const [subView, setSubView] = useState<ProfileSubView>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  const phone = profile?.phoneNumber || '0911234890';
-  const maskedMsisdn = phone.length >= 6 ? `${phone.slice(0, 3)}*****${phone.slice(-3)}` : '091*****890';
+  // Derive real identity strictly from the authenticated carrier session
+  const isRegistered = Boolean(profile?.isRegistered && profile?.phoneNumber);
+  const phone = profile?.phoneNumber || '';
+  const maskedMsisdn = isRegistered && phone.length >= 6
+    ? `${phone.slice(0, 3)}*****${phone.slice(-3)}`
+    : 'Guest Gamer';
+  const accountBadge = isRegistered ? 'VERIFIED' : 'GUEST';
+  const coinsBalance = profile?.coins ?? 0;
 
   // Real highest valid competitive game score from existing system
   const bestScore = useMemo(() => {
@@ -287,8 +293,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 <span className="text-[10px] text-blue-100 font-black uppercase tracking-wider">
                   GoPlay Account
                 </span>
-                <span className="px-1.5 py-0.5 rounded-md bg-[#8BCB3D] text-white text-[8px] font-black uppercase tracking-wider">
-                  VERIFIED
+                <span className={`px-1.5 py-0.5 rounded-md text-white text-[8px] font-black uppercase tracking-wider ${
+                  isRegistered ? 'bg-[#8BCB3D]' : 'bg-amber-400'
+                }`}>
+                  {accountBadge}
                 </span>
               </div>
               <div className="text-base font-black font-mono tracking-wider text-white">
@@ -304,9 +312,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 type="button"
                 onClick={onOpenAuthModal}
                 className="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-bold transition-all cursor-pointer"
-                title="Switch telebirr Persona / Test Account"
+                title={isRegistered ? "Switch telebirr Persona / Test Account" : "Connect with telebirr"}
               >
-                Switch
+                {isRegistered ? 'Switch' : 'Connect'}
               </button>
             )}
 
@@ -340,7 +348,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-[#17202A] font-mono">
-            {(profile.coins ?? 50).toLocaleString()}
+            {coinsBalance.toLocaleString()}
           </div>
         </div>
 

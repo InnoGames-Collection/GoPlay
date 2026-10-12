@@ -79,13 +79,14 @@ export const DEFAULT_WEEKLY_TOURNAMENT: WeeklyTournamentConfig = {
 };
 
 const maskPhoneNumber = (phone?: string): string => {
-  const digits = (phone || '0911000000').replace(/\D/g, '');
+  if (!phone) return 'Player';
+  const digits = phone.replace(/\D/g, '');
   if (digits.length >= 9) {
     const start = digits.slice(0, 3);
     const end = digits.slice(-3);
     return `${start}*****${end}`;
   }
-  return '091*****890';
+  return phone;
 };
 
 // Cached live entries from database

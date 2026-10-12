@@ -101,7 +101,7 @@ export const GameDetailPage: React.FC<GameDetailPageProps> = ({
               <Coins className="w-2.5 h-2.5 fill-current" />
             </div>
             <span className="text-slate-500 font-sans font-semibold text-[10px]">Balance:</span>
-            <span className="text-emerald-700 font-black">{profile.coins ?? profile.energyBalance ?? 25} Coins</span>
+            <span className="text-emerald-700 font-black">{profile?.coins ?? 0} Coins</span>
           </div>
 
           <button

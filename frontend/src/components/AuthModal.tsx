@@ -28,6 +28,7 @@ import {
   Crown,
   UserCheck
 } from 'lucide-react';
+import { DEMO_TEST_PERSONAS } from '../data/portalConfig';
 import { GoPlayLogo } from './GoPlayLogo';
 
 interface AuthModalProps {
@@ -43,7 +44,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onOpenSubscribe,
   showToast 
 }) => {
-  const [phoneNumber, setPhoneNumber] = useState('0977057270');
+  const vipPersona = DEMO_TEST_PERSONAS.find((p) => p.id === 'vip') || DEMO_TEST_PERSONAS[0];
+  const freePersona = DEMO_TEST_PERSONAS.find((p) => p.id === 'free') || DEMO_TEST_PERSONAS[1];
+
+  const [phoneNumber, setPhoneNumber] = useState(vipPersona.phone);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState<'vip' | 'free' | 'custom'>('vip');
 
@@ -161,44 +165,44 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {/* VIP Persona Button */}
                 <button
                   type="button"
-                  onClick={() => handleSelectPersona('vip', '0977057270')}
+                  onClick={() => handleSelectPersona('vip', vipPersona.phone)}
                   className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                    selectedPersona === 'vip' && phoneNumber === '0977057270'
+                    selectedPersona === 'vip' && phoneNumber === vipPersona.phone
                       ? 'border-[#0057A8] bg-blue-50/70 ring-2 ring-[#0057A8]/30 shadow-xs'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-mono text-xs font-bold text-slate-900">0977057270</span>
+                    <span className="font-mono text-xs font-bold text-slate-900">{vipPersona.phone}</span>
                     <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                   </div>
                   <div className="text-[10px] text-blue-700 font-extrabold uppercase">
-                    VIP Gaming Pass
+                    {vipPersona.badge}
                   </div>
                   <div className="text-[10px] text-slate-500">
-                    100 Coins • Unlimited
+                    {vipPersona.description}
                   </div>
                 </button>
 
                 {/* Free Persona Button */}
                 <button
                   type="button"
-                  onClick={() => handleSelectPersona('free', '0911998890')}
+                  onClick={() => handleSelectPersona('free', freePersona.phone)}
                   className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                    selectedPersona === 'free' && phoneNumber === '0911998890'
+                    selectedPersona === 'free' && phoneNumber === freePersona.phone
                       ? 'border-[#0057A8] bg-blue-50/70 ring-2 ring-[#0057A8]/30 shadow-xs'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-mono text-xs font-bold text-slate-900">0911998890</span>
+                    <span className="font-mono text-xs font-bold text-slate-900">{freePersona.phone}</span>
                     <UserCheck className="w-3.5 h-3.5 text-slate-500" />
                   </div>
                   <div className="text-[10px] text-emerald-700 font-extrabold uppercase">
-                    Standard Free Tier
+                    {freePersona.badge}
                   </div>
                   <div className="text-[10px] text-slate-500">
-                    50 Coins • Free Pass
+                    {freePersona.description}
                   </div>
                 </button>
               </div>

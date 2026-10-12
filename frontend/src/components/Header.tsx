@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenBuyCoins,
   onOpenMenu,
 }) => {
-  const coinsCount = profile?.coins ?? 50;
+  const coinsCount = profile?.coins ?? 0;
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] select-none pt-[env(safe-area-inset-top,0px)]">

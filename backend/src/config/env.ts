@@ -36,4 +36,6 @@ export const env = cleanEnv(process.env, {
   TELEBIRR_NOTIFY_URL: str({ default: 'https://goplay-api.innopulseplatform.com/api/v1/payments/webhook' }),
   TELEBIRR_RETURN_URL: str({ default: 'https://goplay.innopulseplatform.com/#/profile' }),
   DEFAULT_TEST_MSISDN: str({ default: '0977057270' }),
+  DEMO_MSISDN_VIP: str({ default: '0977057270' }),
+  DEMO_MSISDN_FREE: str({ default: '0911998890' }),
 });

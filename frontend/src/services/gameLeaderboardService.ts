@@ -25,13 +25,14 @@ export interface GameLeaderboardResult {
 }
 
 export const maskPhone = (phone?: string): string => {
-  const digits = (phone || '0911428890').replace(/\D/g, '');
+  if (!phone) return 'Player';
+  const digits = phone.replace(/\D/g, '');
   if (digits.length >= 9) {
     const start = digits.slice(0, 3);
     const end = digits.slice(-3);
     return `${start}*****${end}`;
   }
-  return '091*****890';
+  return phone;
 };
 
 export interface UserGameStats {

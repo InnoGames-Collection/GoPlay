@@ -50,11 +50,11 @@ export const authService = {
     }
 
     const isDemoMsisdn =
-      local === '0977057270' ||
-      local === '0911998890' ||
+      local === env.DEMO_MSISDN_VIP ||
+      local === env.DEMO_MSISDN_FREE ||
       rawPhone === env.DEFAULT_TEST_MSISDN ||
-      rawPhone === '0977057270' ||
-      rawPhone === '0911998890';
+      rawPhone === env.DEMO_MSISDN_VIP ||
+      rawPhone === env.DEMO_MSISDN_FREE;
 
     // In live production, require cryptographic container token alongside phone number (unless designated demo / onboarding persona)
     if (env.NODE_ENV === 'production' && env.TELEBIRR_MODE === 'live' && !telebirrToken && !isDemoMsisdn) {
@@ -64,7 +64,7 @@ export const authService = {
       };
     }
 
-    const initialCoins = (local === '0977057270' || local === '0911998890') ? 100 : 50;
+    const initialCoins = (local === env.DEMO_MSISDN_VIP || local === env.DEMO_MSISDN_FREE) ? 100 : 50;
 
     // Upsert Profile in PostgreSQL
     const upsertRes = await query(

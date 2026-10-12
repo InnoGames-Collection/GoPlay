@@ -41,3 +41,32 @@ export const TELEBIRR_SPONSOR_ADS = [
     accentColor: '#0057A8',
   },
 ];
+
+/**
+ * Pre-seeded INSA Demo Personas for Verification Testing
+ * Configurable via VITE_DEMO_PHONE_VIP and VITE_DEMO_PHONE_FREE
+ */
+export interface DemoPersona {
+  id: 'vip' | 'free';
+  phone: string;
+  name: string;
+  description: string;
+  badge: string;
+}
+
+export const DEMO_TEST_PERSONAS: DemoPersona[] = [
+  {
+    id: 'vip',
+    phone: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_DEMO_PHONE_VIP) || '0977057270',
+    name: 'VIP Subscriber Persona',
+    description: 'Active subscription, 100 coins pre-funded in DB',
+    badge: 'VIP ACTIVE',
+  },
+  {
+    id: 'free',
+    phone: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_DEMO_PHONE_FREE) || '0911998890',
+    name: 'Standard Free Player Persona',
+    description: 'Free tier, 100 coins pre-funded in DB',
+    badge: 'FREE TIER',
+  },
+];

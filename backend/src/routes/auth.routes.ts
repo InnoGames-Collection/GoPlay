@@ -6,6 +6,7 @@ import { cache } from '../config/cache.js';
 import { query } from '../config/database.js';
 import { generateRandomOtp } from '../utils/crypto.js';
 import { normalizeEthiopianPhone } from '../utils/msisdn.js';
+import { env } from '../config/env.js';
 
 const TelebirrLoginSchema = z.object({
   phoneNumber: z.string().optional(),
@@ -65,7 +66,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       });
     }
 
-    const isDemo = norm.local === '0977057270' || norm.local === '0911998890';
+    const isDemo = norm.local === env.DEMO_MSISDN_VIP || norm.local === env.DEMO_MSISDN_FREE;
     const otp = isDemo ? '123456' : generateRandomOtp(6);
 
     try {
@@ -104,7 +105,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       });
     }
 
-    const isDemo = norm.local === '0977057270' || norm.local === '0911998890';
+    const isDemo = norm.local === env.DEMO_MSISDN_VIP || norm.local === env.DEMO_MSISDN_FREE;
     let isValidOtp = false;
 
     try {
