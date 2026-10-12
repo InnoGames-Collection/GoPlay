@@ -147,11 +147,11 @@ export const authService = {
 
     if (subRes.rowCount === 0) {
       subRes = await query(
-        `SELECT plan, is_active, auto_renew, expires_at
+        `SELECT plan_type AS plan, (status = 'ACTIVE') AS is_active, TRUE AS auto_renew, next_billing_at AS expires_at
            FROM subscriptions
-          WHERE (user_id = $1 OR msisdn = $2) AND is_active = TRUE AND expires_at > NOW()
-          ORDER BY expires_at DESC LIMIT 1`,
-        [userId, row.phone]
+          WHERE (msisdn = $1 OR msisdn = $2) AND status = 'ACTIVE' AND next_billing_at > NOW()
+          ORDER BY next_billing_at DESC LIMIT 1`,
+        [row.phone, row.msisdn]
       );
     }
 
