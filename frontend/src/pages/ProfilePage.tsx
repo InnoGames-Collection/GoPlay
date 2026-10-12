@@ -92,20 +92,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   onLanguageChange,
   onPlayGame,
   onOpenBuyCoins,
+  onOpenAuthModal,
   onProfileUpdate,
 }) => {
   const [subView, setSubView] = useState<ProfileSubView>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  const phone = profile.phoneNumber || '0911234890';
-  const maskedMsisdn = `${phone.slice(0, 3)}*****${phone.slice(-3)}`;
+  const phone = profile?.phoneNumber || '0911234890';
+  const maskedMsisdn = phone.length >= 6 ? `${phone.slice(0, 3)}*****${phone.slice(-3)}` : '091*****890';
 
   // Real highest valid competitive game score from existing system
   const bestScore = useMemo(() => {
-    const scores = Object.values(profile.highScores || {}) as number[];
+    const scores = Object.values(profile?.highScores || {}) as number[];
     const maxProfileScore = scores.length > 0 ? Math.max(...scores) : 0;
     const tournamentSummary = TournamentService.getTournamentSummary(profile);
-    const tournamentBest = tournamentSummary.currentUserBestScore || 0;
+    const tournamentBest = tournamentSummary?.currentUserBestScore || 0;
     return Math.max(maxProfileScore, tournamentBest);
   }, [profile]);
 
