@@ -97,13 +97,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         )}
 
-        {/* Top Header: Telebirr & GoPlay Unified Branding */}
+        {/* Top Header: GoPlay Official Branding */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
           <div className="flex items-center gap-2">
-            <div className="h-7 px-2.5 rounded-lg bg-[#0057A8] text-white flex items-center justify-center font-black text-xs tracking-tight shadow-xs">
-              telebirr
-            </div>
-            <span className="text-slate-300 font-bold">•</span>
             <GoPlayLogo size="xs" />
           </div>
 

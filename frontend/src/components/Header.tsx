@@ -30,8 +30,8 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] select-none pt-[env(safe-area-inset-top,0px)]">
       <div className="max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2 min-h-[58px]">
         
-        {/* 1. LEFT: Menu button & telebirr Mini-App Brand Indicator */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        {/* 1. LEFT: Menu button & GoPlay Brand Anchor */}
+        <div className="flex items-center gap-2 shrink-0">
           {onOpenMenu && (
             <button
               id="header-main-menu-btn"
@@ -45,38 +45,18 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* telebirr mini-app badge */}
+          {/* GoPlay Brand Identity */}
           <div 
-            id="header-telebirr-chip"
-            className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-sky-50 border border-sky-200 text-[#1688C9] cursor-pointer hover:bg-sky-100 transition-colors"
-            title="telebirr SuperApp Game Center"
+            id="header-goplay-brand"
+            className="flex items-center cursor-pointer px-0.5 transition-transform active:scale-98"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            title="GoPlay"
           >
-            <div className="w-5 h-5 rounded-lg bg-[#1688C9] text-white font-black text-[11px] flex items-center justify-center leading-none">
-              tb
-            </div>
-            <div className="hidden xs:flex flex-col text-left leading-tight">
-              <span className="text-[9px] font-black tracking-tight text-[#1688C9] uppercase">
-                telebirr
-              </span>
-              <span className="text-[8px] font-semibold text-slate-500 -mt-0.5">
-                Game Center
-              </span>
-            </div>
+            <GoPlayLogo size="sm" />
           </div>
         </div>
 
-        {/* 2. CENTER: GoPlay Visual Identity */}
-        <div 
-          id="header-goplay-brand"
-          className="flex items-center justify-center text-center cursor-pointer px-1 shrink-0 transition-transform active:scale-98"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          title="GoPlay"
-        >
-          <GoPlayLogo size="sm" />
-        </div>
-
-        {/* 3. RIGHT: Coins Balance Chip & Instant Topup */}
+        {/* 2. RIGHT: Coins Balance Chip & Instant Topup */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             id="header-buy-coins-btn"

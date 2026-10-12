@@ -80,15 +80,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-between p-4 sm:p-6 font-['Plus_Jakarta_Sans',sans-serif] select-none">
       
-      {/* 1. TOP BAR: telebirr & GoPlay Branding */}
+      {/* 1. TOP BAR: GoPlay Official Branding */}
       <div className="w-full max-w-md mx-auto flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
-          <div className="h-7 px-2.5 rounded-lg bg-[#0057A8] text-white flex items-center justify-center font-black text-xs tracking-tight shadow-xs">
-            telebirr
-          </div>
-          <span className="text-slate-300 font-bold">•</span>
           <GoPlayLogo size="sm" />
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#78BE20] text-white font-black uppercase">
+          <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#82C341]/15 text-[#659C28] font-black uppercase tracking-wider">
             Game Center
           </span>
         </div>
