@@ -35,6 +35,7 @@ import { SubscriptionPage } from './pages/content/SubscriptionPage';
 import { PricingPage } from './pages/content/PricingPage';
 import { TermsPage } from './pages/content/TermsPage';
 import { PrivacyPage } from './pages/content/PrivacyPage';
+import { MyScoresPage } from './pages/content/MyScoresPage';
 
 export default function App() {
   const {
@@ -118,8 +119,25 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [activeGameToLaunch, isCoinTopupOpen, selectedGameForDetails, pendingAccessGame, isMainMenuOpen, contentView, closeGameLauncher]);
 
+  const handleOpenMainMenu = () => {
+    window.history.pushState({ menuOpen: true }, '');
+    setIsMainMenuOpen(true);
+  };
+
+  const handleCloseMainMenu = () => {
+    setIsMainMenuOpen(false);
+    if (window.history.state?.menuOpen) {
+      window.history.back();
+    }
+  };
+
   const navigateToContentSection = (section: MainMenuSection) => {
-    window.history.pushState({ contentView: section }, '');
+    setIsMainMenuOpen(false);
+    if (window.history.state?.menuOpen) {
+      window.history.replaceState({ contentView: section }, '');
+    } else {
+      window.history.pushState({ contentView: section }, '');
+    }
     setContentView(section);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -186,7 +204,7 @@ export default function App() {
       <Header
         profile={profile}
         onOpenBuyCoins={() => setIsCoinTopupOpen(true)}
-        onOpenMenu={() => setIsMainMenuOpen(true)}
+        onOpenMenu={handleOpenMainMenu}
       />
 
       {/* 2. Main Dynamic Content Area */}
@@ -261,6 +279,16 @@ export default function App() {
           </div>
         )}
 
+        {contentView === 'my_scores' && (
+          <div className="py-2">
+            <MyScoresPage
+              profile={profile}
+              onBack={handleBackFromContent}
+              showHeader={true}
+            />
+          </div>
+        )}
+
         {/* Tab Views (Active when no top-level content view is open) */}
         {contentView === null && (
           <>
@@ -323,14 +351,23 @@ export default function App() {
       {/* 3. Main Menu Drawer */}
       <MainMenuDrawer
         isOpen={isMainMenuOpen}
-        onClose={() => setIsMainMenuOpen(false)}
-        onSelectSection={(sec) => navigateToContentSection(sec)}
+        onClose={handleCloseMainMenu}
+        onSelectSection={navigateToContentSection}
+        activeSection={contentView}
       />
 
       {/* 4. Mobile-First Bottom Navigation Bar (5 Tabs) */}
       <BottomNav
         activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab)}
+        onTabChange={(tab) => {
+          if (isMainMenuOpen) {
+            handleCloseMainMenu();
+          }
+          if (contentView) {
+            setContentView(null);
+          }
+          setActiveTab(tab);
+        }}
         labels={{
           home: 'HOME',
           games: 'GAMES',

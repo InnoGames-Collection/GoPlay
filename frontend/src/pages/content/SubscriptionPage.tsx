@@ -187,7 +187,7 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
             <span className="font-bold text-[#607582]">telebirr Wallet Balance</span>
           </div>
           <span className="font-black text-[#183345] font-mono">
-            {profile.telebirrBalance.toFixed(2)} ETB
+            {(profile.telebirrBalance ?? 0).toFixed(2)} ETB
           </span>
         </div>
       )}

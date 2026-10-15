@@ -1,5 +1,5 @@
 import React from 'react';
-import logoImg from '../assets/goplay-logo.png';
+const logoImg = '/assets/goplay-logo.png';
 
 export interface GoPlayLogoProps {
   className?: string;
