@@ -118,7 +118,11 @@ export const GameDetailPage: React.FC<GameDetailPageProps> = ({
       <div className="relative rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm mb-6">
         {/* Large Original Artwork Container */}
         <div className="relative w-full h-56 sm:h-72 md:h-80 overflow-hidden bg-slate-100">
-          <OriginalGameArtwork gameId={game.id} className="w-full h-full" />
+          <OriginalGameArtwork 
+            gameId={game.id} 
+            src={game.bannerUrl || game.thumbnailUrl} 
+            className="w-full h-full" 
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           {/* Badges Over Artwork */}

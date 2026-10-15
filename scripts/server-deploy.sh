@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # GoPlay — Enterprise Production Deployment Engine (Telebirr Game Center)
-# Target: GCP Compute Engine VM (innoserver-serv001: 34.41.116.217)
+# Target: GCP Compute Engine VM (innoserver-serv001: 35.223.254.218)
 # Ports: Web: 3300 | API: 3302 | Admin: 3303 | DB: 5434 | Valkey: 6384
 # ==============================================================================
 set -Eeuo pipefail

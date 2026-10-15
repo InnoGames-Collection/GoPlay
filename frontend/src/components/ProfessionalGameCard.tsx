@@ -98,6 +98,7 @@ export const ProfessionalGameCard: React.FC<ProfessionalGameCardProps> = ({
       <div className="game-card-image relative w-full aspect-[16/9] overflow-hidden bg-slate-100 shrink-0">
         <OriginalGameArtwork 
           gameId={game.id} 
+          src={game.bannerUrl || game.thumbnailUrl}
           alt={`${game.title} promotional key art`}
           className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105" 
         />

@@ -1,6 +1,6 @@
 # ==============================================================================
 # GoPlay — Complete Production Stack (Web + Admin + API + Postgres + Valkey)
-# Target: GCP Compute Engine VM (innoserver-serv001: 34.41.116.217)
+# Target: GCP Compute Engine VM (innoserver-serv001: 35.223.254.218)
 # Port Block (per ITG/shared-infra/PORT_ALLOCATION_CREDENTIALS_AND_ONBOARDING.md):
 #   - 3300: goplay-web (Competitive & Tournament Games Portal for telebirr)
 #   - 3302: goplay-api (Fastify Telebirr C2B/B2C API)

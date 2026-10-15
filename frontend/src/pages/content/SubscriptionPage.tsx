@@ -31,9 +31,15 @@ interface SubscriptionPageProps {
   onProfileUpdate?: (updated: UserProfile) => void;
 }
 
-const ALL_ACCESS_PASSES = [
+const ALL_ACCESS_PASSES: {
+  id: 'daily' | 'weekly' | 'monthly';
+  name: string;
+  priceETB: number;
+  period: string;
+  features: string[];
+}[] = [
   {
-    id: 'daily' as SubscriptionPlan,
+    id: 'daily',
     name: 'Daily',
     priceETB: 5,
     period: '24 Hours',
@@ -42,7 +48,7 @@ const ALL_ACCESS_PASSES = [
     ],
   },
   {
-    id: 'weekly' as SubscriptionPlan,
+    id: 'weekly',
     name: 'Weekly',
     priceETB: 20,
     period: '7 Days',
@@ -51,7 +57,7 @@ const ALL_ACCESS_PASSES = [
     ],
   },
   {
-    id: 'monthly' as SubscriptionPlan,
+    id: 'monthly',
     name: 'Monthly',
     priceETB: 50,
     period: '30 Days',

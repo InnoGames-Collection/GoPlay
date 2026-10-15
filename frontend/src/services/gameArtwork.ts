@@ -4438,7 +4438,37 @@ function renderColorTapSprintArt(ctx: CanvasRenderingContext2D, w: number, h: nu
 
 // Public Artwork Dispatcher & Cached Master Generator
 // =============================================================================
+export const GAME_BANNER_MAP: Record<string, string> = {
+  'button-soccer': '/banners/Button%20Soccer.png',
+  'juicy-match': '/banners/Candy%20Juice.png',
+  'candy-juice': '/banners/Candy%20Juice.png',
+  'candy-juicy': '/banners/Candy%20Juice.png',
+  'emoji-fun': '/banners/Emoji%20Fun.png',
+  'soccer-ping-pong': '/banners/Soccer%20Ping%20Pong.png',
+  'world-legends': '/banners/Word%20legend.png',
+  'word-legend': '/banners/Word%20legend.png',
+  'word-legends': '/banners/Word%20legend.png',
+  'candy-blast': '/banners/candy%20crush.png',
+  'candy-crush': '/banners/candy%20crush.png',
+  'dama': '/banners/dama.png',
+  'pop-piano': '/banners/pop%20piano.png',
+  'soccer-shooter': '/banners/soccer%20shooter.png',
+};
+
+export function getGameBannerUrl(gameId: string): string | undefined {
+  if (!gameId) return undefined;
+  const key = gameId.toLowerCase().trim();
+  if (GAME_BANNER_MAP[key]) return GAME_BANNER_MAP[key];
+  const slug = key.replace(/[^a-z0-9]/g, '-');
+  return GAME_BANNER_MAP[slug];
+}
+
 export function getGameArtworkUrl(gameId: string): string {
+  const staticBanner = getGameBannerUrl(gameId);
+  if (staticBanner) {
+    return staticBanner;
+  }
+
   if (artworkCache[gameId]) {
     return artworkCache[gameId];
   }

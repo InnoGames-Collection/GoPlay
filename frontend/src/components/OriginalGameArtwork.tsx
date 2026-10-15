@@ -5,6 +5,7 @@ interface ArtworkProps {
   gameId: string;
   className?: string;
   alt?: string;
+  src?: string;
 }
 
 /**
@@ -16,8 +17,8 @@ interface ArtworkProps {
  * - Zero non-gaming icons, emojis, or text badges
  * - Subtle hover zoom & specular depth
  */
-export const OriginalGameArtwork: React.FC<ArtworkProps> = ({ gameId, className = '', alt }) => {
-  const artworkUrl = useMemo(() => getGameArtworkUrl(gameId), [gameId]);
+export const OriginalGameArtwork: React.FC<ArtworkProps> = ({ gameId, className = '', alt, src }) => {
+  const artworkUrl = useMemo(() => src || getGameArtworkUrl(gameId), [gameId, src]);
 
   return (
     <div className={`relative w-full h-full overflow-hidden bg-slate-950 flex items-center justify-center select-none group ${className}`}>

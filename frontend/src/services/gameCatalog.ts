@@ -119,8 +119,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: '3D Tropical Match-3',
     tagline: 'Match glossy 3D tropical fruits, trigger juice cascades, and conquer 40 island levels!',
     description: 'A vibrant and juicy Match-3 puzzle adventure. Swap 3D strawberries, blueberries, kiwi slices, bananas, and grapes to shatter crates, uncover treasure chests, and unleash Rainbow Bomb combos across 40 challenging tropical levels.',
-    thumbnail: getGameArtworkUrl('juicy-match'),
-    banner: getGameArtworkUrl('juicy-match'),
+    thumbnail: '/banners/Candy%20Juice.png',
+    banner: '/banners/Candy%20Juice.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -152,8 +152,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: 'Tournament Emoji Puzzle & Knowledge',
     tagline: 'Master 40 levels of emoji puzzles, combinations, sequences & tournament scoring!',
     description: 'The official EMOJI FUN tournament puzzle arena. Solve 15 unique emoji puzzle categories across 40 levels with dynamic skill-based scoring, combos, hints, lives, store, and competitive leaderboard.',
-    thumbnail: getGameArtworkUrl('emoji-fun'),
-    banner: getGameArtworkUrl('emoji-fun'),
+    thumbnail: '/banners/Emoji%20Fun.png',
+    banner: '/banners/Emoji%20Fun.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -186,8 +186,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: 'Rhythm Piano Beat Tiles',
     tagline: 'Tap falling glowing keys to chart-topping melodies and rhythms!',
     description: 'Fast rhythm piano tile gameplay featuring popular songs, acoustic chords, and global hits. Tap descending piano tiles in sync with the beat to achieve perfect harmony.',
-    thumbnail: getGameArtworkUrl('pop-piano'),
-    banner: getGameArtworkUrl('pop-piano'),
+    thumbnail: '/banners/pop%20piano.png',
+    banner: '/banners/pop%20piano.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -219,8 +219,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: 'Civilization & Mythology Trivia Puzzle',
     tagline: 'Journey through world history, mythology, ancient civilizations, and lore!',
     description: 'An immersive knowledge and trivia adventure. Answer intriguing questions on world civilizations, ancient mythology, Ethiopian imperial heritage, and legendary world events.',
-    thumbnail: getGameArtworkUrl('world-legends'),
-    banner: getGameArtworkUrl('world-legends'),
+    thumbnail: '/banners/Word%20legend.png',
+    banner: '/banners/Word%20legend.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -252,8 +252,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: 'Match-3 Confectionery Puzzle',
     tagline: 'Match vibrant honey candies, trigger sweet sugar blasts and combos!',
     description: 'A delightful confectionery match-3 puzzle. Swap and connect 3 or more delicious honey candies to trigger colorful cascades, sweet sugar blasts, and massive combo multipliers.',
-    thumbnail: getGameArtworkUrl('candy-blast'),
-    banner: getGameArtworkUrl('candy-blast'),
+    thumbnail: '/banners/candy%20crush.png',
+    banner: '/banners/candy%20crush.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -285,8 +285,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: 'Stadium Soccer Bubble Match',
     tagline: 'Kick 3D national soccer balls, execute wall bank shots, and clear 40 World Cup levels!',
     description: 'The championship edition of Soccer Shooter. Aim the precision dotted trajectory guide from the penalty spot, bank shots off stadium walls, trigger massive goalmouth cluster drops (+250 PTS), and manage penalty fouls.',
-    thumbnail: getGameArtworkUrl('soccer-shooter'),
-    banner: getGameArtworkUrl('soccer-shooter'),
+    thumbnail: '/banners/soccer%20shooter.png',
+    banner: '/banners/soccer%20shooter.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -318,8 +318,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: '3D Ethiopian Draughts Strategy',
     tagline: 'Master the 3D championship draughts board against intelligent tactical AI!',
     description: 'Single-player 3D Draughts (Dama) against an advanced computer opponent. Experience physical wooden pieces, realistic board depth, mandatory captures, multi-jumps, and king crowning across progressive challenges.',
-    thumbnail: getGameArtworkUrl('dama'),
-    banner: getGameArtworkUrl('dama'),
+    thumbnail: '/banners/dama.png',
+    banner: '/banners/dama.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -351,8 +351,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: '2026 World Tour Table Soccer',
     tagline: 'Drag back to aim & power, execute bank shots, and conquer 40 very difficult Championship levels!',
     description: 'The authentic 2026 World Tour button soccer tournament. Choose your nation, drag back from your 3D team discs to aim & power, score against very difficult AI opponents, and conquer 40 championship levels with pass-and-play 2-player mode.',
-    thumbnail: getGameArtworkUrl('button-soccer'),
-    banner: getGameArtworkUrl('button-soccer'),
+    thumbnail: '/banners/Button%20Soccer.png',
+    banner: '/banners/Button%20Soccer.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -384,8 +384,8 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
     genre: '3D Soccer Table Tennis Arcade',
     tagline: 'Master professional 3D soccer table tennis across 20 stadium levels!',
     description: 'Control a high-velocity 3D soccer ball in fast-paced table tennis rallies against tactical AI opponents. Execute precision volleys, curve spins, power smashes, and obstacle rebounds across 6 progressive stadiums.',
-    thumbnail: getGameArtworkUrl('soccer-ping-pong'),
-    banner: getGameArtworkUrl('soccer-ping-pong'),
+    thumbnail: '/banners/Soccer%20Ping%20Pong.png',
+    banner: '/banners/Soccer%20Ping%20Pong.png',
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -491,7 +491,11 @@ export const GameCatalog = {
       .sort((a, b) => (orderIndexMap.get(a.gameId as any) ?? 999) - (orderIndexMap.get(b.gameId as any) ?? 999))
       .map((g) => {
         const art = getGameArtworkUrl(g.gameId);
-        return art ? { ...g, thumbnail: art, banner: art } : g;
+        return {
+          ...g,
+          thumbnail: g.thumbnail || art,
+          banner: g.banner || art,
+        };
       });
   },
 
@@ -499,7 +503,11 @@ export const GameCatalog = {
     const g = INITIAL_GAME_CATALOG.find((g) => g.gameId === gameId);
     if (!g) return undefined;
     const art = getGameArtworkUrl(g.gameId);
-    return art ? { ...g, thumbnail: art, banner: art } : g;
+    return {
+      ...g,
+      thumbnail: g.thumbnail || art,
+      banner: g.banner || art,
+    };
   },
 
   getByCategory(category: string): CatalogGame[] {
