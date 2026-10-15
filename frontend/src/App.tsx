@@ -321,6 +321,7 @@ export default function App() {
               <TournamentPage
                 profile={profile}
                 onPlayGame={handlePlayGame}
+                onNavigateToLeaderboard={() => setActiveTab('leaderboard')}
               />
             )}
 

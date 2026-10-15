@@ -254,9 +254,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             return (
               <div key={game.gameId} className="p-3.5 flex items-center justify-between hover:bg-[#F4F7F6] transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
-                  {game.thumbnailUrl && (
+                  {game.thumbnail && (
                     <img 
-                      src={game.thumbnailUrl} 
+                      src={game.thumbnail} 
                       alt={game.gameName} 
                       className="w-10 h-10 rounded-xl object-cover bg-slate-900 shrink-0" 
                     />

@@ -26,7 +26,8 @@ import {
   ArrowRight,
   Loader2,
   Crown,
-  UserCheck
+  UserCheck,
+  AlertCircle
 } from 'lucide-react';
 import { DEMO_TEST_PERSONAS } from '../data/portalConfig';
 import { GoPlayLogo } from './GoPlayLogo';

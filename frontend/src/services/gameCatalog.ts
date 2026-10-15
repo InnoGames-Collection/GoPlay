@@ -24,6 +24,8 @@ export interface CatalogGame {
   description: string;
   thumbnail: string;
   banner: string;
+  thumbnailUrl?: string;
+  bannerUrl?: string;
   accessType: GameAccessType;
   price?: number; // for ONE-TIME PURCHASE
   billingPeriod?: ('daily' | 'weekly' | 'monthly')[];
@@ -146,7 +148,7 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
   },
   {
     gameId: 'emoji-fun',
-    gameName: 'EMOJI FUN',
+    gameName: 'Emoji Fun',
     titleAmharic: 'ኢሞጂ ፈን',
     category: 'Puzzle',
     genre: 'Tournament Emoji Puzzle & Knowledge',
@@ -411,14 +413,14 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
   },
   {
     gameId: 'bubble-sort',
-    gameName: 'BUBBLE SORT',
+    gameName: 'Bubble Sort',
     titleAmharic: 'የአረፋ መድደር',
     category: 'Puzzle',
     genre: 'Underwater Word Category Puzzle',
     tagline: 'Sort floating word bubbles into category clusters, trigger giant merges and conquer 40 tournament levels!',
     description: 'An underwater tournament puzzle challenge inspired by the official video reference. Tap floating glass bubbles to merge related words into colorful category clusters. Watch bubbles transform from single words to Green (2 words), Purple (3 words), and Orange (Category complete), then burst into magnificent splash particles. Features 40 hard tournament levels, move limits, wisdom rewards, and the Extra Bubbles booster.',
-    thumbnail: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&auto=format&fit=crop&q=80',
+    thumbnail: getGameArtworkUrl('bubble-sort'),
+    banner: getGameArtworkUrl('bubble-sort'),
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -447,14 +449,14 @@ export const INITIAL_GAME_CATALOG: CatalogGame[] = [
   },
   {
     gameId: 'color-tap-sprint',
-    gameName: 'COLOR TAP SPRINT',
+    gameName: 'Color Tap Sprint',
     titleAmharic: 'የቀለም ምት ፍጥነት',
     category: 'Arcade',
     genre: 'Candy Reflex Color Sprint',
     tagline: 'Train your color reflex! Tap the matching card colors in a high-speed tournament sprint across 40 levels!',
     description: 'The official Color Tap Sprint tournament game. Follow the prompt "TAP THE CARD COLOR" and strike the card whose background color matches the target. Avoid tricky Stroop word decoys, maintain combo streaks, earn time bonuses, and utilize Focus boosters to conquer 40 increasingly hard tournament levels.',
-    thumbnail: 'https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?w=1200&auto=format&fit=crop&q=80',
+    thumbnail: getGameArtworkUrl('color-tap-sprint'),
+    banner: getGameArtworkUrl('color-tap-sprint'),
     accessType: 'FREE',
     isFree: true,
     requiresCoins: false,
@@ -491,10 +493,14 @@ export const GameCatalog = {
       .sort((a, b) => (orderIndexMap.get(a.gameId as any) ?? 999) - (orderIndexMap.get(b.gameId as any) ?? 999))
       .map((g) => {
         const art = getGameArtworkUrl(g.gameId);
+        const thumb = g.thumbnail || art;
+        const banner = g.banner || art;
         return {
           ...g,
-          thumbnail: g.thumbnail || art,
-          banner: g.banner || art,
+          thumbnail: thumb,
+          banner: banner,
+          thumbnailUrl: thumb,
+          bannerUrl: banner,
         };
       });
   },
@@ -503,10 +509,14 @@ export const GameCatalog = {
     const g = INITIAL_GAME_CATALOG.find((g) => g.gameId === gameId);
     if (!g) return undefined;
     const art = getGameArtworkUrl(g.gameId);
+    const thumb = g.thumbnail || art;
+    const banner = g.banner || art;
     return {
       ...g,
-      thumbnail: g.thumbnail || art,
-      banner: g.banner || art,
+      thumbnail: thumb,
+      banner: banner,
+      thumbnailUrl: thumb,
+      bannerUrl: banner,
     };
   },
 

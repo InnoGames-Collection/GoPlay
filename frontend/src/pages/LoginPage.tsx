@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   Crown,
   UserCheck,
-  Loader2
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { DEMO_TEST_PERSONAS } from '../data/portalConfig';
 import { GoPlayLogo } from '../components/GoPlayLogo';

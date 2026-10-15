@@ -52,7 +52,7 @@ function assertCheck(name: string, condition: boolean, details?: string) {
 }
 
 // Mock User Profile
-const mockProfile: UserProfile = {
+const mockProfile: any = {
   id: 'usr_test_001',
   userId: 'usr_test_001',
   msisdn: '251911223344',

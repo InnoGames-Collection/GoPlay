@@ -52,7 +52,7 @@ export const MyScoresPage: React.FC<MyScoresPageProps> = ({
             <div key={game.gameId} className="p-3.5 flex items-center justify-between hover:bg-[#F4F7F6] transition-colors">
               <div className="flex items-center gap-3 min-w-0">
                 <img
-                  src={game.thumbnailUrl || game.bannerUrl}
+                  src={game.thumbnail || game.banner}
                   alt={game.gameName}
                   className="w-10 h-10 rounded-xl object-cover bg-slate-900 shrink-0 border border-[#DCE7E8]"
                 />

@@ -34,6 +34,9 @@ export type SubscriptionPlan = 'free' | 'daily' | 'weekly' | 'monthly';
 
 export interface UserProfile {
   id: string;
+  userId?: string;
+  msisdn?: string;
+  tier?: string;
   phoneNumber: string; // e.g. 0912345678 or +251 91 142 8890
   displayName: string;
   name?: string;
