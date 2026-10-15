@@ -107,13 +107,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   const accountBadge = isRegistered ? 'VERIFIED' : 'GUEST';
   const coinsBalance = profile?.coins ?? 0;
 
-  // Real highest valid competitive game score from existing system
+  // Real Crazy Color tournament best score for the active tournament
   const bestScore = useMemo(() => {
-    const scores = Object.values(profile?.highScores || {}) as number[];
-    const maxProfileScore = scores.length > 0 ? Math.max(...scores) : 0;
     const tournamentSummary = TournamentService.getTournamentSummary(profile);
-    const tournamentBest = tournamentSummary?.currentUserBestScore || 0;
-    return Math.max(maxProfileScore, tournamentBest);
+    const tournamentScore = tournamentSummary?.currentUserScores?.['crazy-colors'] ?? 0;
+    const personalCrazyScore = profile?.highScores?.['crazy-colors'] ?? 0;
+    return Math.max(tournamentScore, personalCrazyScore);
   }, [profile]);
 
   // Played or unlocked games
@@ -229,6 +228,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   }
 
   if (subView === 'my_scores') {
+    const allGames = GameCatalog.getAll();
+    const playedCount = Object.keys(profile.highScores || {}).length;
+
     return (
       <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 select-none space-y-4">
         <div className="flex items-center justify-between gap-3 bg-[#102B3F] text-white p-3.5 rounded-2xl shadow-xs border border-[#116B73]/40">
@@ -239,25 +241,41 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             >
               <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
             </button>
-            <h1 className="text-base font-black tracking-tight">My Scores</h1>
+            <h1 className="text-base font-black tracking-tight">My High Scores</h1>
           </div>
+          <span className="text-xs font-bold text-[#DFF7EA]">
+            {playedCount} Recorded
+          </span>
         </div>
 
         <div className="rounded-2xl border border-[#DCE7E8] overflow-hidden bg-white shadow-2xs divide-y divide-[#DCE7E8]">
-          {Object.entries(profile.highScores || {}).map(([gameId, score]) => {
-            const catalogGame = GameCatalog.getById(gameId);
+          {allGames.map((game) => {
+            const score = profile.highScores?.[game.gameId] ?? 0;
             return (
-              <div key={gameId} className="p-3.5 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-black text-[#183345]">
-                    {catalogGame?.gameName || gameId}
-                  </div>
-                  <div className="text-[10px] text-[#607582] capitalize">
-                    {catalogGame?.category || 'Standard Game'}
+              <div key={game.gameId} className="p-3.5 flex items-center justify-between hover:bg-[#F4F7F6] transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  {game.thumbnailUrl && (
+                    <img 
+                      src={game.thumbnailUrl} 
+                      alt={game.gameName} 
+                      className="w-10 h-10 rounded-xl object-cover bg-slate-900 shrink-0" 
+                    />
+                  )}
+                  <div className="min-w-0">
+                    <div className="text-xs font-black text-[#183345] truncate">
+                      {game.gameName}
+                    </div>
+                    <div className="text-[10px] text-[#607582] capitalize">
+                      {game.category}
+                    </div>
                   </div>
                 </div>
-                <div className="text-sm font-black text-[#087F8C] font-mono">
-                  {score.toLocaleString()} pts
+                <div className="text-sm font-black font-mono shrink-0">
+                  {score > 0 ? (
+                    <span className="text-[#087F8C]">{score.toLocaleString()} pts</span>
+                  ) : (
+                    <span className="text-[#607582] text-xs font-normal">Not Played</span>
+                  )}
                 </div>
               </div>
             );
@@ -285,8 +303,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-xs shrink-0">
-              <GoPlayLogo size="xs" />
+            <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shadow-xs shrink-0 text-white">
+              <User className="w-6 h-6 text-[#DFF7EA]" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -306,18 +324,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {onOpenAuthModal && (
-              <button
-                id="profile-switch-account-btn"
-                type="button"
-                onClick={onOpenAuthModal}
-                className="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-bold transition-all cursor-pointer"
-                title={isRegistered ? "Switch telebirr Persona / Test Account" : "Connect with telebirr"}
-              >
-                {isRegistered ? 'Switch' : 'Connect'}
-              </button>
-            )}
-
             <button
               id="profile-top-up-btn"
               type="button"
@@ -367,8 +373,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-[#183345] font-mono flex items-baseline gap-1">
-            <span>{bestScore.toLocaleString()}</span>
-            <span className="text-xs font-bold text-[#607582] font-sans">pts</span>
+            {bestScore > 0 ? (
+              <>
+                <span>{bestScore.toLocaleString()}</span>
+                <span className="text-xs font-bold text-[#607582] font-sans">pts</span>
+              </>
+            ) : (
+              <span className="text-base font-bold text-[#607582]">0 <span className="text-xs font-sans">pts</span></span>
+            )}
           </div>
         </div>
       </div>

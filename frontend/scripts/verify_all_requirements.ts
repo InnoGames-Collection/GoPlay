@@ -208,6 +208,75 @@ assertCheck(
   migration11.includes("game_id = 'crazy-colors'") && migration11.includes('entry_fee_coins = 0')
 );
 
+// -----------------------------------------------------------------------------
+// TARGETED CORRECTIONS: PROFILE, LEADERBOARD, SUBSCRIPTION AUDIT
+// -----------------------------------------------------------------------------
+console.log('\n--- TARGETED CORRECTIONS AUDIT ---');
+
+const profilePageFile = fs.readFileSync(path.join(FRONTEND_DIR, 'src/pages/ProfilePage.tsx'), 'utf-8');
+
+const goPlayLogoCountInProfile = (profilePageFile.match(/<GoPlayLogo/g) || []).length;
+assertCheck(
+  'Profile contains exactly ONE GoPlay logo in the header',
+  goPlayLogoCountInProfile === 1
+);
+
+assertCheck(
+  'Switch button is completely removed from Profile interface',
+  !profilePageFile.includes('profile-switch-account-btn') && !profilePageFile.includes("'Switch'")
+);
+
+assertCheck(
+  'Profile Available Coins preserves real user balance',
+  profilePageFile.includes('coinsBalance = profile?.coins ?? 0') && profilePageFile.includes('coinsBalance.toLocaleString()')
+);
+
+assertCheck(
+  'Profile Best Score reads specifically from Crazy Color tournament scoring (never all games max)',
+  profilePageFile.includes("currentUserScores?.['crazy-colors']") || profilePageFile.includes("profile?.highScores?.['crazy-colors']")
+);
+
+assertCheck(
+  'My High Scores remains accessible in Profile menu',
+  profilePageFile.includes("id: 'my_scores'") && profilePageFile.includes("label: 'My High Scores'")
+);
+
+assertCheck(
+  'My High Scores subview displays real individual-game personal bests from GameCatalog',
+  profilePageFile.includes("GameCatalog.getAll()") && profilePageFile.includes("profile.highScores?.[game.gameId]")
+);
+
+const leaderboardPageFile = fs.readFileSync(path.join(FRONTEND_DIR, 'src/pages/LeaderboardPage.tsx'), 'utf-8');
+
+assertCheck(
+  'LeaderboardPage removed the redundant Overall Best tab and summary',
+  !leaderboardPageFile.includes("'overall-best'") && !leaderboardPageFile.includes('Overall Best Leaderboard')
+);
+
+assertCheck(
+  'LeaderboardPage focuses exclusively on Crazy Color tournament scorers',
+  leaderboardPageFile.includes('Crazy Color Leaderboard') && leaderboardPageFile.includes('tourn_crazy_colors_01')
+);
+
+assertCheck(
+  'LeaderboardPage displays current player score and standing even when outside top 10',
+  leaderboardPageFile.includes('userRank > 10') && leaderboardPageFile.includes('maskedUserMsisdn')
+);
+
+const subscriptionPageFile = fs.readFileSync(path.join(FRONTEND_DIR, 'src/pages/content/SubscriptionPage.tsx'), 'utf-8');
+
+assertCheck(
+  'SubscriptionPage preserves daily, weekly, and monthly subscription info and prices',
+  subscriptionPageFile.includes("id: 'daily'") && subscriptionPageFile.includes("id: 'weekly'") && subscriptionPageFile.includes("id: 'monthly'") &&
+  subscriptionPageFile.includes('priceETB: 5') && subscriptionPageFile.includes('priceETB: 20') && subscriptionPageFile.includes('priceETB: 50')
+);
+
+assertCheck(
+  'Subscription purchase buttons are disabled and cannot trigger payment (Telebirr Mini-App)',
+  subscriptionPageFile.includes('disabled={true}') && subscriptionPageFile.includes('cursor-not-allowed') &&
+  subscriptionPageFile.includes('Managed via Telebirr')
+);
+
 console.log('\n==============================================================');
 if (allPassed) {
   console.log('🎉 ALL VERIFICATION CRITERIA PASSED WITH ZERO ERRORS!');

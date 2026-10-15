@@ -222,14 +222,17 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             </div>
           </div>
 
-          {/* Primary Action Button: Open SMS Composer to 977 with body (1, 2, or 3) */}
+          {/* Primary Action Button: Visibly and semantically disabled in mini-app context */}
           <button
             id="subscribe-open-sms-btn"
-            onClick={() => handleOpenSmsComposer(currentPlan.smsRecipient, currentPlan.smsBody, currentPlan.id)}
-            className="w-full py-3.5 rounded-2xl bg-[#82C341] hover:bg-[#72af36] text-white font-black text-sm active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
+            type="button"
+            disabled={true}
+            aria-disabled="true"
+            className="w-full py-3.5 rounded-2xl bg-[#F4F7F6] text-[#607582] border border-[#DCE7E8] font-black text-xs flex items-center justify-center gap-2 uppercase tracking-wider cursor-not-allowed opacity-80 select-none"
+            title="Subscriptions are pre-authenticated through Telebirr SuperApp"
           >
-            <Send className="w-4 h-4" />
-            <span>SEND SMS '{currentPlan.smsBody}' TO 977 ({currentPlan.priceETB} ETB)</span>
+            <ShieldCheck className="w-4 h-4 text-[#087F8C]" />
+            <span>Subscription Managed via Telebirr</span>
           </button>
 
           {smsTriggered && (
