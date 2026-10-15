@@ -3,16 +3,21 @@
  * Redesigned strictly according to user reference specifications:
  * - Exactly 5 tabs: Home, Games, Tournament, Leaderboard, Profile
  * - Floating, softly elevated dock container (rounded capsule with soft ambient shadow)
- * - Slightly larger, high-fidelity, recognizable 3D-styled icons
- * - Dedicated color palettes per tab:
- *    * Home: Vivid green gradient active state, white dimensional house icon
- *    * Games: Purple/violet controller with white D-pad and action buttons
- *    * Tournament: Golden/amber championship trophy cup with handles and star
- *    * Leaderboard: Royal blue 3-tier podium with floating star over #1 pillar
- *    * Profile: Magenta/pink circular badge with white avatar silhouette
+ * - Noticeably larger, high-fidelity, recognizable 3D-styled icons
+ * - Exact user color palette:
+ *    * Primary GO PLAY green: #80C943
+ *    * Active green gradient: #8BD34A to #68B932
+ *    * Games purple: #7955F5
+ *    * Tournament gold: #F4B82D
+ *    * Leaderboard blue: #378BFA
+ *    * Profile pink: #EC4B9B
+ *    * Primary text: #102B3A
+ *    * Secondary text: #617582
+ *    * Navigation background: #FFFFFF
+ *    * Borders: #E7ECEF
  * - Selected state: signature green gradient pill with soft glow and bottom accent indicator
- * - Unselected states: soft rounded light containers with dark navy title-case typography
- * - Equal-width columns (grid grid-cols-5), zero overflow or clipping on mobile widths
+ * - Unselected states: soft rounded light-tinted containers with dark navy title-case typography
+ * - Responsive 5-column layout with zero overflow or clipping on mobile widths
  */
 
 import React from 'react';
@@ -28,18 +33,18 @@ const HomeIcon: React.FC<{ isSelected: boolean; className?: string }> = ({ isSel
     {/* Chimney */}
     <path
       d="M17.5 4.5H19.5V8.5L17.5 7V4.5Z"
-      fill={isSelected ? '#FFFFFF' : '#4AA400'}
+      fill={isSelected ? '#FFFFFF' : '#68B932'}
       fillOpacity={isSelected ? 0.95 : 0.9}
     />
     {/* Main House Roof & Body */}
     <path
       d="M12 3L2.5 11.2C2.1 11.5 2.3 12.2 2.9 12.2H5V20.5C5 21.1 5.4 21.5 6 21.5H18C18.6 21.5 19 21.1 19 20.5V12.2H21.1C21.7 12.2 21.9 11.5 21.5 11.2L12 3Z"
-      fill={isSelected ? '#FFFFFF' : '#5EBF00'}
+      fill={isSelected ? '#FFFFFF' : '#80C943'}
     />
     {/* Arched Door */}
     <path
       d="M9.8 21.5V14.5C9.8 13.3 10.8 12.3 12 12.3C13.2 12.3 14.2 13.3 14.2 14.5V21.5H9.8Z"
-      fill={isSelected ? '#4AA400' : '#FFFFFF'}
+      fill={isSelected ? '#68B932' : '#FFFFFF'}
     />
     {/* Soft Roof Shine */}
     <path
@@ -50,10 +55,10 @@ const HomeIcon: React.FC<{ isSelected: boolean; className?: string }> = ({ isSel
   </svg>
 );
 
-/** 2. Games Icon: Purple/Violet Ergonomic Gaming Controller */
+/** 2. Games Icon: Purple/Violet Ergonomic Gaming Controller (#7955F5) */
 const GamesIcon: React.FC<{ isSelected: boolean; className?: string }> = ({ isSelected, className = 'w-6 h-6' }) => {
-  const bodyColor = isSelected ? '#FFFFFF' : '#7C3AED';
-  const detailColor = isSelected ? '#4AA400' : '#FFFFFF';
+  const bodyColor = isSelected ? '#FFFFFF' : '#7955F5';
+  const detailColor = isSelected ? '#68B932' : '#FFFFFF';
 
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -84,11 +89,11 @@ const GamesIcon: React.FC<{ isSelected: boolean; className?: string }> = ({ isSe
   );
 };
 
-/** 3. Tournament Icon: Golden/Amber Championship Trophy Cup */
+/** 3. Tournament Icon: Golden/Amber Championship Trophy Cup (#F4B82D) */
 const TournamentIcon: React.FC<{ isSelected: boolean; className?: string }> = ({ isSelected, className = 'w-6 h-6' }) => {
-  const trophyColor = isSelected ? '#FFFFFF' : '#F59E0B';
-  const stemColor = isSelected ? '#E2E8F0' : '#D97706';
-  const starColor = isSelected ? '#4AA400' : '#FFFFFF';
+  const trophyColor = isSelected ? '#FFFFFF' : '#F4B82D';
+  const stemColor = isSelected ? '#E2E8F0' : '#DC9F17';
+  const starColor = isSelected ? '#68B932' : '#FFFFFF';
 
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -136,10 +141,10 @@ const TournamentIcon: React.FC<{ isSelected: boolean; className?: string }> = ({
   );
 };
 
-/** 4. Leaderboard Icon: Royal Blue 3-Tier Podium with Floating Star */
+/** 4. Leaderboard Icon: Royal Blue 3-Tier Podium with Floating Star (#378BFA) */
 const LeaderboardIcon: React.FC<{ isSelected: boolean; className?: string }> = ({ isSelected, className = 'w-6 h-6' }) => {
-  const barColor = isSelected ? '#FFFFFF' : '#2563EB';
-  const starColor = isSelected ? '#FFFFFF' : '#3B82F6';
+  const barColor = isSelected ? '#FFFFFF' : '#378BFA';
+  const starColor = isSelected ? '#FFFFFF' : '#378BFA';
 
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -185,10 +190,10 @@ const LeaderboardIcon: React.FC<{ isSelected: boolean; className?: string }> = (
   );
 };
 
-/** 5. Profile Icon: Magenta/Pink Circular Badge with Solid White Avatar Silhouette */
+/** 5. Profile Icon: Magenta/Pink Circular Badge with Solid White Avatar Silhouette (#EC4B9B) */
 const ProfileIcon: React.FC<{ isSelected: boolean; className?: string }> = ({ isSelected, className = 'w-6 h-6' }) => {
-  const badgeColor = isSelected ? '#FFFFFF' : '#EC4899';
-  const silhouetteColor = isSelected ? '#4AA400' : '#FFFFFF';
+  const badgeColor = isSelected ? '#FFFFFF' : '#EC4B9B';
+  const silhouetteColor = isSelected ? '#68B932' : '#FFFFFF';
 
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -249,36 +254,36 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, la
       id: 'home' as NavigationTab,
       label: getDisplayLabel('home', 'Home'),
       icon: HomeIcon,
-      unselectedBg: 'bg-[#F6FAF2]',
-      hoverBg: 'bg-[#EDF6E5]',
+      unselectedBg: 'bg-[#F1F9EB]',
+      hoverBg: 'bg-[#E7F5DE]',
     },
     {
       id: 'games' as NavigationTab,
       label: getDisplayLabel('games', 'Games'),
       icon: GamesIcon,
-      unselectedBg: 'bg-[#F8F5FF]',
-      hoverBg: 'bg-[#F2EDFE]',
+      unselectedBg: 'bg-[#F5F1FE]',
+      hoverBg: 'bg-[#EDE5FD]',
     },
     {
       id: 'tournament' as NavigationTab,
       label: getDisplayLabel('tournament', 'Tournament'),
       icon: TournamentIcon,
-      unselectedBg: 'bg-[#FFFDF3]',
-      hoverBg: 'bg-[#FFF9E6]',
+      unselectedBg: 'bg-[#FEF9EC]',
+      hoverBg: 'bg-[#FDF2D6]',
     },
     {
       id: 'leaderboard' as NavigationTab,
       label: getDisplayLabel('leaderboard', 'Leaderboard'),
       icon: LeaderboardIcon,
-      unselectedBg: 'bg-[#F4F8FF]',
-      hoverBg: 'bg-[#EAF1FF]',
+      unselectedBg: 'bg-[#EFF6FE]',
+      hoverBg: 'bg-[#E1EDFD]',
     },
     {
       id: 'profile' as NavigationTab,
       label: getDisplayLabel('profile', 'Profile'),
       icon: ProfileIcon,
-      unselectedBg: 'bg-[#FDF4F8]',
-      hoverBg: 'bg-[#FCEAF3]',
+      unselectedBg: 'bg-[#FDF1F7]',
+      hoverBg: 'bg-[#FBE4EF]',
     },
   ];
 
@@ -290,55 +295,55 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, la
       className="fixed bottom-0 left-0 right-0 z-40 select-none pb-[env(safe-area-inset-bottom,0px)] pointer-events-none"
     >
       {/* Floating Elevated Capsule Container matching reference design */}
-      <div className="pointer-events-auto max-w-md md:max-w-xl mx-auto mb-2.5 sm:mb-3 px-2.5 sm:px-4">
-        <div className="bg-white/95 backdrop-blur-md rounded-[28px] sm:rounded-[30px] p-1.5 shadow-[0_10px_30px_rgba(15,23,42,0.12),0_2px_8px_rgba(15,23,42,0.05)] border border-slate-100 grid grid-cols-5 items-center gap-1 sm:gap-1.5">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isSelected = activeTab === tab.id;
+      <div className="pointer-events-auto max-w-md md:max-w-xl mx-auto mb-2 sm:mb-3 px-2 sm:px-3.5">
+        <div className="bg-white/95 backdrop-blur-md rounded-[28px] sm:rounded-[32px] px-2 py-1.5 sm:px-3 sm:py-2 shadow-[0_12px_36px_rgba(16,43,58,0.12),0_2px_8px_rgba(16,43,58,0.04)] border border-[#E7ECEF] grid grid-cols-5 items-center gap-1 sm:gap-2">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = activeTab === tab.id;
 
-          return (
-            <button
-              key={tab.id}
-              id={`bottom-nav-${tab.id}`}
-              data-nav-tab={tab.id.toUpperCase()}
-              role="tab"
-              aria-selected={isSelected}
-              aria-label={tab.label}
-              onClick={() => onTabChange(tab.id)}
-              className={`group relative flex flex-col items-center justify-center h-[58px] min-[375px]:h-[62px] sm:h-[64px] px-1 rounded-[20px] min-[375px]:rounded-[22px] transition-all duration-200 ease-out cursor-pointer active:scale-95 ${
-                isSelected
-                  ? 'bg-gradient-to-b from-[#70D600] via-[#5EBF00] to-[#4AA400] text-white shadow-[0_4px_14px_rgba(88,185,0,0.38)]'
-                  : `${tab.unselectedBg} hover:${tab.hoverBg} text-[#183345]`
-              }`}
-            >
-              {/* Icon Container with soft halo in active state */}
-              <div
-                className={`w-7 h-7 min-[375px]:w-8 min-[375px]:h-8 rounded-full flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
-                  isSelected ? 'bg-white/20 backdrop-blur-xs' : ''
+            return (
+              <button
+                key={tab.id}
+                id={`bottom-nav-${tab.id}`}
+                data-nav-tab={tab.id.toUpperCase()}
+                role="tab"
+                aria-selected={isSelected}
+                aria-label={tab.label}
+                onClick={() => onTabChange(tab.id)}
+                className={`group relative flex flex-col items-center justify-center h-[60px] min-[375px]:h-[64px] sm:h-[68px] px-1 rounded-[22px] min-[375px]:rounded-[24px] transition-all duration-200 ease-out cursor-pointer active:scale-[0.97] ${
+                  isSelected
+                    ? 'bg-gradient-to-b from-[#8BD34A] to-[#68B932] text-white shadow-[0_6px_20px_rgba(104,185,50,0.38)]'
+                    : `${tab.unselectedBg} hover:${tab.hoverBg} text-[#102B3A]`
                 }`}
               >
-                <Icon isSelected={isSelected} className="w-5 h-5 min-[375px]:w-6 min-[375px]:h-6" />
-              </div>
+                {/* Icon Container with soft halo in active state */}
+                <div
+                  className={`w-7 h-7 min-[375px]:w-8 min-[375px]:h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
+                    isSelected ? 'bg-white/20 backdrop-blur-xs' : ''
+                  }`}
+                >
+                  <Icon isSelected={isSelected} className="w-5 h-5 min-[375px]:w-6 min-[375px]:h-6" />
+                </div>
 
-              {/* Title Case Label */}
-              <span
-                className={`text-[9px] min-[375px]:text-[10px] sm:text-[10.5px] tracking-tighter min-[375px]:tracking-tight text-center truncate w-full leading-none ${
-                  isSelected ? 'font-black text-white' : 'font-bold text-[#183345]'
-                }`}
-              >
-                {tab.label}
-              </span>
-
-              {/* Green indicator accent underneath active tab matching reference photo */}
-              {isSelected && (
+                {/* Title Case Label */}
                 <span
-                  aria-hidden="true"
-                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[#5EBF00] shadow-[0_1px_3px_rgba(88,185,0,0.5)]"
-                />
-              )}
-            </button>
-          );
-        })}
+                  className={`text-[9.5px] min-[375px]:text-[10px] sm:text-[11px] tracking-tighter min-[375px]:tracking-tight text-center truncate w-full leading-none ${
+                    isSelected ? 'font-bold text-white' : 'font-bold text-[#102B3A]'
+                  }`}
+                >
+                  {tab.label}
+                </span>
+
+                {/* Green indicator accent underneath active tab matching reference photo */}
+                {isSelected && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[#68B932] shadow-[0_1px_3px_rgba(104,185,50,0.5)]"
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </nav>
