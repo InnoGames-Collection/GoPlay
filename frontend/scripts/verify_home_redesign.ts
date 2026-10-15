@@ -113,7 +113,7 @@ assertCheck(
 );
 
 // Verify score calculation logic with mock profiles
-const mockProfileWithScore: UserProfile = {
+const mockProfileWithScore: any = {
   id: 'usr_001',
   msisdn: '251911223344',
   phoneNumber: '251911223344',
@@ -138,7 +138,7 @@ assertCheck(
   `Got: ${crazyScore}`
 );
 
-const mockProfileNoScore: UserProfile = {
+const mockProfileNoScore: any = {
   id: 'usr_002',
   msisdn: '251911998899',
   phoneNumber: '251911998899',

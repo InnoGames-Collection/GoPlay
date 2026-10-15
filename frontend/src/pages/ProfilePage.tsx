@@ -289,17 +289,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   // MAIN PROFILE VIEW
   // =========================================================================
   return (
-    <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 space-y-4 select-none">
+    <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-2 sm:pt-3 space-y-3.5 select-none">
       
-      {/* Official GoPlay Profile Brand Header */}
-      <div className="flex flex-col items-center justify-center py-2">
-        <GoPlayLogo size="lg" />
-      </div>
-
       {/* 1. TOP: Authenticated GoPlay Profile Card */}
       <div 
         id="profile-account-card"
-        className="rounded-3xl bg-[#102B3F] text-white p-4.5 shadow-sm border border-[#116B73]/50"
+        className="rounded-2xl bg-[#102B3F] text-white p-4 shadow-sm border border-[#116B73]/50"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

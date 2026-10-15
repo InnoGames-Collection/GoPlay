@@ -217,8 +217,8 @@ const profilePageFile = fs.readFileSync(path.join(FRONTEND_DIR, 'src/pages/Profi
 
 const goPlayLogoCountInProfile = (profilePageFile.match(/<GoPlayLogo/g) || []).length;
 assertCheck(
-  'Profile contains exactly ONE GoPlay logo in the header',
-  goPlayLogoCountInProfile === 1
+  'Profile eliminates duplicate GoPlay logo (relies exclusively on top global Header)',
+  goPlayLogoCountInProfile === 0
 );
 
 assertCheck(

@@ -37,6 +37,7 @@ export interface UserProfile {
   userId?: string;
   msisdn?: string;
   tier?: string;
+  unlockedGames?: string[];
   phoneNumber: string; // e.g. 0912345678 or +251 91 142 8890
   displayName: string;
   name?: string;
