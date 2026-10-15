@@ -39,8 +39,8 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
 
   const statusBadge = {
     Live: {
-      bg: 'bg-emerald-50 text-emerald-700 border-emerald-300',
-      dot: 'bg-[#78BE20] animate-pulse',
+      bg: 'bg-[#DFF7EA] text-[#116B73] border-[#82C341]/40',
+      dot: 'bg-[#82C341] animate-pulse',
       label: 'LIVE NOW',
     },
     Upcoming: {
@@ -60,14 +60,14 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
       id={`tournament-card-${tournament.id}`}
       className={`rounded-2xl border transition-all duration-200 overflow-hidden flex flex-col justify-between bg-white ${
         isLive
-          ? 'border-slate-200 hover:border-[#0057A8] shadow-sm hover:shadow-md'
+          ? 'border-[#DCE7E8] hover:border-[#087F8C] shadow-sm hover:shadow-md'
           : isUpcoming
-          ? 'border-slate-200 opacity-95'
-          : 'border-slate-200 opacity-80'
+          ? 'border-[#DCE7E8] opacity-95'
+          : 'border-[#DCE7E8] opacity-80'
       }`}
     >
       {/* Top Banner Image with Badges */}
-      <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-slate-100">
+      <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-[#F4F7F6]">
         <img
           src={tournament.bannerImage}
           alt={tournament.title}
@@ -86,7 +86,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
             <span>{statusBadge.label}</span>
           </span>
 
-          <span className="px-2 py-0.5 rounded-md bg-[#0057A8] text-white text-[10px] font-extrabold uppercase shadow-sm">
+          <span className="px-2 py-0.5 rounded-md bg-[#102B3F] text-white text-[10px] font-extrabold uppercase shadow-sm">
             {tournament.cycle}
           </span>
         </div>
@@ -99,7 +99,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
         {/* Game Title Tag */}
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
           <div>
-            <div className="text-[10px] font-bold text-[#78BE20] uppercase tracking-wider drop-shadow">
+            <div className="text-[10px] font-bold text-[#82C341] uppercase tracking-wider drop-shadow">
               {tournament.gameTitle}
             </div>
             <h3 className="text-base sm:text-lg font-black text-white leading-tight drop-shadow-md">
@@ -112,20 +112,20 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
       {/* Card Content & Metrics */}
       <div className="p-4 space-y-3 flex-1 flex flex-col justify-between bg-white">
         {/* Prize Pool & Entry Fee */}
-        <div className="grid grid-cols-2 gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+        <div className="grid grid-cols-2 gap-2 bg-[#F4F7F6] rounded-xl p-3 border border-[#DCE7E8]">
           <div>
-            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1">
-              <Trophy className="w-3 h-3 text-[#78BE20]" />
+            <div className="text-[10px] text-[#607582] font-bold uppercase tracking-wider flex items-center gap-1">
+              <Trophy className="w-3 h-3 text-[#E9B949]" />
               <span>Prize Pool</span>
             </div>
-            <div className="text-sm sm:text-base font-black text-[#0057A8] font-mono mt-0.5">
+            <div className="text-sm sm:text-base font-black text-[#102B3F] font-mono mt-0.5">
               {formatCurrencyETB(tournament.prizePoolETB)}
             </div>
           </div>
 
-          <div className="text-right border-l border-slate-200 pl-2">
-            <div className="text-[10px] text-slate-500 font-semibold uppercase">Entry Requirement</div>
-            <div className="text-xs sm:text-sm font-black text-slate-800 font-mono mt-0.5">
+          <div className="text-right border-l border-[#DCE7E8] pl-2">
+            <div className="text-[10px] text-[#607582] font-semibold uppercase">Entry Requirement</div>
+            <div className="text-xs sm:text-sm font-black text-[#183345] font-mono mt-0.5">
               {tournament.entryFeeEnergy > 0 ? `${tournament.entryFeeEnergy * 10} Coins` : 'FREE'}
             </div>
           </div>
@@ -133,29 +133,29 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
 
         {/* Schedule & Requirements Info */}
         <div className="space-y-1.5 text-xs">
-          <div className="flex items-center justify-between text-slate-600">
-            <span className="text-slate-500 flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-slate-400" /> Schedule:
+          <div className="flex items-center justify-between text-[#607582]">
+            <span className="text-[#607582] flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-[#607582]" /> Schedule:
             </span>
-            <span className="font-semibold text-slate-800 font-mono text-[11px]">
+            <span className="font-semibold text-[#183345] font-mono text-[11px]">
               {tournament.startDate} – {tournament.endDate}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-slate-600">
-            <span className="text-slate-500 flex items-center gap-1">
-              <Lock className="w-3.5 h-3.5 text-slate-400" /> Requirement:
+          <div className="flex items-center justify-between text-[#607582]">
+            <span className="text-[#607582] flex items-center gap-1">
+              <Lock className="w-3.5 h-3.5 text-[#607582]" /> Requirement:
             </span>
-            <span className="font-semibold text-[#0057A8] text-[11px]">
+            <span className="font-semibold text-[#087F8C] text-[11px]">
               {tournament.entryRequirement}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-slate-600">
-            <span className="text-slate-500 flex items-center gap-1">
-              <Users className="w-3.5 h-3.5 text-slate-400" /> Contenders:
+          <div className="flex items-center justify-between text-[#607582]">
+            <span className="text-[#607582] flex items-center gap-1">
+              <Users className="w-3.5 h-3.5 text-[#607582]" /> Contenders:
             </span>
-            <span className="font-mono text-slate-800 font-bold text-[11px]">
+            <span className="font-mono text-[#183345] font-bold text-[11px]">
               {tournament.participantsCount.toLocaleString()}
             </span>
           </div>
@@ -163,21 +163,21 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
 
         {/* Player Standing Highlight */}
         {tournament.playerScore !== undefined && tournament.playerScore > 0 && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 flex items-center justify-between">
+          <div className="bg-[#DFF7EA]/50 border border-[#82C341]/30 rounded-xl p-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[#78BE20] text-white font-black text-xs flex items-center justify-center font-mono">
+              <div className="w-7 h-7 rounded-lg bg-[#82C341] text-white font-black text-xs flex items-center justify-center font-mono">
                 #{tournament.playerRank || '--'}
               </div>
               <div>
-                <div className="text-[9px] text-[#0057A8] font-black uppercase">Your Standing</div>
-                <div className="text-xs font-bold text-slate-900">
+                <div className="text-[9px] text-[#102B3F] font-black uppercase">Your Standing</div>
+                <div className="text-xs font-bold text-[#183345]">
                   Score: <span className="font-mono">{tournament.playerScore.toLocaleString()}</span>
                 </div>
               </div>
             </div>
 
             {tournament.hasSubmitted && (
-              <span className="text-[10px] font-bold text-[#78BE20] flex items-center gap-1">
+              <span className="text-[10px] font-bold text-[#82C341] flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Submitted
               </span>
             )}
@@ -190,7 +190,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
             <button
               id={`enter-tournament-btn-${tournament.id}`}
               onClick={() => onEnter(tournament)}
-              className="w-full py-2.5 rounded-xl bg-[#78BE20] hover:bg-[#68a81b] text-white font-black text-xs sm:text-sm active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-1.5 uppercase tracking-wider"
+              className="w-full py-2.5 rounded-xl bg-[#82C341] hover:bg-[#72af36] text-white font-black text-xs sm:text-sm active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-1.5 uppercase tracking-wider cursor-pointer"
             >
               <span>{tournament.hasSubmitted ? 'PLAY AGAIN / IMPROVE SCORE' : 'ENTER TOURNAMENT'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
@@ -206,7 +206,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
           ) : (
             <button
               disabled
-              className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs cursor-not-allowed flex items-center justify-center gap-1.5 uppercase tracking-wider"
+              className="w-full py-2.5 rounded-xl bg-[#F4F7F6] text-[#607582] font-bold text-xs cursor-not-allowed flex items-center justify-center gap-1.5 uppercase tracking-wider"
             >
               <AlertCircle className="w-4 h-4" />
               <span>TOURNAMENT CONCLUDED</span>

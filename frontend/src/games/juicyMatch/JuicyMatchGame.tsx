@@ -1036,40 +1036,11 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
         </div>
       </div>
 
-      {/* 2.5 NON-BLOCKING IN-GAME TOAST (HIGH SCORE & ACHIEVEMENTS) */}
-      {activeInGameToast && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-40 pointer-events-none w-11/12 max-w-xs animate-in fade-in slide-in-from-top-3 duration-200">
-          <div
-            className={`px-3.5 py-2 rounded-2xl shadow-xl border-2 flex items-center gap-2.5 backdrop-blur-md ${
-              activeInGameToast.type === 'high_score'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-yellow-200'
-                : 'bg-white/95 text-slate-800 border-amber-300'
-            }`}
-          >
-            <span className="text-2xl filter drop-shadow">{activeInGameToast.icon || '🏆'}</span>
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-black uppercase tracking-wider leading-tight">
-                {activeInGameToast.title}
-              </div>
-              {activeInGameToast.subtitle && (
-                <div
-                  className={`text-[10px] font-bold truncate ${
-                    activeInGameToast.type === 'high_score' ? 'text-amber-100' : 'text-amber-700'
-                  }`}
-                >
-                  {activeInGameToast.subtitle}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 3. MAIN PUZZLE TRAY & BOARD AREA */}
       <div className="relative flex-1 flex flex-col items-center justify-center p-2">
-        {/* Reshuffling Floating Toast */}
+        {/* Reshuffling Floating Notice */}
         {reshufflingNotice && (
-          <div className="absolute top-4 z-40 px-5 py-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-sm shadow-2xl animate-bounce border-2 border-white">
+          <div className="absolute top-4 z-40 px-5 py-2 rounded-full bg-[#102B3F] text-white font-black text-sm shadow-2xl animate-bounce border-2 border-[#087F8C]">
             RESHUFFLING NO MOVES...
           </div>
         )}

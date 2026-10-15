@@ -85,14 +85,14 @@ export const CoinTopupModal: React.FC<CoinTopupModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 select-none">
       <div 
-        className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-6 duration-200"
+        className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl border border-[#DCE7E8] shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-6 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-[#1688C9] text-white p-4 sm:p-5 flex items-center justify-between">
+        <div className="bg-[#102B3F] text-white p-4 sm:p-5 flex items-center justify-between border-b border-[#116B73]/30">
           <div>
             <h3 className="text-lg font-black tracking-tight">GoPlay Coins</h3>
-            <p className="text-xs text-blue-100 font-medium mt-0.5">
+            <p className="text-xs text-[#DFF7EA] font-medium mt-0.5">
               Choose a Telebirr Package
             </p>
           </div>
@@ -131,15 +131,15 @@ export const CoinTopupModal: React.FC<CoinTopupModalProps> = ({
                   onClick={() => setSelectedIdx(idx)}
                   className={`relative p-3.5 sm:p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                     isSelected
-                      ? 'border-[#8BCB3D] bg-lime-50/70 shadow-md ring-2 ring-[#8BCB3D] -translate-y-0.5'
-                      : 'border-slate-200 hover:border-slate-300 bg-white shadow-2xs'
+                      ? 'border-[#82C341] bg-[#DFF7EA]/50 shadow-md ring-2 ring-[#82C341] -translate-y-0.5'
+                      : 'border-[#DCE7E8] hover:border-[#087F8C]/40 bg-white shadow-2xs'
                   }`}
                 >
                   <div className="text-2xl sm:text-3xl mb-1">🪙</div>
-                  <div className="text-xs sm:text-sm font-black text-[#17202A] tracking-tight uppercase">
+                  <div className="text-xs sm:text-sm font-black text-[#183345] tracking-tight uppercase">
                     {pkg.priceETB} BIRR
                   </div>
-                  <div className="text-[11px] sm:text-xs font-bold text-slate-500 mt-0.5 uppercase">
+                  <div className="text-[11px] sm:text-xs font-bold text-[#607582] mt-0.5 uppercase">
                     {pkg.coins} COINS
                   </div>
                 </button>
@@ -151,7 +151,7 @@ export const CoinTopupModal: React.FC<CoinTopupModalProps> = ({
           <button
             onClick={handlePurchase}
             disabled={isProcessing}
-            className="w-full py-3.5 px-4 rounded-xl bg-[#8BCB3D] hover:bg-[#7cb934] active:scale-[0.99] text-white font-black text-sm tracking-wide transition-all shadow-md flex items-center justify-center cursor-pointer uppercase"
+            className="w-full py-3.5 px-4 rounded-xl bg-[#82C341] hover:bg-[#72af36] active:scale-[0.99] text-white font-black text-sm tracking-wide transition-all shadow-md flex items-center justify-center cursor-pointer uppercase"
           >
             {isProcessing ? (
               <span className="inline-block animate-pulse">Processing with Telebirr...</span>

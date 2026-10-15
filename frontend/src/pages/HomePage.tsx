@@ -54,7 +54,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   const availableCategories = GameCatalog.getCategoriesWithGames().filter((c) => c !== 'All Games');
 
   return (
-    <div className="min-h-screen bg-white text-[#17202A] pb-24 select-none">
+    <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 select-none">
       <div className="max-w-md md:max-w-xl lg:max-w-3xl mx-auto space-y-6 pt-3">
         
         {/* =========================================================================
@@ -86,13 +86,13 @@ export const HomePage: React.FC<HomePageProps> = ({
            ========================================================================= */}
         <div className="px-3.5 sm:px-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase text-slate-400 tracking-wider">
+            <span className="text-xs font-black uppercase text-[#607582] tracking-wider">
               Browse Categories
             </span>
             {onNavigateToGames && (
               <button
                 onClick={() => onNavigateToGames('All Games')}
-                className="text-xs font-bold text-[#1688C9] hover:underline flex items-center gap-0.5 cursor-pointer"
+                className="text-xs font-bold text-[#087F8C] hover:underline flex items-center gap-0.5 cursor-pointer"
               >
                 <span>View All Games</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -109,7 +109,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 key={cat}
                 type="button"
                 onClick={() => onNavigateToGames?.(cat)}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#17202A] font-extrabold text-xs shrink-0 snap-start transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#DFF7EA]/50 border border-[#DCE7E8] text-[#183345] font-extrabold text-xs shrink-0 snap-start transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
               >
                 <span>{cat}</span>
               </button>

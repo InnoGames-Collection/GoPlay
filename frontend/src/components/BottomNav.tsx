@@ -66,7 +66,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, la
   return (
     <nav 
       id="bottom-navigation-bar"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-md select-none pb-[env(safe-area-inset-bottom,0px)] h-[calc(4rem+env(safe-area-inset-bottom,0px))]"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#DCE7E8] shadow-md select-none pb-[env(safe-area-inset-bottom,0px)] h-[calc(4rem+env(safe-area-inset-bottom,0px))]"
     >
       <div className="max-w-md md:max-w-xl mx-auto h-full px-1.5 grid grid-cols-5 items-center gap-0.5">
         {tabs.map((tab) => {
@@ -80,18 +80,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, la
               onClick={() => onTabChange(tab.id)}
               className={`flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-150 cursor-pointer w-full ${
                 isSelected
-                  ? 'bg-[#8BCB3D] text-white shadow-xs font-black'
-                  : 'bg-transparent text-[#17202A] hover:text-[#1688C9] hover:bg-slate-50 font-bold'
+                  ? 'bg-[#82C341] text-white shadow-xs font-black'
+                  : 'bg-transparent text-[#183345] hover:text-[#087F8C] hover:bg-[#F4F7F6] font-bold'
               }`}
             >
               <Icon 
                 className={`w-5 h-5 shrink-0 ${
-                  isSelected ? 'text-white stroke-[2.5]' : 'text-[#17202A] stroke-2'
+                  isSelected ? 'text-white stroke-[2.5]' : 'text-[#183345] stroke-2'
                 }`} 
               />
               <span 
                 className={`text-[8.5px] sm:text-[9.5px] uppercase tracking-tight text-center truncate w-full mt-0.5 leading-none ${
-                  isSelected ? 'font-black text-white' : 'font-extrabold text-[#17202A]'
+                  isSelected ? 'font-black text-white' : 'font-extrabold text-[#183345]'
                 }`}
               >
                 {tab.label}

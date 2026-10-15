@@ -92,11 +92,8 @@ export function usePortalState() {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
   const showToast = useCallback((type: ToastMessage['type'], title: string, description?: string) => {
-    const id = 'toast_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
-    setToasts((prev) => [...prev, { id, type, title, description }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((item) => item.id !== id));
-    }, 4000);
+    // Under Part 1 specification: Suppress all application-generated toasts/popups. Pure internal event logging.
+    console.info(`[GoPlay Event] ${type}: ${title}`, description || '');
   }, []);
 
   const dismissToast = useCallback((id: string) => {
@@ -198,15 +195,14 @@ export function usePortalState() {
 
   // Launch Game Handler
   const launchGame = useCallback(async (game: GameDefinition, tournamentId?: string) => {
-    const isTournament = Boolean(tournamentId || game.id === 'crazy-colors');
+    const isTournament = Boolean(tournamentId);
     
-    // 1. Authoritative PostgreSQL tournament entry deduction
+    // 1. Authoritative PostgreSQL tournament entry deduction for tournament mode only
     if (isTournament && (game.entryCostCoins > 0 || game.requiresCoins || !game.isFree)) {
       const targetTournId = tournamentId || 'tourn_crazy_colors_01';
       const deductRes = await apiService.enterTournament(targetTournId);
       
       if (!deductRes?.success) {
-        showToast('warning', 'Tournament Entry Required', deductRes?.message || 'You need 2 Coins to enter this tournament.');
         setIsEnergyModalOpen(true);
         return;
       }
@@ -228,7 +224,6 @@ export function usePortalState() {
         } else if (check.requiresSubscription) {
           setIsSubscriptionModalOpen(true);
         }
-        showToast('warning', 'Action Needed', check.reason);
         return;
       }
     }
@@ -250,13 +245,13 @@ export function usePortalState() {
     setActiveGameToLaunch(game);
     setActiveTournamentId(tournamentId);
     setLastGameSessionResult(null);
-  }, [profile, showToast]);
+  }, [profile]);
 
   // Submit Game Results
   const handleGameFinished = useCallback((finalScore: number, durationSeconds: number) => {
     if (!activeGameToLaunch) return;
 
-    const { result, updatedProfile, transaction } = GameBridgeService.submitScore(
+    const { result, updatedProfile } = GameBridgeService.submitScore(
       activeGameToLaunch.id,
       finalScore,
       durationSeconds,
@@ -266,18 +261,6 @@ export function usePortalState() {
 
     setProfile(updatedProfile);
     setLastGameSessionResult(result);
-
-    if (transaction) {
-      showToast(
-        'success',
-        '🏆 Tournament Score Confirmed!',
-        `Rank #${transaction.rank} verified! Prize: ${transaction.reward}`
-      );
-    } else if (result.isNewHighScore) {
-      showToast('success', 'New High Score!', `You set a new personal record of ${result.score.toLocaleString()} in ${activeGameToLaunch.title}!`);
-    } else {
-      showToast('info', 'Match Completed', `Earned +${result.coinsEarned} Coins and +${result.xpEarned} XP!`);
-    }
 
     // Authoritative backend score submission to PostgreSQL with pre-acquired session token
     apiService.submitScore(
@@ -291,15 +274,12 @@ export function usePortalState() {
         setProfile(res.updatedProfile);
         StorageService.saveProfile(res.updatedProfile);
       }
-      if (res?.verified === false && res?.message) {
-        showToast('warning', 'Score Verification Note', res.message);
-      }
     }).catch((err) => {
       console.warn('[usePortalState] Failed to submit score to backend:', err);
     });
 
     setActiveSession(null);
-  }, [activeGameToLaunch, activeTournamentId, activeSession, profile, showToast]);
+  }, [activeGameToLaunch, activeTournamentId, activeSession, profile]);
 
   // Close Game Runner
   const closeGameLauncher = useCallback(() => {
@@ -331,7 +311,6 @@ export function usePortalState() {
             if (res.success && res.profile) {
               setProfile(res.profile);
               StorageService.saveProfile(res.profile);
-              showToast('energy', `+${rewardAmount} Energy Restored`, 'EthioTelecom sponsored boost granted!');
             }
           }).catch(() => {
             setProfile((curr) => {
@@ -340,14 +319,11 @@ export function usePortalState() {
               StorageService.saveProfile(upd);
               return upd;
             });
-            showToast('energy', `+${rewardAmount} Energy Restored`, 'EthioTelecom sponsored boost granted!');
           });
-        } else if (rewardType === 'coins') {
-          showToast('info', 'Rewarded Ad Completed', 'Thank you for watching the sponsored partner highlight.');
         }
       },
     });
-  }, [showToast]);
+  }, []);
 
   // Purchase Energy Package via PaymentService
   const purchaseEnergyPackage = useCallback(async (
@@ -390,13 +366,11 @@ export function usePortalState() {
       StorageService.recordEnergyTransaction(energyTx);
       setEnergyTransactions(StorageService.getEnergyTransactions());
 
-      showToast('success', `+${energyAmount} Energy Added!`, `Charged ${costETB} ETB via TeleBirr.`);
       return { success: true, message: `Successfully purchased ${energyAmount} Energy for ${costETB} ETB.` };
     } else {
-      showToast('error', 'Payment Failed', payResult.message);
       return { success: false, message: payResult.message };
     }
-  }, [profile, showToast]);
+  }, [profile]);
 
   // TeleBirr Instant Energy Refill
   const refillEnergyViaTelebirr = useCallback(() => {
@@ -407,7 +381,6 @@ export function usePortalState() {
   // Daily Streak Claim (Server-Authoritative in PostgreSQL)
   const claimDailyStreak = useCallback(async () => {
     if (profile.streak.hasClaimedToday) {
-      showToast('info', 'Already Claimed', 'Come back tomorrow for the next streak bonus!');
       return;
     }
 
@@ -416,14 +389,11 @@ export function usePortalState() {
       if (res.success && res.profile) {
         setProfile(res.profile);
         StorageService.saveProfile(res.profile);
-        showToast('success', `Day ${res.streakDay || 1} Streak Claimed!`, res.message || `+${res.coinsReward || 10} Coins added.`);
-      } else {
-        showToast('warning', 'Daily Streak Note', res.message || 'Streak already claimed for today.');
       }
     } catch (e: any) {
-      showToast('error', 'Claim Failed', e?.message || 'Could not claim daily streak reward.');
+      console.warn('[usePortalState] Could not claim daily streak reward:', e);
     }
-  }, [profile, showToast]);
+  }, [profile]);
 
   // Claim Reward Prize
   const handleClaimReward = useCallback(async (rewardId: string) => {
@@ -431,11 +401,8 @@ export function usePortalState() {
     if (res.success && res.updatedProfile) {
       setProfile(res.updatedProfile);
       setClaimableRewards(RewardService.getClaimableRewards());
-      showToast('success', '🏆 TeleBirr Prize Disbursed!', res.message);
-    } else {
-      showToast('error', 'Claim Failed', res.message);
     }
-  }, [profile, showToast]);
+  }, [profile]);
 
   // Subscribe to VIP Pass via Telebirr Gateway
   const handleSubscribe = useCallback(async (plan: SubscriptionPlan) => {
@@ -443,10 +410,7 @@ export function usePortalState() {
       const res = await apiService.activateSubscription(plan as any);
       if (res.success) {
         if (res.checkoutUrl) {
-          showToast('info', 'Redirecting to Telebirr...', 'Opening secure carrier checkout.');
-          setTimeout(() => {
-            window.location.href = res.checkoutUrl!;
-          }, 600);
+          window.location.href = res.checkoutUrl!;
           return;
         }
         const fresh = await apiService.getProfile();
@@ -455,14 +419,11 @@ export function usePortalState() {
           StorageService.saveProfile(fresh);
         }
         setIsSubscriptionModalOpen(false);
-        showToast('success', 'VIP Activated', res.message || 'VIP Subscription activated successfully.');
-      } else {
-        showToast('error', 'Subscription Failed', res.message || 'Telebirr subscription initiation failed.');
       }
     } catch (err: any) {
-      showToast('error', 'Subscription Error', err?.message || 'Could not connect to payment gateway.');
+      console.warn('[usePortalState] Could not connect to subscription gateway:', err);
     }
-  }, [showToast]);
+  }, []);
 
   // Reset Demo State
   const resetDemoState = useCallback(() => {
@@ -470,8 +431,7 @@ export function usePortalState() {
     setProfile(reset);
     setEnergyTransactions(StorageService.getEnergyTransactions());
     setClaimableRewards(RewardService.getClaimableRewards());
-    showToast('info', 'Demo Data Reset', 'Restored initial sample EthioTelecom user and high scores.');
-  }, [showToast]);
+  }, []);
 
   // Wipe Account Data Completely
   const wipeAccountData = useCallback(() => {
@@ -479,15 +439,13 @@ export function usePortalState() {
     setProfile(freshGuest);
     setEnergyTransactions([]);
     setClaimableRewards([]);
-    showToast('info', 'Account Erased', 'All local credentials, ledgers and match histories wiped.');
-  }, [showToast]);
+  }, []);
 
   // Sign out / Sign in
   const signOut = useCallback(() => {
     const guest = AuthService.signOut();
     setProfile(guest);
-    showToast('info', 'Signed Out', 'You are now playing in Guest mode.');
-  }, [showToast]);
+  }, []);
 
   return {
     activeTab,

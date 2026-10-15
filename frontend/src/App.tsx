@@ -156,14 +156,13 @@ export default function App() {
     setProfile(updatedProfile);
     setPendingAccessGame(null);
     EntitlementService.recordGamePlayed(gameToPlay.id);
-    showToast('success', `Access granted to ${gameToPlay.title}!`, 'telebirr Authorized');
     launchGame(gameToPlay);
   };
 
   // Splash Screen
   if (isAppLaunching) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#17202A] text-white flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
+      <div className="fixed inset-0 z-50 bg-[#102B3F] text-white flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
         <div className="bg-white p-3.5 rounded-2xl shadow-xl mb-4 flex items-center justify-center">
           <GoPlayLogo size="xl" />
         </div>
@@ -172,16 +171,16 @@ export default function App() {
         </h1>
         <p className="text-xs text-slate-300 mt-1 font-medium">Gaming Portal</p>
         <div className="mt-6 flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#8BCB3D] animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 rounded-full bg-[#8BCB3D] animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 rounded-full bg-[#8BCB3D] animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="w-2 h-2 rounded-full bg-[#82C341] animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 rounded-full bg-[#82C341] animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 rounded-full bg-[#82C341] animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#8BCB3D] selection:text-white">
+    <div className="min-h-screen bg-[#F4F7F6] text-[#183345] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#82C341] selection:text-white">
       
       {/* 1. Global Native Mini-App Header */}
       <Header
@@ -414,9 +413,6 @@ export default function App() {
           showToast={showToast}
         />
       )}
-
-      {/* 11. Floating Toast Notifications */}
-      <NotificationToast toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }

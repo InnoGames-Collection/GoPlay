@@ -911,33 +911,6 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
           </div>
         )}
 
-        {/* Bonus Points Floating Toast */}
-        {bonusPointsNotification && (
-          <div 
-            className="absolute top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full text-[#140904] font-black text-xs uppercase tracking-wider shadow-xl animate-bounce border-2 border-[#d4af37] flex items-center gap-1"
-            style={{
-              background: 'linear-gradient(180deg, #f5d77f 0%, #d4af37 100%)',
-            }}
-          >
-            <Sparkles className="w-3 h-3 text-[#140904]" />
-            <span>{bonusPointsNotification}</span>
-          </div>
-        )}
-
-        {/* Word Score Toast */}
-        {wordScoreToast && (
-          <div 
-            className="absolute top-9 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full text-[#140904] font-black text-[10px] uppercase tracking-wider shadow-2xl animate-in zoom-in-90 border-2 border-[#b8782a] flex items-center gap-1 whitespace-nowrap"
-            style={{
-              background: 'linear-gradient(180deg, #ffe082 0%, #ffb300 50%, #e65100 100%)',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.7)',
-            }}
-          >
-            <Sparkles className="w-3 h-3 text-[#140904]" />
-            <span>{wordScoreToast.detail}</span>
-          </div>
-        )}
-
         {/* ----------------------------------------------------------------------- */}
         {/* A. LIGHT WARM NATURAL WOOD PUZZLE BOARD (Reference Match)               */}
         {/* ----------------------------------------------------------------------- */}

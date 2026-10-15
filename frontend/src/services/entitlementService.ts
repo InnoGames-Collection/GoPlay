@@ -42,13 +42,8 @@ export const EntitlementService = {
     game: CatalogGame,
     profile?: UserProfile
   ): { hasAccess: boolean; entitlement?: GameEntitlement; isExpired?: boolean } {
-    // 0. Candy Crush and Word Legend are completely free with zero coin requirement
-    if (game.gameId !== 'crazy-colors') {
-      return { hasAccess: true };
-    }
-
-    // 1. FREE games always have instant access
-    if (game.isFree || game.accessType === 'FREE' || !game.requiresCoins) {
+    // 0. Free games (including Crazy Color, Candy Crush, Word Legend, etc.) have instant direct access
+    if (game.gameId === 'crazy-colors' || game.isFree || game.accessType === 'FREE' || !game.requiresCoins) {
       return { hasAccess: true };
     }
 
@@ -105,7 +100,7 @@ export const EntitlementService = {
     game: CatalogGame,
     profile: UserProfile
   ): { success: boolean; updatedProfile: UserProfile; error?: string; entitlement?: GameEntitlement } {
-    if (game.gameId === 'candy-blast' || game.gameId === 'world-legends' || game.isFree || game.accessType === 'FREE' || !game.requiresCoins) {
+    if (game.gameId === 'crazy-colors' || game.gameId === 'candy-blast' || game.gameId === 'world-legends' || game.isFree || game.accessType === 'FREE' || !game.requiresCoins) {
       return {
         success: true,
         updatedProfile: profile,

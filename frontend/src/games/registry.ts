@@ -7,9 +7,13 @@ import { GameDefinition, GameCategory } from '../types';
 import { GameCatalog, CatalogGame } from '../services/gameCatalog';
 import { getGameArtworkUrl } from '../services/gameArtwork';
 
+export const isFreeDirectGame = (g: { gameId?: string; id?: string; isFree?: boolean; accessType?: string }): boolean => {
+  return Boolean(g.isFree || g.accessType === 'FREE' || g.gameId === 'crazy-colors' || g.id === 'crazy-colors');
+};
+
 export function catalogGameToDefinition(g: CatalogGame): GameDefinition {
   const artwork = getGameArtworkUrl(g.gameId);
-  const isFreeDirectGame = g.gameId !== 'crazy-colors';
+  const freeDirect = isFreeDirectGame(g);
 
   return {
     id: g.gameId,
@@ -35,8 +39,8 @@ export function catalogGameToDefinition(g: CatalogGame): GameDefinition {
     controlsDescription: g.controlsDescription,
     accessType: isFreeDirectGame ? 'FREE' : g.accessType,
     isFree: isFreeDirectGame ? true : g.isFree,
-    requiresCoins: isFreeDirectGame ? false : g.requiresCoins,
-    coinCost: isFreeDirectGame ? 0 : g.coinCost,
+    requiresCoins: isFreeDirectGame ? false : (g.requiresCoins || false),
+    coinCost: isFreeDirectGame ? 0 : (g.coinCost || 0),
     price: g.price,
     subscriptionOptions: g.subscriptionOptions,
     leaderboardEnabled: g.leaderboardEnabled,

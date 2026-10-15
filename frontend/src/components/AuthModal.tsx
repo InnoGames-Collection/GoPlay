@@ -50,16 +50,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [phoneNumber, setPhoneNumber] = useState(vipPersona.phone);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState<'vip' | 'free' | 'custom'>('vip');
+  const [inlineError, setInlineError] = useState<string | null>(null);
 
   const handleSelectPersona = (persona: 'vip' | 'free', phone: string) => {
     setSelectedPersona(persona);
     setPhoneNumber(phone);
+    setInlineError(null);
   };
 
   const handleTelebirrSSO = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    setInlineError(null);
     if (!phoneNumber || phoneNumber.trim().length < 8) {
-      showToast('error', 'Invalid Phone', 'Please provide a valid Ethiopian mobile number.');
+      setInlineError('Please provide a valid Ethiopian mobile number.');
       return;
     }
 
@@ -69,15 +72,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const res = await AuthService.loginWithTeleBirr(phoneNumber.trim());
 
       if (res.success && res.profile) {
-        showToast('success', 'telebirr Connected', `Welcome back, ${res.profile.displayName || 'Player'}!`);
+        // Successful sign-in updates session silently without intrusive top popups
         onSuccess(res.profile);
         onClose();
       } else {
-        showToast('error', 'Authentication Failed', res.message || 'Unable to connect to telebirr gateway.');
+        setInlineError(res.message || 'Unable to connect to telebirr gateway.');
         setIsAuthenticating(false);
       }
     } catch (err: any) {
-      showToast('error', 'Connection Error', err?.message || 'Failed to authenticate with telebirr.');
+      setInlineError(err?.message || 'Failed to authenticate with telebirr.');
       setIsAuthenticating(false);
     }
   };
@@ -206,13 +209,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             {/* Custom MSISDN Input */}
             <form onSubmit={handleTelebirrSSO} className="space-y-3">
+              {inlineError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{inlineError}</span>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                   Mobile Station ID (MSISDN):
                 </label>
                 <div className="relative">
                   <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-500 font-bold text-xs">
-                    <Phone className="w-4 h-4 text-[#0057A8]" />
+                    <Phone className="w-4 h-4 text-[#087F8C]" />
                     <span>+251</span>
                   </div>
                   <input
@@ -221,10 +231,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onChange={(e) => {
                       setPhoneNumber(e.target.value);
                       setSelectedPersona('custom');
+                      setInlineError(null);
                     }}
                     placeholder="91 123 4567"
                     required
-                    className="w-full pl-20 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-slate-900 font-mono text-sm font-semibold focus:border-[#0057A8] focus:bg-white focus:outline-none transition-colors"
+                    className="w-full pl-20 pr-4 py-3 bg-[#F4F7F6] border border-[#DCE7E8] rounded-2xl text-[#183345] font-mono text-sm font-semibold focus:border-[#087F8C] focus:bg-white focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -233,7 +244,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isAuthenticating}
-                className="w-full py-3.5 rounded-2xl bg-[#0057A8] hover:bg-[#004080] text-white font-black text-sm active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
+                className="w-full py-3.5 rounded-2xl bg-[#82C341] hover:bg-[#72af36] text-white font-black text-sm active:scale-[0.98] transition-all shadow-xs flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>SIGN IN WITH TELEBIRR</span>
@@ -241,8 +252,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </form>
 
             {/* Footer Regulatory Assurance */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#78BE20]" />
+            <div className="pt-2 border-t border-[#DCE7E8] flex items-center justify-center gap-1.5 text-[11px] text-[#607582]">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#82C341]" />
               <span>Secured by telebirr SuperApp Container Bridge</span>
             </div>
           </div>

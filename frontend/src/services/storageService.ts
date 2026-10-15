@@ -32,10 +32,49 @@ const INITIAL_ENERGY_TXS: EnergyTransaction[] = [];
 
 const ENERGY_REFILL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes per 1 energy point
 
+const memoryStore = new Map<string, string>();
+const safeStorage = {
+  getItem(key: string): string | null {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+    } catch {}
+    return memoryStore.get(key) ?? null;
+  },
+  setItem(key: string, value: string): void {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(key, value);
+        return;
+      }
+    } catch {}
+    memoryStore.set(key, value);
+  },
+  removeItem(key: string): void {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem(key);
+        return;
+      }
+    } catch {}
+    memoryStore.delete(key);
+  },
+  clear(): void {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.clear();
+        return;
+      }
+    } catch {}
+    memoryStore.clear();
+  }
+};
+
 export const StorageService = {
   getProfile(): UserProfile {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.PROFILE);
+      const stored = safeStorage.getItem(STORAGE_KEYS.PROFILE);
       if (!stored) {
         return this.clearSession();
       }
@@ -49,7 +88,7 @@ export const StorageService = {
 
   saveProfile(profile: UserProfile): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
+      safeStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
     } catch (e) {
       console.warn('[StorageService] Failed to save profile to localStorage:', e);
     }
@@ -154,7 +193,7 @@ export const StorageService = {
 
   getCoinTransactions(): CoinTransaction[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.COIN_TXS);
+      const stored = safeStorage.getItem(STORAGE_KEYS.COIN_TXS);
       if (!stored) {
         this.saveCoinTransactions(INITIAL_COIN_TXS);
         return INITIAL_COIN_TXS;
@@ -167,7 +206,7 @@ export const StorageService = {
 
   saveCoinTransactions(txs: CoinTransaction[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.COIN_TXS, JSON.stringify(txs));
+      safeStorage.setItem(STORAGE_KEYS.COIN_TXS, JSON.stringify(txs));
     } catch (e) {
       console.warn('[StorageService] Failed to save coin transactions:', e);
     }
@@ -181,7 +220,7 @@ export const StorageService = {
 
   resetDemoState(): UserProfile {
     try {
-      localStorage.removeItem(STORAGE_KEYS.PROFILE);
+      safeStorage.removeItem(STORAGE_KEYS.PROFILE);
       return this.clearSession();
     } catch {
       return this.clearSession();
@@ -190,7 +229,7 @@ export const StorageService = {
 
   getLanguage(): LanguageCode {
     try {
-      const lang = localStorage.getItem(STORAGE_KEYS.LANGUAGE) as LanguageCode;
+      const lang = safeStorage.getItem(STORAGE_KEYS.LANGUAGE) as LanguageCode;
       return (lang === 'en' || lang === 'am' || lang === 'om') ? lang : 'en';
     } catch {
       return 'en';
@@ -199,47 +238,47 @@ export const StorageService = {
 
   saveLanguage(lang: LanguageCode): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
+      safeStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
     } catch (e) {
       console.warn('[StorageService] Failed to save language:', e);
     }
   },
 
   getAudioEnabled(): boolean {
-    return localStorage.getItem(STORAGE_KEYS.AUDIO_ENABLED) !== 'false';
+    return safeStorage.getItem(STORAGE_KEYS.AUDIO_ENABLED) !== 'false';
   },
 
   saveAudioEnabled(enabled: boolean): void {
-    localStorage.setItem(STORAGE_KEYS.AUDIO_ENABLED, enabled ? 'true' : 'false');
+    safeStorage.setItem(STORAGE_KEYS.AUDIO_ENABLED, enabled ? 'true' : 'false');
   },
 
   getHapticsEnabled(): boolean {
-    return localStorage.getItem(STORAGE_KEYS.HAPTICS_ENABLED) !== 'false';
+    return safeStorage.getItem(STORAGE_KEYS.HAPTICS_ENABLED) !== 'false';
   },
 
   saveHapticsEnabled(enabled: boolean): void {
-    localStorage.setItem(STORAGE_KEYS.HAPTICS_ENABLED, enabled ? 'true' : 'false');
+    safeStorage.setItem(STORAGE_KEYS.HAPTICS_ENABLED, enabled ? 'true' : 'false');
   },
 
   getNotificationsEnabled(): boolean {
-    return localStorage.getItem(STORAGE_KEYS.NOTIFS_ENABLED) !== 'false';
+    return safeStorage.getItem(STORAGE_KEYS.NOTIFS_ENABLED) !== 'false';
   },
 
   saveNotificationsEnabled(enabled: boolean): void {
-    localStorage.setItem(STORAGE_KEYS.NOTIFS_ENABLED, enabled ? 'true' : 'false');
+    safeStorage.setItem(STORAGE_KEYS.NOTIFS_ENABLED, enabled ? 'true' : 'false');
   },
 
   getLowDataMode(): boolean {
-    return localStorage.getItem(STORAGE_KEYS.LOW_DATA_MODE) === 'true';
+    return safeStorage.getItem(STORAGE_KEYS.LOW_DATA_MODE) === 'true';
   },
 
   saveLowDataMode(enabled: boolean): void {
-    localStorage.setItem(STORAGE_KEYS.LOW_DATA_MODE, enabled ? 'true' : 'false');
+    safeStorage.setItem(STORAGE_KEYS.LOW_DATA_MODE, enabled ? 'true' : 'false');
   },
 
   getEnergyTransactions(): EnergyTransaction[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.ENERGY_TXS);
+      const stored = safeStorage.getItem(STORAGE_KEYS.ENERGY_TXS);
       if (!stored) {
         this.saveEnergyTransactions(INITIAL_ENERGY_TXS);
         return INITIAL_ENERGY_TXS;
@@ -252,7 +291,7 @@ export const StorageService = {
 
   saveEnergyTransactions(txs: EnergyTransaction[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.ENERGY_TXS, JSON.stringify(txs));
+      safeStorage.setItem(STORAGE_KEYS.ENERGY_TXS, JSON.stringify(txs));
     } catch (e) {
       console.warn('[StorageService] Failed to save energy transactions:', e);
     }
@@ -267,7 +306,7 @@ export const StorageService = {
 
   getPaymentTransactions(): PaymentTransaction[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.PAYMENT_TXS);
+      const stored = safeStorage.getItem(STORAGE_KEYS.PAYMENT_TXS);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -276,7 +315,7 @@ export const StorageService = {
 
   savePaymentTransactions(txs: PaymentTransaction[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.PAYMENT_TXS, JSON.stringify(txs));
+      safeStorage.setItem(STORAGE_KEYS.PAYMENT_TXS, JSON.stringify(txs));
     } catch (e) {
       console.warn('[StorageService] Failed to save payment transactions:', e);
     }
@@ -295,7 +334,7 @@ export const StorageService = {
 
   wipeAllData(): UserProfile {
     try {
-      localStorage.clear();
+      safeStorage.clear();
       return this.clearSession();
     } catch {
       return this.clearSession();

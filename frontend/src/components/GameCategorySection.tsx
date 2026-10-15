@@ -43,11 +43,11 @@ export const GameCategorySection: React.FC<GameCategorySectionProps> = ({
       {/* Category Header with Title & Action Controls */}
       <div className="flex items-center justify-between px-3.5 sm:px-4">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#8BCB3D]" />
-          <h2 className="text-base sm:text-lg font-black text-[#17202A] tracking-tight uppercase">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#82C341]" />
+          <h2 className="text-base sm:text-lg font-black text-[#183345] tracking-tight uppercase">
             {category}
           </h2>
-          <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold">
+          <span className="px-2 py-0.5 rounded-full bg-white text-[#607582] border border-[#DCE7E8] text-[11px] font-bold">
             {games.length}
           </span>
         </div>

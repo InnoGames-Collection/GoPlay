@@ -30,8 +30,8 @@ export const GameBridgeService = {
     requiresAuth?: boolean; 
     requiresSubscription?: boolean 
   } {
-    // Candy Crush and Word Legend are completely free with direct access per spec
-    if (game.id === 'candy-blast' || game.id === 'world-legends' || game.isFree || game.accessType === 'FREE' || game.entryCostCoins === 0) {
+    // Crazy Color, Candy Crush and Word Legend are completely free with direct access per spec
+    if (game.id === 'crazy-colors' || game.id === 'candy-blast' || game.id === 'world-legends' || game.isFree || game.accessType === 'FREE' || game.entryCostCoins === 0) {
       return { allowed: true };
     }
 
@@ -72,6 +72,7 @@ export const GameBridgeService = {
     
     // Candy Crush and Word Legend (and any free game) must NEVER deduct coins
     const isZeroCost = 
+      game.id === 'crazy-colors' ||
       game.id === 'candy-blast' || 
       game.id === 'world-legends' || 
       game.isFree || 

@@ -18,7 +18,7 @@ export const GoPlayLogo: React.FC<GoPlayLogoProps> = ({
   className = '',
   size = 'md',
   variant = 'light',
-  greenColor = '#8BC03C',
+  greenColor = '#82C341',
   playColor: customPlayColor,
   useImage = false,
 }) => {
@@ -30,7 +30,7 @@ export const GoPlayLogo: React.FC<GoPlayLogoProps> = ({
     size === 'xl' ? 52 : 
     32;
 
-  const playColor = customPlayColor ?? (variant === 'dark' ? '#FFFFFF' : '#000000');
+  const playColor = customPlayColor ?? (variant === 'dark' ? '#FFFFFF' : '#183345');
 
   if (useImage) {
     return (

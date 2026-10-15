@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-green: #82C341;
+  --color-deep-navy: #102B3F;
+  --color-teal: #087F8C;
+  --color-teal-rich: #116B73;
+  --color-soft-mint: #DFF7EA;
+  --color-warm-neutral: #F4F7F6;
+  --color-text-primary: #183345;
+  --color-text-secondary: #607582;
+  --color-border-subtle: #DCE7E8;
+  --color-gold-premium: #E9B949;
+}
+
 @layer utilities {
   .safe-area-bottom {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
@@ -79,8 +92,8 @@
 }
 
 body {
-  background-color: #FFFFFF;
-  color: #0F172A;
+  background-color: #F4F7F6;
+  color: #183345;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }

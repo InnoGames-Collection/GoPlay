@@ -31,9 +31,9 @@ export const GameLeaderboardModal: React.FC<GameLeaderboardModalProps> = ({
       id="game-leaderboard-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 select-none font-['Plus_Jakarta_Sans',sans-serif]"
     >
-      <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-white/15 shadow-2xl text-white overflow-hidden">
+      <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-3xl bg-[#102B3F] border border-[#116B73]/50 shadow-2xl text-white overflow-hidden">
         {/* Header with Back/Close */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900/60">
+        <div className="p-4 border-b border-[#116B73]/30 flex items-center justify-between bg-[#102B3F]">
           <button
             type="button"
             onClick={onClose}
@@ -44,8 +44,8 @@ export const GameLeaderboardModal: React.FC<GameLeaderboardModalProps> = ({
           </button>
 
           <div className="text-center">
-            <div className="flex items-center justify-center gap-1.5 text-amber-400">
-              <Trophy className="w-4 h-4" />
+            <div className="flex items-center justify-center gap-1.5 text-[#E9B949]">
+              <Trophy className="w-4 h-4 text-[#E9B949]" />
               <span className="text-xs font-black tracking-widest uppercase">LEADERBOARD</span>
             </div>
             <h3 className="text-base font-black text-white">{gameConfig.title}</h3>
@@ -68,7 +68,7 @@ export const GameLeaderboardModal: React.FC<GameLeaderboardModalProps> = ({
             onClick={() => setActiveTab('ALL_TIME')}
             className={`flex-1 py-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer border ${
               activeTab === 'ALL_TIME'
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
+                ? 'bg-[#82C341] text-white border-[#82C341] shadow-md'
                 : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
             }`}
           >
@@ -79,7 +79,7 @@ export const GameLeaderboardModal: React.FC<GameLeaderboardModalProps> = ({
             onClick={() => setActiveTab('TODAY')}
             className={`flex-1 py-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer border ${
               activeTab === 'TODAY'
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
+                ? 'bg-[#82C341] text-white border-[#82C341] shadow-md'
                 : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
             }`}
           >

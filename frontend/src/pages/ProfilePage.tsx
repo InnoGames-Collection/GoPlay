@@ -172,8 +172,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
     const allAvailableGames = GameCatalog.getAll().map(catalogGameToDefinition);
 
     return (
-      <div className="min-h-screen bg-white text-[#17202A] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 select-none space-y-4">
-        <div className="flex items-center justify-between gap-3 bg-[#1688C9] text-white p-3.5 rounded-2xl shadow-xs">
+      <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 select-none space-y-4">
+        <div className="flex items-center justify-between gap-3 bg-[#102B3F] text-white p-3.5 rounded-2xl shadow-xs border border-[#116B73]/40">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSubView(null)}
@@ -183,7 +183,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             </button>
             <h1 className="text-base font-black tracking-tight">My Games</h1>
           </div>
-          <span className="text-xs font-bold text-blue-100">
+          <span className="text-xs font-bold text-[#DFF7EA]">
             {allAvailableGames.length} Games
           </span>
         </div>
@@ -194,7 +194,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             return (
               <div
                 key={g.id}
-                className="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-200 hover:border-[#1688C9] transition-all shadow-xs"
+                className="flex items-center justify-between p-3 rounded-2xl bg-white border border-[#DCE7E8] hover:border-[#087F8C] transition-all shadow-xs"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <img
@@ -203,11 +203,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                     className="w-12 h-12 rounded-xl object-cover bg-slate-900 shrink-0"
                   />
                   <div className="min-w-0">
-                    <h4 className="text-sm font-black text-[#17202A] truncate">{g.title}</h4>
+                    <h4 className="text-sm font-black text-[#183345] truncate">{g.title}</h4>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[11px] text-slate-500 capitalize">{g.category}</span>
+                      <span className="text-[11px] text-[#607582] capitalize">{g.category}</span>
                       <span className="text-[10px] text-slate-300">•</span>
-                      <span className="text-[11px] font-extrabold text-[#1688C9]">
+                      <span className="text-[11px] font-extrabold text-[#087F8C]">
                         Best: {personalHighScore > 0 ? `${personalHighScore.toLocaleString()} pts` : '-'}
                       </span>
                     </div>
@@ -216,7 +216,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 <button
                   type="button"
                   onClick={() => onPlayGame(g)}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#8BCB3D] hover:bg-[#7cb934] active:scale-95 text-white text-xs font-black shrink-0 transition-transform cursor-pointer shadow-xs"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#82C341] hover:bg-[#72af36] active:scale-95 text-white text-xs font-black shrink-0 transition-transform cursor-pointer shadow-xs"
                 >
                   Play
                 </button>
@@ -230,8 +230,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
   if (subView === 'my_scores') {
     return (
-      <div className="min-h-screen bg-white text-[#17202A] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 select-none space-y-4">
-        <div className="flex items-center justify-between gap-3 bg-[#1688C9] text-white p-3.5 rounded-2xl shadow-xs">
+      <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 select-none space-y-4">
+        <div className="flex items-center justify-between gap-3 bg-[#102B3F] text-white p-3.5 rounded-2xl shadow-xs border border-[#116B73]/40">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSubView(null)}
@@ -243,20 +243,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-2xs divide-y divide-slate-100">
+        <div className="rounded-2xl border border-[#DCE7E8] overflow-hidden bg-white shadow-2xs divide-y divide-[#DCE7E8]">
           {Object.entries(profile.highScores || {}).map(([gameId, score]) => {
             const catalogGame = GameCatalog.getById(gameId);
             return (
               <div key={gameId} className="p-3.5 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-black text-[#17202A]">
+                  <div className="text-xs font-black text-[#183345]">
                     {catalogGame?.gameName || gameId}
                   </div>
-                  <div className="text-[10px] text-slate-400 capitalize">
+                  <div className="text-[10px] text-[#607582] capitalize">
                     {catalogGame?.category || 'Standard Game'}
                   </div>
                 </div>
-                <div className="text-sm font-black text-[#1688C9] font-mono">
+                <div className="text-sm font-black text-[#087F8C] font-mono">
                   {score.toLocaleString()} pts
                 </div>
               </div>
@@ -271,7 +271,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   // MAIN PROFILE VIEW
   // =========================================================================
   return (
-    <div className="min-h-screen bg-white text-[#17202A] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 space-y-4 select-none">
+    <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 space-y-4 select-none">
       
       {/* Official GoPlay Profile Brand Header */}
       <div className="flex flex-col items-center justify-center py-2">
@@ -281,7 +281,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       {/* 1. TOP: Authenticated GoPlay Profile Card */}
       <div 
         id="profile-account-card"
-        className="rounded-3xl bg-[#1688C9] text-white p-4.5 shadow-sm"
+        className="rounded-3xl bg-[#102B3F] text-white p-4.5 shadow-sm border border-[#116B73]/50"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -290,11 +290,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-blue-100 font-black uppercase tracking-wider">
+                <span className="text-[10px] text-[#DFF7EA] font-black uppercase tracking-wider">
                   GoPlay Account
                 </span>
                 <span className={`px-1.5 py-0.5 rounded-md text-white text-[8px] font-black uppercase tracking-wider ${
-                  isRegistered ? 'bg-[#8BCB3D]' : 'bg-amber-400'
+                  isRegistered ? 'bg-[#82C341]' : 'bg-[#E9B949] text-[#183345]'
                 }`}>
                   {accountBadge}
                 </span>
@@ -322,7 +322,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               id="profile-top-up-btn"
               type="button"
               onClick={onOpenBuyCoins}
-              className="px-3.5 py-2 rounded-full bg-[#8BCB3D] hover:bg-[#7cb934] text-white text-xs font-black flex items-center gap-1 shadow-sm transition-transform active:scale-95 cursor-pointer shrink-0"
+              className="px-3.5 py-2 rounded-full bg-[#82C341] hover:bg-[#72af36] text-white text-xs font-black flex items-center gap-1 shadow-sm transition-transform active:scale-95 cursor-pointer shrink-0"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
               <span>Top Up</span>
@@ -337,17 +337,17 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         <div 
           id="profile-stat-available-coins"
           onClick={onOpenBuyCoins}
-          className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:border-[#8BCB3D]/50 transition-all cursor-pointer flex flex-col justify-between"
+          className="bg-white rounded-2xl p-4 border border-[#DCE7E8] shadow-2xs hover:border-[#82C341]/50 transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between gap-1 mb-2">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 tracking-wider uppercase">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#607582] tracking-wider uppercase">
               Available Coins
             </span>
             <div className="w-6 h-6 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
               <Coins className="w-3.5 h-3.5 text-amber-600" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-[#17202A] font-mono">
+          <div className="text-xl sm:text-2xl font-black text-[#183345] font-mono">
             {coinsBalance.toLocaleString()}
           </div>
         </div>
@@ -356,25 +356,25 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         <div 
           id="profile-stat-best-score"
           onClick={() => setSubView('my_scores')}
-          className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:border-[#1688C9]/50 transition-all cursor-pointer flex flex-col justify-between"
+          className="bg-white rounded-2xl p-4 border border-[#DCE7E8] shadow-2xs hover:border-[#087F8C]/50 transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between gap-1 mb-2">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 tracking-wider uppercase">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#607582] tracking-wider uppercase">
               Best Score
             </span>
-            <div className="w-6 h-6 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
-              <Trophy className="w-3.5 h-3.5 text-[#1688C9]" />
+            <div className="w-6 h-6 rounded-full bg-[#DFF7EA] border border-[#087F8C]/20 flex items-center justify-center shrink-0">
+              <Trophy className="w-3.5 h-3.5 text-[#087F8C]" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-[#17202A] font-mono flex items-baseline gap-1">
+          <div className="text-xl sm:text-2xl font-black text-[#183345] font-mono flex items-baseline gap-1">
             <span>{bestScore.toLocaleString()}</span>
-            <span className="text-xs font-bold text-slate-400 font-sans">pts</span>
+            <span className="text-xs font-bold text-[#607582] font-sans">pts</span>
           </div>
         </div>
       </div>
 
       {/* 3. PROFILE MENU ITEMS */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden divide-y divide-slate-100">
+      <div className="bg-white rounded-2xl border border-[#DCE7E8] shadow-2xs overflow-hidden divide-y divide-[#DCE7E8]">
         {[
           { id: 'subscriptions', label: 'Subscription', icon: CreditCard },
           { id: 'pricing', label: 'Pricing', icon: Coins },
@@ -391,19 +391,19 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               key={item.id}
               id={`profile-menu-item-${item.id}`}
               onClick={() => setSubView(item.id as ProfileSubView)}
-              className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors text-left group cursor-pointer"
+              className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-[#F4F7F6] transition-colors text-left group cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1688C9] flex items-center justify-center group-hover:bg-[#1688C9] group-hover:text-white transition-colors">
+                <div className="w-8 h-8 rounded-xl bg-[#DFF7EA]/50 text-[#087F8C] flex items-center justify-center group-hover:bg-[#087F8C] group-hover:text-white transition-colors">
                   <Icon className="w-4 h-4 stroke-[2.2]" />
                 </div>
-                <span className="text-xs sm:text-sm font-black text-[#17202A] group-hover:text-[#1688C9] transition-colors">
+                <span className="text-xs sm:text-sm font-black text-[#183345] group-hover:text-[#087F8C] transition-colors">
                   {item.label}
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#1688C9] transition-transform" />
+                <ChevronRight className="w-4 h-4 text-[#607582] group-hover:text-[#087F8C] transition-transform" />
               </div>
             </button>
           );
@@ -411,19 +411,19 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       </div>
 
       {/* Sound & Preference Settings */}
-      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+      <div className="p-3.5 rounded-2xl bg-white border border-[#DCE7E8] flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           {soundEnabled ? (
-            <Volume2 className="w-4 h-4 text-[#1688C9]" />
+            <Volume2 className="w-4 h-4 text-[#087F8C]" />
           ) : (
-            <VolumeX className="w-4 h-4 text-slate-400" />
+            <VolumeX className="w-4 h-4 text-[#607582]" />
           )}
-          <span className="text-xs font-bold text-slate-700">Game Sound Effects</span>
+          <span className="text-xs font-bold text-[#183345]">Game Sound Effects</span>
         </div>
         <button
           onClick={() => setSoundEnabled(!soundEnabled)}
           className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
-            soundEnabled ? 'bg-[#8BCB3D]' : 'bg-slate-300'
+            soundEnabled ? 'bg-[#82C341]' : 'bg-slate-300'
           }`}
         >
           <div

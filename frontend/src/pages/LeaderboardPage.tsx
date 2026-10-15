@@ -70,7 +70,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
     : '091*****890';
 
   return (
-    <div className="min-h-screen bg-white text-[#17202A] pb-24 select-none">
+    <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 select-none">
       <div className="max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 sm:px-4 pt-3 space-y-4">
         
         {/* =========================================================================
@@ -79,11 +79,11 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
            ========================================================================= */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between px-1">
-            <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
-              <Swords className="w-3.5 h-3.5 text-[#1688C9]" />
+            <div className="text-[11px] font-black uppercase tracking-wider text-[#607582] flex items-center gap-1">
+              <Swords className="w-3.5 h-3.5 text-[#087F8C]" />
               <span>Tournament Leaderboards</span>
             </div>
-            <span className="text-[10px] font-bold text-slate-400">
+            <span className="text-[10px] font-bold text-[#607582]">
               5 Leaderboard Sections
             </span>
           </div>
@@ -101,8 +101,8 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                   onClick={() => setSelectedTab(g.gameId)}
                   className={`px-3.5 py-1.5 rounded-xl font-extrabold text-xs shrink-0 snap-start transition-all cursor-pointer active:scale-95 ${
                     isSelected
-                      ? 'bg-[#1688C9] text-white shadow-xs font-black'
-                      : 'bg-slate-100 hover:bg-slate-200 text-[#17202A]'
+                      ? 'bg-[#82C341] text-white shadow-xs font-black'
+                      : 'bg-white hover:bg-[#DFF7EA]/50 text-[#183345] border border-[#DCE7E8]'
                   }`}
                 >
                   {g.gameName}
@@ -115,8 +115,8 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
               onClick={() => setSelectedTab('overall-best')}
               className={`px-3.5 py-1.5 rounded-xl font-extrabold text-xs shrink-0 snap-start transition-all cursor-pointer active:scale-95 flex items-center gap-1 ${
                 selectedTab === 'overall-best'
-                  ? 'bg-amber-500 text-white shadow-xs font-black ring-2 ring-amber-400/40'
-                  : 'bg-amber-100/80 hover:bg-amber-200/80 text-amber-950 font-black'
+                  ? 'bg-[#102B3F] text-[#E9B949] shadow-xs font-black ring-2 ring-[#E9B949]/40'
+                  : 'bg-white hover:bg-[#F4F7F6] text-[#183345] font-black border border-[#DCE7E8]'
               }`}
             >
               <span>★ Overall Best</span>
@@ -133,46 +133,46 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
              ========================================================================= */
           <div className="space-y-4">
             {/* Header Card */}
-            <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 shadow-sm">
+            <div className="rounded-2xl bg-[#102B3F] text-white p-4 shadow-sm border border-[#116B73]/40">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/20 text-white text-[9px] font-black uppercase tracking-wider">
-                  <Trophy className="w-3 h-3" />
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/20 text-[#E9B949] text-[9px] font-black uppercase tracking-wider">
+                  <Trophy className="w-3 h-3 text-[#E9B949]" />
                   <span>WEEKLY TOURNAMENT SUMMARY</span>
                 </div>
                 <h2 className="text-lg sm:text-xl font-black text-white leading-tight">
                   Overall Best Leaderboard
                 </h2>
-                <p className="text-[11px] text-amber-100">
+                <p className="text-[11px] text-[#DFF7EA]">
                   Ranked by each player's highest single score across Crazy Color, Fruit Ninja, Helix Jump, or Pop Piano.
                 </p>
               </div>
             </div>
 
             {/* Current User Standing Card */}
-            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-[#DFF7EA]/50 border border-[#82C341]/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-sm shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-[#82C341] text-white flex items-center justify-center font-black text-sm shadow-xs">
                   {overallSummary.currentUserBestScore > 0 ? `#${overallSummary.currentUserRank}` : '—'}
                 </div>
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-wider text-amber-800">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-[#116B73]">
                     Your Overall Best
                   </div>
-                  <div className="text-sm font-black text-[#17202A] font-mono tracking-wider">
+                  <div className="text-sm font-black text-[#183345] font-mono tracking-wider">
                     {maskedUserMsisdn}
                   </div>
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-[10px] font-bold text-amber-800 uppercase">
+                <div className="text-[10px] font-bold text-[#607582] uppercase">
                   Best Score
                 </div>
-                <div className="text-base font-black text-amber-600">
+                <div className="text-base font-black text-[#087F8C]">
                   {overallSummary.currentUserBestScore.toLocaleString()} pts
                 </div>
                 {overallSummary.currentUserBestGame && (
-                  <div className="text-[10px] font-extrabold text-[#8BCB3D]">
+                  <div className="text-[10px] font-extrabold text-[#82C341]">
                     via {overallSummary.currentUserBestGame.gameName}
                   </div>
                 )}
@@ -180,25 +180,25 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
             </div>
 
             {/* Overall Best Top 10 Table: Rank | Player | Best Score | Game */}
-            <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-xs">
-              <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
+            <div className="rounded-2xl border border-[#DCE7E8] overflow-hidden bg-white shadow-xs">
+              <div className="px-4 py-3 bg-[#F4F7F6] border-b border-[#DCE7E8] flex items-center justify-between">
+                <h3 className="text-xs font-black uppercase tracking-wider text-[#183345]">
                   Overall Best • Top 10
                 </h3>
-                <span className="text-[10px] font-bold text-slate-500">
+                <span className="text-[10px] font-bold text-[#607582]">
                   {overallSummary.totalParticipants.toLocaleString()} Players
                 </span>
               </div>
 
               {/* Table Column Headers */}
-              <div className="grid grid-cols-12 gap-1 px-3.5 py-2 bg-slate-100/70 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-500">
+              <div className="grid grid-cols-12 gap-1 px-3.5 py-2 bg-[#F4F7F6]/80 border-b border-[#DCE7E8] text-[10px] font-black uppercase tracking-wider text-[#607582]">
                 <div className="col-span-2 text-center">Rank</div>
                 <div className="col-span-4">Player</div>
                 <div className="col-span-3 text-right">Best Score</div>
                 <div className="col-span-3 text-right">Game</div>
               </div>
 
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-[#DCE7E8]">
                 {overallSummary.topEntries.slice(0, 10).map((entry) => {
                   const isFirst = entry.rank === 1;
                   const isSecond = entry.rank === 2;
@@ -210,7 +210,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                       key={entry.rank}
                       className={`grid grid-cols-12 gap-1 px-3.5 py-3 items-center transition-colors ${
                         isUser
-                          ? 'bg-amber-50 font-black border-l-4 border-l-amber-500'
+                          ? 'bg-[#DFF7EA]/50 font-black border-l-4 border-l-[#82C341]'
                           : isFirst
                           ? 'bg-amber-50/40'
                           : 'hover:bg-slate-50/60'
@@ -218,22 +218,22 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                     >
                       {/* Rank */}
                       <div className="col-span-2 text-center flex items-center justify-center">
-                        {isFirst && <Crown className="w-5 h-5 text-amber-500 fill-amber-500" />}
+                        {isFirst && <Crown className="w-5 h-5 text-[#E9B949] fill-[#E9B949]" />}
                         {isSecond && <Medal className="w-5 h-5 text-slate-400 fill-slate-300" />}
                         {isThird && <Medal className="w-5 h-5 text-amber-700 fill-amber-600" />}
                         {!isFirst && !isSecond && !isThird && (
-                          <span className="text-xs font-black text-slate-500">#{entry.rank}</span>
+                          <span className="text-xs font-black text-[#607582]">#{entry.rank}</span>
                         )}
                       </div>
 
                       {/* Player: Masked MSISDN ONLY */}
                       <div className="col-span-4 min-w-0 pr-1">
                         <div className="flex items-center gap-1.5">
-                          <span className={`text-xs font-mono font-bold truncate ${isUser ? 'text-amber-700 font-black' : 'text-[#17202A]'}`}>
+                          <span className={`text-xs font-mono font-bold truncate ${isUser ? 'text-[#087F8C] font-black' : 'text-[#183345]'}`}>
                             {entry.playerMasked}
                           </span>
                           {isUser && (
-                            <span className="px-1.5 py-0.2 rounded-md bg-amber-500 text-white text-[8px] font-black shrink-0">
+                            <span className="px-1.5 py-0.2 rounded-md bg-[#82C341] text-white text-[8px] font-black shrink-0">
                               YOU
                             </span>
                           )}
@@ -242,15 +242,15 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
 
                       {/* Best Score */}
                       <div className="col-span-3 text-right">
-                        <div className="text-xs font-black text-[#17202A]">
+                        <div className="text-xs font-black text-[#183345]">
                           {entry.bestScore.toLocaleString()}
                         </div>
-                        <div className="text-[9px] text-slate-400 font-medium">pts</div>
+                        <div className="text-[9px] text-[#607582] font-medium">pts</div>
                       </div>
 
                       {/* Game */}
                       <div className="col-span-3 text-right truncate">
-                        <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-[#17202A] text-[10px] font-extrabold truncate max-w-full">
+                        <span className="inline-block px-2 py-0.5 rounded-md bg-[#F4F7F6] text-[#183345] text-[10px] font-extrabold truncate max-w-full">
                           {entry.bestGameTitle}
                         </span>
                       </div>
@@ -267,17 +267,17 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
           individualLeaderboardData && (
             <div className="space-y-4">
               {/* Selected Game Header & Current User Rank Card */}
-              <div className="relative rounded-2xl bg-[#1688C9] text-white p-4 shadow-sm overflow-hidden">
+              <div className="relative rounded-2xl bg-[#102B3F] text-white p-4 shadow-sm overflow-hidden border border-[#116B73]/40">
                 <div className="relative z-10 flex items-center justify-between gap-3">
                   <div className="space-y-1 min-w-0">
-                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#8BCB3D] text-white text-[9px] font-black uppercase tracking-wider">
-                      <Trophy className="w-3 h-3" />
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#82C341] text-white text-[9px] font-black uppercase tracking-wider">
+                      <Trophy className="w-3 h-3 text-[#E9B949]" />
                       <span>TOURNAMENT GAME RANKINGS</span>
                     </div>
                     <h2 className="text-lg sm:text-xl font-black text-white leading-tight truncate">
                       {individualLeaderboardData.game.gameName} Leaderboard
                     </h2>
-                    <p className="text-[11px] text-blue-100">
+                    <p className="text-[11px] text-[#DFF7EA]">
                       Top 10 single scores recorded in {individualLeaderboardData.game.gameName}.
                     </p>
                   </div>
@@ -285,7 +285,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                   {onPlayGame && (
                     <button
                       onClick={() => onPlayGame(catalogGameToDefinition(individualLeaderboardData.game))}
-                      className="py-2 px-3.5 rounded-xl bg-[#8BCB3D] hover:bg-[#7cb934] text-white font-black text-xs transition-transform active:scale-95 shadow-md flex items-center gap-1.5 shrink-0 cursor-pointer"
+                      className="py-2 px-3.5 rounded-xl bg-[#82C341] hover:bg-[#72af36] text-white font-black text-xs transition-transform active:scale-95 shadow-md flex items-center gap-1.5 shrink-0 cursor-pointer"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>Play</span>
@@ -295,43 +295,43 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
               </div>
 
               {/* User's Standing Card */}
-              <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-[#DFF7EA]/50 border border-[#82C341]/30 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#1688C9] text-white flex items-center justify-center font-black text-sm shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#82C341] text-white flex items-center justify-center font-black text-sm shadow-xs">
                     #{individualLeaderboardData.userRank}
                   </div>
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-[#607582]">
                       Your Standing in {individualLeaderboardData.game.gameName}
                     </div>
-                    <div className="text-sm font-black text-[#17202A] font-mono tracking-wider">
+                    <div className="text-sm font-black text-[#183345] font-mono tracking-wider">
                       {maskedUserMsisdn}
                     </div>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase">
+                  <div className="text-[10px] font-bold text-[#607582] uppercase">
                     High Score
                   </div>
-                  <div className="text-base font-black text-[#1688C9]">
+                  <div className="text-base font-black text-[#087F8C]">
                     {individualLeaderboardData.userScore.toLocaleString()} pts
                   </div>
                 </div>
               </div>
 
               {/* Top 10 Players Table */}
-              <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-xs">
-                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
+              <div className="rounded-2xl border border-[#DCE7E8] overflow-hidden bg-white shadow-xs">
+                <div className="px-4 py-3 bg-[#F4F7F6] border-b border-[#DCE7E8] flex items-center justify-between">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-[#183345]">
                     Top 10 Players • {individualLeaderboardData.game.gameName}
                   </h3>
-                  <span className="text-[10px] font-bold text-slate-500">
+                  <span className="text-[10px] font-bold text-[#607582]">
                     {individualLeaderboardData.totalParticipants.toLocaleString()} Competitors
                   </span>
                 </div>
 
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-[#DCE7E8]">
                   {individualLeaderboardData.entries.slice(0, 10).map((entry) => {
                     const isFirst = entry.rank === 1;
                     const isSecond = entry.rank === 2;
@@ -343,7 +343,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                         key={entry.rank}
                         className={`flex items-center justify-between p-3 transition-colors ${
                           isUser
-                            ? 'bg-sky-50/80 font-black border-l-4 border-l-[#1688C9]'
+                            ? 'bg-[#DFF7EA]/50 font-black border-l-4 border-l-[#82C341]'
                             : isFirst
                             ? 'bg-amber-50/40'
                             : 'hover:bg-slate-50/60'
@@ -352,21 +352,21 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                         {/* Rank & Player */}
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-7 text-center shrink-0">
-                            {isFirst && <Crown className="w-5 h-5 text-amber-500 mx-auto fill-amber-500" />}
+                            {isFirst && <Crown className="w-5 h-5 text-[#E9B949] mx-auto fill-[#E9B949]" />}
                             {isSecond && <Medal className="w-5 h-5 text-slate-400 mx-auto fill-slate-300" />}
                             {isThird && <Medal className="w-5 h-5 text-amber-700 mx-auto fill-amber-600" />}
                             {!isFirst && !isSecond && !isThird && (
-                              <span className="text-xs font-black text-slate-500">#{entry.rank}</span>
+                              <span className="text-xs font-black text-[#607582]">#{entry.rank}</span>
                             )}
                           </div>
 
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <span className={`text-xs font-mono font-bold truncate ${isUser ? 'text-[#1688C9] font-black' : 'text-[#17202A]'}`}>
+                              <span className={`text-xs font-mono font-bold truncate ${isUser ? 'text-[#087F8C] font-black' : 'text-[#183345]'}`}>
                                 {entry.playerMasked}
                               </span>
                               {isUser && (
-                                <span className="px-1.5 py-0.2 rounded-md bg-[#1688C9] text-white text-[8px] font-black">
+                                <span className="px-1.5 py-0.2 rounded-md bg-[#82C341] text-white text-[8px] font-black">
                                   YOU
                                 </span>
                               )}
@@ -376,8 +376,8 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
 
                         {/* Score */}
                         <div className="text-right shrink-0">
-                          <div className="text-xs font-black text-[#17202A]">
-                            {entry.score.toLocaleString()} <span className="text-[10px] font-medium text-slate-500">pts</span>
+                          <div className="text-xs font-black text-[#183345]">
+                            {entry.score.toLocaleString()} <span className="text-[10px] font-medium text-[#607582]">pts</span>
                           </div>
                         </div>
                       </div>

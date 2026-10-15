@@ -66,7 +66,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-white text-[#17202A] pb-24 select-none">
+    <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 select-none">
       <div className="max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 sm:px-4 pt-3 space-y-4">
         
         {/* Game Details Modal */}
@@ -80,13 +80,13 @@ export const GamesPage: React.FC<GamesPageProps> = ({
 
         {/* 1. SEARCH BAR */}
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#607582] pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search games, categories, or tags..."
-            className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200/70 focus:bg-white text-[#17202A] text-xs sm:text-sm font-bold border border-transparent focus:border-[#1688C9] outline-none transition-all placeholder:text-slate-400"
+            className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-white hover:bg-slate-50 focus:bg-white text-[#183345] text-xs sm:text-sm font-bold border border-[#DCE7E8] focus:border-[#087F8C] outline-none transition-all placeholder:text-[#607582]"
           />
           {searchQuery && (
             <button
@@ -112,8 +112,8 @@ export const GamesPage: React.FC<GamesPageProps> = ({
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3.5 py-1.5 rounded-xl font-extrabold text-xs shrink-0 snap-start transition-all cursor-pointer active:scale-95 ${
                   isSelected
-                    ? 'bg-[#8BCB3D] text-white shadow-xs font-black'
-                    : 'bg-slate-100 hover:bg-slate-200 text-[#17202A]'
+                    ? 'bg-[#82C341] text-white shadow-xs font-black'
+                    : 'bg-white hover:bg-[#DFF7EA]/50 text-[#183345] border border-[#DCE7E8]'
                 }`}
               >
                 {cat}
@@ -125,7 +125,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({
         {/* 3. CATALOG GRID */}
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-black uppercase text-slate-400 tracking-wider">
+            <span className="text-xs font-black uppercase text-[#607582] tracking-wider">
               {selectedCategory} ({filteredGames.length})
             </span>
           </div>
@@ -144,8 +144,8 @@ export const GamesPage: React.FC<GamesPageProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-              <p className="text-sm font-bold text-slate-600">
+            <div className="p-8 text-center bg-white rounded-2xl border border-[#DCE7E8] space-y-2">
+              <p className="text-sm font-bold text-[#607582]">
                 No games found matching "{searchQuery}"
               </p>
               <button
@@ -153,7 +153,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({
                   setSearchQuery('');
                   setSelectedCategory('All Games');
                 }}
-                className="px-4 py-2 rounded-xl bg-[#1688C9] text-white text-xs font-black cursor-pointer hover:bg-[#1272aa] transition-colors"
+                className="px-4 py-2 rounded-xl bg-[#82C341] text-white text-xs font-black cursor-pointer hover:bg-[#72af36] transition-colors"
               >
                 Reset Filters
               </button>

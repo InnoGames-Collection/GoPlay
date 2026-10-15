@@ -61,43 +61,43 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
       id: 'games',
       label: 'Games',
       icon: Gamepad2,
-      accentColor: 'text-[#8BCB3D] bg-emerald-50 border-emerald-100',
+      accentColor: 'text-[#82C341] bg-[#DFF7EA]/50 border-[#82C341]/30',
     },
     {
       id: 'faq',
       label: 'FAQ',
       icon: HelpCircle,
-      accentColor: 'text-amber-500 bg-amber-50 border-amber-100',
+      accentColor: 'text-[#087F8C] bg-[#DFF7EA]/30 border-[#087F8C]/30',
     },
     {
       id: 'help_support',
       label: 'Help & Support',
       icon: Headphones,
-      accentColor: 'text-[#1688C9] bg-blue-50 border-blue-100',
+      accentColor: 'text-[#087F8C] bg-[#DFF7EA]/30 border-[#087F8C]/30',
     },
     {
       id: 'subscription',
       label: 'Subscription',
       icon: CreditCard,
-      accentColor: 'text-[#8BCB3D] bg-emerald-50 border-emerald-100',
+      accentColor: 'text-[#82C341] bg-[#DFF7EA]/50 border-[#82C341]/30',
     },
     {
       id: 'pricing',
       label: 'Pricing',
       icon: BadgePercent,
-      accentColor: 'text-amber-600 bg-amber-50 border-amber-100',
+      accentColor: 'text-[#E9B949] bg-amber-50/60 border-[#E9B949]/30',
     },
     {
       id: 'terms',
       label: 'Terms & Conditions',
       icon: FileText,
-      accentColor: 'text-slate-600 bg-slate-50 border-slate-200',
+      accentColor: 'text-[#607582] bg-[#F4F7F6] border-[#DCE7E8]',
     },
     {
       id: 'privacy',
       label: 'Privacy Policy',
       icon: ShieldCheck,
-      accentColor: 'text-emerald-600 bg-emerald-50 border-emerald-100',
+      accentColor: 'text-[#116B73] bg-[#DFF7EA]/40 border-[#116B73]/30',
     },
   ];
 
@@ -113,14 +113,14 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
-        <div className="p-4 bg-[#1688C9] text-white flex items-center justify-between shadow-xs">
+        <div className="p-4 bg-[#102B3F] text-white flex items-center justify-between shadow-xs border-b border-[#116B73]/30">
           <div className="flex items-center gap-3">
             <div className="bg-white px-2 py-1 rounded-xl shadow-xs flex items-center justify-center">
               <GoPlayLogo size="xs" />
             </div>
             <div>
               <h2 className="text-sm font-black tracking-tight">GoPlay</h2>
-              <span className="text-[10px] text-blue-100 font-medium">Gaming Portal</span>
+              <span className="text-[10px] text-[#DFF7EA] font-medium">Gaming Portal</span>
             </div>
           </div>
 
@@ -147,19 +147,19 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
                     onSelectSection(item.id);
                     onClose();
                   }}
-                  className="w-full p-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-[#1688C9]/40 shadow-2xs flex items-center justify-between gap-3 text-left transition-all cursor-pointer group"
+                  className="w-full p-3 rounded-2xl bg-white hover:bg-[#F4F7F6] border border-[#DCE7E8] hover:border-[#087F8C]/40 shadow-2xs flex items-center justify-between gap-3 text-left transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${item.accentColor}`}>
                       <Icon className="w-5 h-5" />
                     </div>
 
-                    <h3 className="text-sm font-black text-[#17202A] group-hover:text-[#1688C9] transition-colors leading-tight">
+                    <h3 className="text-sm font-black text-[#183345] group-hover:text-[#087F8C] transition-colors leading-tight">
                       {item.label}
                     </h3>
                   </div>
 
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#1688C9] group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-[#607582] group-hover:text-[#087F8C] group-hover:translate-x-0.5 transition-all shrink-0" />
                 </button>
               );
             })}

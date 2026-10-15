@@ -51,7 +51,7 @@ export const FeaturedHeroCarousel: React.FC<FeaturedHeroCarouselProps> = ({
   return (
     <div 
       id="home-featured-hero"
-      className="relative w-full rounded-3xl overflow-hidden bg-slate-900 text-white shadow-md select-none"
+      className="relative w-full rounded-3xl overflow-hidden bg-[#102B3F] text-white shadow-md border border-[#DCE7E8] select-none"
     >
       {/* Background Artwork Banner */}
       <div className="relative h-56 sm:h-64 md:h-72 w-full overflow-hidden">
@@ -62,13 +62,13 @@ export const FeaturedHeroCarousel: React.FC<FeaturedHeroCarouselProps> = ({
         />
 
         {/* Ambient Multi-Stop Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#17202A] via-[#17202A]/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#17202A]/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#102B3F] via-[#102B3F]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#102B3F]/80 via-transparent to-transparent" />
 
         {/* Top Badges */}
         <div className="absolute top-3.5 left-4 right-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#8BCB3D] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#82C341] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
               <Sparkles className="w-3 h-3" />
               <span>FEATURED</span>
             </span>
@@ -77,7 +77,7 @@ export const FeaturedHeroCarousel: React.FC<FeaturedHeroCarouselProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-xs text-amber-300 text-xs font-bold">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-xs text-[#E9B949] text-xs font-bold">
             <Star className="w-3.5 h-3.5 fill-current" />
             <span>{currentGame.rating}</span>
           </div>
@@ -100,8 +100,8 @@ export const FeaturedHeroCarousel: React.FC<FeaturedHeroCarouselProps> = ({
               onClick={() => onPlayGame(currentGame)}
               className={`py-2.5 px-5 rounded-xl font-black text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95 ${
                 isCoinGame && !hasAccess
-                  ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/30'
-                  : 'bg-[#8BCB3D] hover:bg-[#7cb934] text-white shadow-[#8BCB3D]/30'
+                  ? 'bg-[#087F8C] hover:bg-[#116B73] text-white shadow-[#087F8C]/30'
+                  : 'bg-[#82C341] hover:bg-[#72af36] text-white shadow-[#82C341]/30'
               }`}
             >
               <Play className="w-4 h-4 fill-current" />
@@ -146,13 +146,13 @@ export const FeaturedHeroCarousel: React.FC<FeaturedHeroCarouselProps> = ({
 
       {/* Pagination Dots */}
       {featuredGames.length > 1 && (
-        <div className="py-2 bg-[#17202A] flex items-center justify-center gap-1.5">
+        <div className="py-2 bg-[#102B3F] flex items-center justify-center gap-1.5">
           {featuredGames.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
               className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                currentIndex === idx ? 'w-5 bg-[#8BCB3D]' : 'w-1.5 bg-slate-600'
+                currentIndex === idx ? 'w-5 bg-[#82C341]' : 'w-1.5 bg-[#116B73]/60'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />

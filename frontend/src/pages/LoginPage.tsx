@@ -47,16 +47,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [phoneNumber, setPhoneNumber] = useState(vipPersona.phone);
   const [selectedPersona, setSelectedPersona] = useState<'vip' | 'free' | 'custom'>('vip');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [inlineError, setInlineError] = useState<string | null>(null);
 
   const handleSelectPersona = (persona: 'vip' | 'free', phone: string) => {
     setSelectedPersona(persona);
     setPhoneNumber(phone);
+    setInlineError(null);
   };
 
   const handleTelebirrSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setInlineError(null);
     if (!phoneNumber || phoneNumber.trim().length < 8) {
-      showToast('error', 'Invalid Phone', 'Please enter a valid Ethiopian mobile number.');
+      setInlineError('Please enter a valid Ethiopian mobile number.');
       return;
     }
 
@@ -65,14 +68,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     try {
       const res = await AuthService.loginWithTeleBirr(phoneNumber.trim());
       if (res.success && res.profile) {
-        showToast('success', 'telebirr Connected', `Welcome back, ${res.profile.displayName || 'Player'}!`);
+        // Successful sign-in updates session silently without intrusive top popups
         onLoginSuccess(res.profile);
       } else {
-        showToast('error', 'Authentication Failed', res.message || 'Unable to connect to telebirr gateway.');
+        setInlineError(res.message || 'Unable to connect to telebirr gateway.');
         setIsAuthenticating(false);
       }
     } catch (err: any) {
-      showToast('error', 'Connection Error', err?.message || 'Failed to authenticate with telebirr.');
+      setInlineError(err?.message || 'Failed to authenticate with telebirr.');
       setIsAuthenticating(false);
     }
   };
@@ -200,18 +203,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     onClick={() => handleSelectPersona('free', freePersona.phone)}
                     className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                       selectedPersona === 'free' && phoneNumber === freePersona.phone
-                        ? 'border-[#0057A8] bg-blue-50/70 ring-2 ring-[#0057A8]/30 shadow-xs'
-                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                        ? 'border-[#82C341] bg-[#DFF7EA]/50 ring-2 ring-[#82C341]/30 shadow-xs'
+                        : 'border-[#DCE7E8] hover:border-slate-300 bg-white'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono text-xs font-bold text-slate-900">{freePersona.phone}</span>
-                      <UserCheck className="w-3.5 h-3.5 text-slate-500" />
+                      <span className="font-mono text-xs font-bold text-[#183345]">{freePersona.phone}</span>
+                      <UserCheck className="w-3.5 h-3.5 text-[#607582]" />
                     </div>
-                    <div className="text-[10px] text-emerald-700 font-extrabold uppercase">
+                    <div className="text-[10px] text-[#82C341] font-extrabold uppercase">
                       {freePersona.badge}
                     </div>
-                    <div className="text-[10px] text-slate-500">
+                    <div className="text-[10px] text-[#607582]">
                       {freePersona.description}
                     </div>
                   </button>
@@ -220,13 +223,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
               {/* Phone Form */}
               <form onSubmit={handleTelebirrSignIn} className="space-y-3.5">
+                {inlineError && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 font-medium">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                    <span>{inlineError}</span>
+                  </div>
+                )}
+
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold text-[#183345] uppercase tracking-wider">
                     Mobile Number (MSISDN):
                   </label>
                   <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-500 font-bold text-xs">
-                      <Phone className="w-4 h-4 text-[#0057A8]" />
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-[#607582] font-bold text-xs">
+                      <Phone className="w-4 h-4 text-[#087F8C]" />
                       <span>+251</span>
                     </div>
                     <input
@@ -236,10 +246,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                       onChange={(e) => {
                         setPhoneNumber(e.target.value);
                         setSelectedPersona('custom');
+                        setInlineError(null);
                       }}
                       placeholder="91 123 4567"
                       required
-                      className="w-full pl-20 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-slate-900 font-mono text-sm font-semibold focus:border-[#0057A8] focus:bg-white focus:outline-none transition-colors"
+                      className="w-full pl-20 pr-4 py-3 bg-[#F4F7F6] border border-[#DCE7E8] rounded-2xl text-[#183345] font-mono text-sm font-semibold focus:border-[#087F8C] focus:bg-white focus:outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -248,7 +259,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 <button
                   id="login-signin-submit-btn"
                   type="submit"
-                  className="w-full py-3.5 rounded-2xl bg-[#0057A8] hover:bg-[#004080] text-white font-black text-sm active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl bg-[#82C341] hover:bg-[#72af36] text-white font-black text-sm active:scale-[0.98] transition-all shadow-xs flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>SIGN IN WITH TELEBIRR</span>
