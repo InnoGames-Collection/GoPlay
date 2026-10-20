@@ -63,16 +63,17 @@ services:
       NODE_ENV: production
       PORT: 3302
       HOST: 0.0.0.0
-      DOMAIN: innopulseplatform.com
+      DOMAIN: goplay.com.et
       DATABASE_URL: "postgresql://${POSTGRES_USER:-goplay_app}:${POSTGRES_PASSWORD:-goplay_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-goplay_db}?sslmode=disable"
       VALKEY_URL: "redis://valkey:6379"
       JWT_SECRET: ${JWT_SECRET:-goplay-telebirr-jwt-secret-key-prod-2026}
       TELEBIRR_MODE: ${TELEBIRR_MODE:-live}
       TELEBIRR_APP_KEY: ${TELEBIRR_APP_KEY:-}
       TELEBIRR_APP_ID: ${TELEBIRR_APP_ID:-}
+      TELEBIRR_SHORT_CODE: ${TELEBIRR_SHORT_CODE:-9891}
       TELEBIRR_CHECKOUT_URL: ${TELEBIRR_CHECKOUT_URL:-https://telebirr.et/checkout}
-      TELEBIRR_NOTIFY_URL: ${TELEBIRR_NOTIFY_URL:-https://goplay-api.innopulseplatform.com/api/v1/payments/webhook}
-      TELEBIRR_RETURN_URL: ${TELEBIRR_RETURN_URL:-https://goplay.innopulseplatform.com/#/profile}
+      TELEBIRR_NOTIFY_URL: ${TELEBIRR_NOTIFY_URL:-https://goplay.com.et/api/v1/payments/webhook}
+      TELEBIRR_RETURN_URL: ${TELEBIRR_RETURN_URL:-https://goplay.com.et/#/profile}
       DEFAULT_TEST_MSISDN: ${DEFAULT_TEST_MSISDN:-0977057270}
     ports:
       - "127.0.0.1:3302:3302"

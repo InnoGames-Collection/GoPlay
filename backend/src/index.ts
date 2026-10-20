@@ -25,7 +25,7 @@ async function main() {
     origin: (origin, cb) => {
       if (!origin) return cb(null, true);
       const isAllowed = 
-        /^https?:\/\/([a-zA-Z0-9-]+\.)*(telebirr\.et|innopulseplatform\.com)(:[0-9]+)?$/.test(origin) ||
+        /^https?:\/\/([a-zA-Z0-9-]+\.)*(telebirr\.et|innopulseplatform\.com|goplay\.com\.et|gofun\.net\.et|ethiotelecom\.et)(:[0-9]+)?$/.test(origin) ||
         /^https?:\/\/(localhost|127\.0\.0\.1)(:[0-9]+)?$/.test(origin);
       cb(null, isAllowed);
     },

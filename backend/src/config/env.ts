@@ -8,7 +8,7 @@ export const env = cleanEnv(process.env, {
   PORT: port({ default: 3302 }),
   ADMIN_PORT: port({ default: 3303 }),
   HOST: str({ default: '0.0.0.0' }),
-  DOMAIN: str({ default: 'innopulseplatform.com' }),
+  DOMAIN: str({ default: 'goplay.com.et' }),
 
   // PostgreSQL
   DATABASE_URL: str({ default: 'postgresql://goplay_app:goplay_secure_prod_password_2026@localhost:5434/goplay_db' }),
@@ -32,9 +32,10 @@ export const env = cleanEnv(process.env, {
   TELEBIRR_APP_KEY: str({ default: '' }),
   TELEBIRR_APP_ID: str({ default: '' }),
   TELEBIRR_PUBLIC_KEY: str({ default: '' }),
+  TELEBIRR_SHORT_CODE: str({ default: '9891' }),
   TELEBIRR_CHECKOUT_URL: str({ default: 'https://telebirr.et/checkout' }),
-  TELEBIRR_NOTIFY_URL: str({ default: 'https://goplay-api.innopulseplatform.com/api/v1/payments/webhook' }),
-  TELEBIRR_RETURN_URL: str({ default: 'https://goplay.innopulseplatform.com/#/profile' }),
+  TELEBIRR_NOTIFY_URL: str({ default: 'https://goplay.com.et/api/v1/payments/webhook' }),
+  TELEBIRR_RETURN_URL: str({ default: 'https://goplay.com.et/#/profile' }),
   DEFAULT_TEST_MSISDN: str({ default: '0977057270' }),
   DEMO_MSISDN_VIP: str({ default: '0977057270' }),
   DEMO_MSISDN_FREE: str({ default: '0911998890' }),
