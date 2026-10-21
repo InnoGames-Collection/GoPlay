@@ -24,14 +24,14 @@ import { WordQuestion, MultiWordLevelData } from './types';
 import { CATEGORIZED_WORD_DICTIONARY } from './wordDictionary';
 import { getLevelMultiplier } from './competitiveScoreService';
 
-// Progressive question counts per level
+// Progressive question counts per level: Level 1 has 5 words; subsequent levels scale by 30-50%
 export function getWordCountForLevel(levelNumber: number): number {
   if (levelNumber === 1) return 5;
-  if (levelNumber === 2) return 6;
-  if (levelNumber === 3) return 7;
-  if (levelNumber === 4) return 8;
-  if (levelNumber === 5) return 9;
-  return 10;
+  if (levelNumber === 2) return 7;   // +40% from 5
+  if (levelNumber === 3) return 10;  // +43% from 7
+  if (levelNumber === 4) return 13;  // +30% from 10
+  if (levelNumber === 5) return 17;  // +31% from 13
+  return Math.min(20, Math.round(17 * Math.pow(1.3, Math.min(levelNumber - 5, 2))));
 }
 
 // Fisher-Yates array shuffler
@@ -133,7 +133,8 @@ const CURATED_LEVELS: Record<
       { word: 'RIVER', bonusWords: ['RIVE', 'VIRE', 'ERR', 'REV'] },
       { word: 'FOREST', bonusWords: ['FORT', 'ROSE', 'SORE', 'SOFT', 'FOR', 'SET', 'TOE', 'ROT'] },
       { word: 'VALLEY', bonusWords: ['ALLY', 'LAVE', 'VEAL', 'ALE', 'LAY', 'YEA'] },
-      { word: 'CANYON', distractor: 'S', bonusWords: ['CYAN', 'ANON', 'CONY', 'CAN', 'ANY'] },
+      { word: 'CANYON', bonusWords: ['CYAN', 'ANON', 'CONY', 'CAN', 'ANY'] },
+      { word: 'MEADOW', distractor: 'S', bonusWords: ['WADE', 'DOME', 'MADE', 'MEAD', 'DAM', 'DEW', 'AWE'] },
     ],
   },
   3: {
@@ -146,7 +147,10 @@ const CURATED_LEVELS: Record<
       { word: 'ARENA', bonusWords: ['AREA', 'NEAR', 'EARN', 'ERA', 'RAN'] },
       { word: 'TROPHY', bonusWords: ['PORT', 'TYPO', 'ROPY', 'TOY', 'POT', 'TOP', 'ROT', 'HOT', 'HOP', 'PRO'] },
       { word: 'SPRINT', bonusWords: ['PINS', 'RIPS', 'TRIP', 'SPIT', 'PIN', 'TIP', 'SIP', 'PIT', 'RIP'] },
-      { word: 'CHAMPION', distractor: 'S', bonusWords: ['CHAMP', 'MANIC', 'MACH', 'COMA', 'CAMP', 'CHIN', 'COIN', 'MOP', 'PAN', 'MAP'] },
+      { word: 'CHAMPION', bonusWords: ['CHAMP', 'MANIC', 'MACH', 'COMA', 'CAMP', 'CHIN', 'COIN', 'MOP', 'PAN', 'MAP'] },
+      { word: 'VICTORY', bonusWords: ['CITY', 'RIOT', 'TRIO', 'TRY'] },
+      { word: 'ATHLETE', bonusWords: ['TEAL', 'LATE', 'HATE', 'HEAT'] },
+      { word: 'STADIUM', distractor: 'E', bonusWords: ['SUIT', 'MAST', 'MIST', 'ADMIT', 'STUM', 'MUD', 'SIT'] },
     ],
   },
   4: {
@@ -160,7 +164,12 @@ const CURATED_LEVELS: Record<
       { word: 'TRAVEL', bonusWords: ['ALERT', 'ALTER', 'LATER', 'REAL', 'TALE', 'TEAL', 'LATE', 'EARL', 'RATE', 'TAR', 'ART', 'LET'] },
       { word: 'COMPASS', bonusWords: ['CAMP', 'PASS', 'SOAP', 'COPS', 'MAPS', 'MOSS', 'CAP', 'MAP', 'SAP'] },
       { word: 'HORIZON', bonusWords: ['HORN', 'IRON', 'NOON', 'ZOO', 'NOR', 'ION'] },
-      { word: 'JOURNEY', distractor: 'S', bonusWords: ['ENJOY', 'ENTRY', 'JOY', 'RUN', 'ONE', 'NOR'] },
+      { word: 'JOURNEY', bonusWords: ['ENJOY', 'ENTRY', 'JOY', 'RUN', 'ONE', 'NOR'] },
+      { word: 'CAPTAIN', bonusWords: ['PAINT', 'PANIC', 'PAIN', 'PINT', 'PACT', 'CAN'] },
+      { word: 'CRUISE', bonusWords: ['CURE', 'USER', 'RICE', 'SIRE', 'SUE', 'USE'] },
+      { word: 'BORDER', bonusWords: ['ROBE', 'RODE', 'BRED', 'BORE', 'BED', 'RED', 'ROB'] },
+      { word: 'DESERT', bonusWords: ['REST', 'TREE', 'DEER', 'REED', 'SEE', 'SET', 'RED'] },
+      { word: 'GLOBAL', distractor: 'S', bonusWords: ['GOAL', 'BALL', 'BOG', 'LAB', 'LOG'] },
     ],
   },
   5: {
@@ -175,7 +184,15 @@ const CURATED_LEVELS: Record<
       { word: 'MONARCH', bonusWords: ['ROAM', 'ARCH', 'CORN', 'CRAM', 'HARM', 'HORN', 'MAN', 'ARM', 'RAM', 'CAN'] },
       { word: 'EMPIRE', bonusWords: ['PRIME', 'RIPE', 'PERI', 'PIER', 'RIM', 'PIE', 'REP'] },
       { word: 'LEGEND', bonusWords: ['GLEE', 'NEED', 'EDGE', 'GLEN', 'GEL', 'LED', 'END'] },
-      { word: 'DYNASTY', distractor: 'E', bonusWords: ['STAY', 'SAND', 'TINY', 'DAY', 'SAY', 'SAD'] },
+      { word: 'DYNASTY', bonusWords: ['STAY', 'SAND', 'TINY', 'DAY', 'SAY', 'SAD'] },
+      { word: 'KNIGHT', bonusWords: ['NIGHT', 'HINT', 'THIN', 'KING', 'INK'] },
+      { word: 'KINGDOM', bonusWords: ['DOOM', 'MOON', 'KIND', 'KING', 'DOG'] },
+      { word: 'THRONE', bonusWords: ['HERO', 'HORN', 'RENT', 'TONE', 'TORE', 'ONE', 'NOT'] },
+      { word: 'ARMOR', bonusWords: ['ROAM', 'ROAR', 'RAM', 'ARM', 'OAR'] },
+      { word: 'SWORD', bonusWords: ['WORD', 'DOWS', 'ROWS', 'ROD', 'ROW', 'SOW'] },
+      { word: 'HELMET', bonusWords: ['MELT', 'MEET', 'THEM', 'LET', 'MET'] },
+      { word: 'BANNER', bonusWords: ['BARE', 'BEAR', 'BARN', 'BEAN', 'BAR', 'BAN'] },
+      { word: 'SCEPTER', distractor: 'A', bonusWords: ['CREEP', 'CREST', 'PEER', 'REST', 'STEP', 'PET', 'SET'] },
     ],
   },
 };
@@ -333,6 +350,20 @@ export function getMultiWordLevel(
         points: 10 + upperWord.length * 5,
       };
     });
+
+    if (questions.length < totalWords) {
+      const extraNeeded = totalWords - questions.length;
+      const extraQuestions = generateDynamicQuestions(levelNumber, extraNeeded, sessionUsedWords);
+      extraQuestions.forEach((eq) => {
+        const wordNum = questions.length + 1;
+        questions.push({
+          ...eq,
+          id: `q_lvl${levelNumber}_w${wordNum}`,
+          wordNumber: wordNum,
+          totalWords,
+        });
+      });
+    }
 
     return {
       levelNumber,

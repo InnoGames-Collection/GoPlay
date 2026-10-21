@@ -129,7 +129,6 @@ export const EmojiFunLevelInfo: React.FC<EmojiFunLevelInfoProps> = ({
                   {s <= starsCount ? '★' : '☆'}
                 </span>
               ))}
-              <span className="ml-1 font-bold text-purple-800 text-[11px]">{levelConfig.theme}</span>
             </div>
           </div>
 
@@ -137,7 +136,7 @@ export const EmojiFunLevelInfo: React.FC<EmojiFunLevelInfoProps> = ({
           <div className="bg-blue-50/80 p-2 rounded-2xl border border-blue-100 flex flex-col justify-center">
             <span className="text-[10px] uppercase font-bold text-slate-500">QUESTIONS</span>
             <span className="text-sm font-black text-blue-900 mt-0.5">
-              {levelConfig.questionCount} Questions (10+)
+              {levelConfig.questionCount || 10} Questions
             </span>
           </div>
 

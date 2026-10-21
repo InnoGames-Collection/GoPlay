@@ -138,11 +138,45 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
 
   const canvasDimensionsRef = useRef<{ width: number; height: number }>({ width: 360, height: 640 });
   const hitLineYRef = useRef<number>(530);
+  const attemptSubmittedRef = useRef<boolean>(false);
+  const gameStateRef = useRef<PopPianoGameState>(gameState);
+  gameStateRef.current = gameState;
 
   // Audio mute synchronization
   useEffect(() => {
     PianoSynth.setMuted(isAudioMuted);
   }, [isAudioMuted]);
+
+  /**
+   * Auto-pause when app is backgrounded or tab loses visibility
+   * Does NOT falsely finalize or erase attempt state.
+   */
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && gameStateRef.current === 'PLAYING') {
+        isPlayingRef.current = false;
+        PianoSynth.stopAll();
+        setGameState('PAUSED');
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  /**
+   * Finalize and persist attempt on unmount if game is active or paused
+   */
+  useEffect(() => {
+    return () => {
+      isTerminatedRef.current = true;
+      PianoSynth.stopAll();
+      if (gameStateRef.current === 'PLAYING' || gameStateRef.current === 'PAUSED') {
+        finalizeAndSaveAttempt(false);
+      }
+    };
+  }, [finalizeAndSaveAttempt]);
 
   const handleToggleAudio = () => {
     setIsAudioMuted((prev) => {
@@ -269,6 +303,7 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
     particlesRef.current = [];
     nextNoteIndexRef.current = 0;
     attemptSeedRef.current += 1;
+    attemptSubmittedRef.current = false;
 
     setHudTilesHit(0);
     setHudScore(0);
@@ -311,26 +346,16 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
   }, [spawnNextTile]);
 
   /**
-   * Handles Level Failure
+   * Finalizes and persists attempt score:
+   * - Used for level completion, failure, pausing and exiting, or app close.
+   * - Ensures each attempt is committed strictly once without duplicate triggers.
    */
-  const handleFailLevel = useCallback((reason: string) => {
-    isPlayingRef.current = false;
-    PianoSynth.playMissThud();
-    setFailReason(reason);
-    setGameState('GAME_OVER');
-  }, []);
-
-  /**
-   * Handles Level Completion
-   */
-  const handleCompleteLevel = useCallback(() => {
-    isPlayingRef.current = false;
-    PianoSynth.playLevelCompleteChord();
+  const finalizeAndSaveAttempt = useCallback((isCompleted: boolean, options?: { allowZero?: boolean }) => {
+    if (attemptSubmittedRef.current) return null;
 
     const timeTaken = Math.max(1, Math.round((Date.now() - levelStartTimeRef.current) / 1000));
     const levelCfg = getPopPianoLevel(currentLevelRef.current);
 
-    // Compute reaction times
     const reactions = reactionTimesRef.current;
     const avgReact = reactions.length > 0
       ? reactions.reduce((acc, r) => acc + r, 0) / reactions.length
@@ -339,7 +364,6 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
       ? Math.min(...reactions)
       : 190;
 
-    // Calculate deterministic score breakdown
     const breakdown = calculateLevelScore({
       levelConfig: levelCfg,
       tilesHit: levelHitsRef.current,
@@ -350,20 +374,54 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
       avgReactionMs: avgReact,
       bestReactionMs: bestReact,
       maxCombo: maxComboRef.current,
-      isCompleted: true,
+      isCompleted,
       timeTakenSeconds: timeTaken,
       currentProgress: progressRef.current,
     });
 
-    // Record completed level, unlocking next level & updating cumulative total
+    // Don't submit ghost 0-score attempts if no tiles were ever hit (e.g. immediate abort in countdown)
+    if (levelHitsRef.current === 0 && breakdown.finalScore === 0 && !options?.allowZero) {
+      return breakdown;
+    }
+
+    attemptSubmittedRef.current = true;
+
+    // Record in local progress
     const { updatedProgress } = recordCompletedLevel(progressRef.current, breakdown, timeTaken);
     setProgress(updatedProgress);
-    setCompletedBreakdown(breakdown);
-    setGameState('LEVEL_COMPLETE');
 
-    // Notify app shell if desired
+    // Persist via bridge to portal and My High Scores
     onGameOver(breakdown.finalScore, timeTaken);
+
+    return breakdown;
   }, [onGameOver]);
+
+  /**
+   * Handles Level Failure
+   */
+  const handleFailLevel = useCallback((reason: string) => {
+    isPlayingRef.current = false;
+    PianoSynth.playMissThud();
+    setFailReason(reason);
+
+    // Save valid score earned up to point of failure
+    finalizeAndSaveAttempt(false);
+    setGameState('GAME_OVER');
+  }, [finalizeAndSaveAttempt]);
+
+  /**
+   * Handles Level Completion
+   */
+  const handleCompleteLevel = useCallback(() => {
+    isPlayingRef.current = false;
+    PianoSynth.playLevelCompleteChord();
+
+    const breakdown = finalizeAndSaveAttempt(true);
+    if (breakdown) {
+      setCompletedBreakdown(breakdown);
+    }
+    setGameState('LEVEL_COMPLETE');
+  }, [finalizeAndSaveAttempt]);
 
   /**
    * RequestAnimationFrame Game Loop (60 FPS)
@@ -666,11 +724,29 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
   };
 
   /**
-   * Back button during gameplay returns to Level Selection
+   * Backgrounding & Audio Suspension Lifecycle Listener
+   */
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (gameState === 'PLAYING') {
+          isPlayingRef.current = false;
+          PianoSynth.stopAll();
+          setGameState('PAUSED');
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [gameState]);
+
+  /**
+   * Back button during gameplay returns to Level Selection, saving progress so far
    */
   const handleBackFromGame = () => {
     isPlayingRef.current = false;
     PianoSynth.stopAll();
+    finalizeAndSaveAttempt(false);
     setGameState('LEVEL_SELECT');
   };
 
@@ -909,7 +985,10 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => startCountdownForLevel(currentLevelNum)}
+                  onClick={() => {
+                    finalizeAndSaveAttempt(false);
+                    startCountdownForLevel(currentLevelNum);
+                  }}
                   className="min-h-[46px] w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-white font-bold text-xs uppercase tracking-wider border border-white/15 flex items-center justify-center gap-2 cursor-pointer transition-all"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -918,7 +997,10 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setGameState('LEVEL_SELECT')}
+                  onClick={() => {
+                    finalizeAndSaveAttempt(false);
+                    setGameState('LEVEL_SELECT');
+                  }}
                   className="min-h-[46px] w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-white font-bold text-xs uppercase tracking-wider border border-white/15 flex items-center justify-center gap-2 cursor-pointer transition-all"
                 >
                   <Grid3X3 className="w-4 h-4" />
@@ -927,7 +1009,10 @@ export const PopPianoGame: React.FC<PopPianoGameProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setGameState('MAIN_MENU')}
+                  onClick={() => {
+                    finalizeAndSaveAttempt(false);
+                    setGameState('MAIN_MENU');
+                  }}
                   className="min-h-[46px] w-full py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
                 >
                   Main Menu

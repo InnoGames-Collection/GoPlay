@@ -89,6 +89,18 @@ export interface TournamentLeaderboardEntry {
   isCurrentUser?: boolean;
 }
 
+export interface EmojiAttemptRecord {
+  score: number;
+  level: number;
+  completed: boolean;
+  timestamp: string;
+  totalQuestions: number;
+  answeredCount: number;
+  unansweredCount: number;
+  correctCount: number;
+  durationSeconds: number;
+}
+
 export interface PlayerStats {
   totalTournamentScore: number;
   currentLevel: number;
@@ -100,7 +112,8 @@ export interface PlayerStats {
   hintsUsed: number;
   coins: number;
   availableHints: number;
-  lives: number;
+  lives?: number;
   starsByLevel: Record<number, number>;
   highScoreByLevel: Record<number, number>;
+  recentAttempts?: EmojiAttemptRecord[];
 }

@@ -33,6 +33,8 @@ import {
   Shield,
 } from 'lucide-react';
 import { SOCCER_LEVELS } from './soccerLevels';
+import { calculateSoccerPingPongScore } from './soccerScore';
+import { GameBridgeService } from '../../services/gameBridge';
 import {
   SOCCER_TEAMS,
   FICTIONAL_CLUBS,
@@ -189,6 +191,7 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
   const [playerGoals, setPlayerGoals] = useState<number>(0);
   const [computerGoals, setComputerGoals] = useState<number>(0);
   const [levelScore, setLevelScore] = useState<number>(0);
+  const [activeDurationSec, setActiveDurationSec] = useState<number>(0);
   const [matchRally, setMatchRally] = useState<number>(0);
   const [highestMatchRally, setHighestMatchRally] = useState<number>(0);
   const [lives, setLives] = useState<number>(3);
@@ -202,6 +205,7 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
   const [isMovingRight, setIsMovingRight] = useState<boolean>(false);
 
   const matchStartTime = useRef<number>(Date.now());
+  const activeDurationRef = useRef<number>(0);
   const statsCounters = useRef({ perfectHits: 0, goodHits: 0, powerKicks: 0 });
   const matchEndedRef = useRef<boolean>(false);
   const pitchCanvasRef = useRef<SoccerPitchCanvasHandle>(null);
@@ -213,6 +217,45 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
   const levelScoreRef = useRef<number>(0);
   const highestMatchRallyRef = useRef<number>(0);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const gameStateRef = useRef<GameState>(gameState);
+  gameStateRef.current = gameState;
+
+  // Active gameplay time tracking: strictly pauses when paused or backgrounded
+  useEffect(() => {
+    let lastActiveTimestamp = performance.now();
+    const interval = setInterval(() => {
+      if (document.hidden || gameStateRef.current !== 'PLAYING') {
+        lastActiveTimestamp = performance.now();
+        return;
+      }
+      const now = performance.now();
+      const deltaSec = (now - lastActiveTimestamp) / 1000;
+      lastActiveTimestamp = now;
+      activeDurationRef.current += deltaSec;
+      setActiveDurationSec(Math.floor(activeDurationRef.current));
+    }, 250);
+
+    const handleVisibilityChange = () => {
+      lastActiveTimestamp = performance.now();
+      if (document.hidden) {
+        soccerAudio.setSoundEnabled(false);
+        soccerAudio.setMusicEnabled(false);
+        if (gameStateRef.current === 'PLAYING') {
+          setGameState('PAUSED');
+        }
+      } else {
+        if (settings.soundEnabled) soccerAudio.setSoundEnabled(true);
+        if (settings.musicEnabled) soccerAudio.setMusicEnabled(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [settings.soundEnabled, settings.musicEnabled]);
 
   // Safely trigger confirmation modal when BACK is pressed during an active match
   const handleBackFromMatch = () => {
@@ -226,6 +269,23 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
     }
     matchEndedRef.current = true;
     setShowExitConfirmModal(false);
+
+    // Save valid score earned up to that point as an attempt result
+    const duration = Math.max(1, Math.floor(activeDurationRef.current));
+    const breakdown = calculateSoccerPingPongScore(
+      playerGoalsRef.current,
+      computerGoalsRef.current,
+      duration
+    );
+    if (profile) {
+      GameBridgeService.submitScore(
+        'soccer-ping-pong',
+        breakdown.finalScore,
+        duration,
+        profile
+      );
+    }
+    onGameOver(breakdown.finalScore, duration);
     setGameState('HUB');
   };
 
@@ -312,10 +372,12 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
     computerGoalsRef.current = 0;
     levelScoreRef.current = 0;
     highestMatchRallyRef.current = 0;
+    activeDurationRef.current = 0;
 
     setPlayerGoals(0);
     setComputerGoals(0);
     setLevelScore(0);
+    setActiveDurationSec(0);
     setMatchRally(0);
     setHighestMatchRally(0);
     setLives(currentLevelConfig.livesAllowed);
@@ -361,10 +423,6 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
   ) => {
     if (matchEndedRef.current) return;
 
-    // Award progression skill points for successful human kick & rally
-    levelScoreRef.current += points;
-    setLevelScore(levelScoreRef.current);
-
     if (quality === 'PERFECT') statsCounters.current.perfectHits++;
     else if (quality === 'GOOD') statsCounters.current.goodHits++;
   };
@@ -382,6 +440,15 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
     setComputerGoals(nextCompGoals);
     setLives((prevLives) => Math.max(0, prevLives - 1));
 
+    const matchDuration = Math.max(1, Math.floor(activeDurationRef.current));
+    const breakdown = calculateSoccerPingPongScore(
+      playerGoalsRef.current,
+      nextCompGoals,
+      matchDuration
+    );
+    levelScoreRef.current = breakdown.finalScore;
+    setLevelScore(breakdown.finalScore);
+
     // Match Loss Condition: Computer reaches target goals!
     if (nextCompGoals >= currentLevelConfig.targetGoals) {
       matchEndedRef.current = true;
@@ -392,23 +459,27 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
   };
 
   // If computer fails to defend -> PLAYER SCORES A GOAL!
-  const handleComputerMiss = (goalPoints: number) => {
+  const handleComputerMiss = (_ignoredGoalPoints: number) => {
     if (matchEndedRef.current) return;
-
-    // Add goal bonus to progression score
-    levelScoreRef.current += goalPoints;
-    setLevelScore(levelScoreRef.current);
 
     playerGoalsRef.current += 1;
     const nextPlayerGoals = playerGoalsRef.current;
     setPlayerGoals(nextPlayerGoals);
 
+    const matchDuration = Math.max(1, Math.floor(activeDurationRef.current));
+    const breakdown = calculateSoccerPingPongScore(
+      nextPlayerGoals,
+      computerGoalsRef.current,
+      matchDuration
+    );
+    levelScoreRef.current = breakdown.finalScore;
+    setLevelScore(breakdown.finalScore);
+
     // Match Win Condition: Player reaches target goals!
     if (nextPlayerGoals >= currentLevelConfig.targetGoals) {
       matchEndedRef.current = true;
-      const finalMatchScore = levelScoreRef.current;
       setTimeout(() => {
-        handleLevelWin(finalMatchScore);
+        handleLevelWin(breakdown.finalScore);
       }, 400);
     }
   };
@@ -434,9 +505,21 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
     }
     setStarsEarned(stars);
 
+    const matchDuration = Math.max(1, Math.floor(activeDurationRef.current));
+    const breakdown = calculateSoccerPingPongScore(
+      playerGoalsRef.current,
+      computerGoalsRef.current,
+      matchDuration
+    );
+    const validMatchScore = breakdown.finalScore;
+
     // Carried-forward score persists across all completed levels!
-    const newTotalScore = progress.currentTotalScore + finalScore;
-    const newBestTotal = Math.max(progress.bestTotalScore, newTotalScore);
+    const newTotalScore = progress.currentTotalScore + validMatchScore;
+    const newBestTotal = Math.max(
+      progress.bestTotalScore,
+      newTotalScore,
+      profile?.highScores?.['soccer-ping-pong'] || 0
+    );
     const nextUnlocked = Math.max(progress.unlockedLevel, Math.min(40, currentLevelConfig.level + 1));
     const completedSet = new Set(progress.completedLevels);
     completedSet.add(currentLevelConfig.level);
@@ -453,7 +536,7 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
         ...progress.bestScores,
         [currentLevelConfig.level]: Math.max(
           progress.bestScores[currentLevelConfig.level] || 0,
-          finalScore
+          validMatchScore
         ),
       },
       stars: {
@@ -472,15 +555,32 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
     setGameState('RESULT_WIN');
     soccerAudio.playVictoryFanfare();
 
-    const matchDuration = Math.max(1, Math.floor((Date.now() - matchStartTime.current) / 1000));
+    // Persist to profile highScores
+    if (profile) {
+      GameBridgeService.submitScore(
+        'soccer-ping-pong',
+        validMatchScore,
+        matchDuration,
+        profile
+      );
+    }
+
     // Asynchronously notify parent App container outside of React's render/updater phase
     setTimeout(() => {
-      onGameOver(newTotalScore, matchDuration);
+      onGameOver(validMatchScore, matchDuration);
     }, 0);
   };
 
   // Level Lost (Guaranteed to execute exactly once)
   const handleLevelLoss = () => {
+    const matchDuration = Math.max(1, Math.floor(activeDurationRef.current));
+    const breakdown = calculateSoccerPingPongScore(
+      playerGoalsRef.current,
+      computerGoalsRef.current,
+      matchDuration
+    );
+    const validMatchScore = breakdown.finalScore;
+
     saveProgress({
       ...progress,
       winStreak: 0,
@@ -490,11 +590,19 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
     setGameState('RESULT_LOSS');
     soccerAudio.playDefeatSound();
 
-    const matchDuration = Math.max(1, Math.floor((Date.now() - matchStartTime.current) / 1000));
-    const finalScore = progress.currentTotalScore + levelScoreRef.current;
+    // Persist to profile highScores
+    if (profile) {
+      GameBridgeService.submitScore(
+        'soccer-ping-pong',
+        validMatchScore,
+        matchDuration,
+        profile
+      );
+    }
+
     // Asynchronously notify parent App container outside of React's render/updater phase
     setTimeout(() => {
-      onGameOver(finalScore, matchDuration);
+      onGameOver(validMatchScore, matchDuration);
     }, 0);
   };
 
@@ -1331,25 +1439,50 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
             </div>
           )}
 
-          {/* Stats Box */}
-          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-xs font-mono">
-            <div className="flex justify-between">
-              <span className="text-slate-400">Match Goals</span>
-              <span className="font-black text-white">YOU {playerGoals} - {computerGoals} AI</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-400">Progression Points</span>
-              <span className="font-black text-emerald-400">+{levelScore.toLocaleString()} pts</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-400">Highest Rally</span>
-              <span className="font-black text-amber-300">{highestMatchRally} Hits</span>
-            </div>
-            <div className="flex justify-between border-t border-white/10 pt-1.5">
-              <span className="text-slate-400">Carried Total Career Score</span>
-              <span className="font-black text-[#38bdf8]">{progress.currentTotalScore.toLocaleString()}</span>
-            </div>
-          </div>
+          {/* Stats Box with full score breakdown */}
+          {(() => {
+            const breakdown = calculateSoccerPingPongScore(
+              playerGoals,
+              computerGoals,
+              activeDurationSec
+            );
+            return (
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-xs font-mono">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Match Goals</span>
+                  <span className="font-black text-white">YOU {playerGoals} - {computerGoals} AI</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Goal Points (10 pts/goal)</span>
+                  <span className="font-black text-emerald-400">+{breakdown.playerGoalPoints} pts</span>
+                </div>
+                {computerGoals > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Conceded Goals (-3/goal)</span>
+                    <span className="font-black text-rose-400">-{breakdown.concededPenalty} pts</span>
+                  </div>
+                )}
+                {breakdown.timePenalty > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Time Penalty ({activeDurationSec}s)</span>
+                    <span className="font-black text-amber-300">-{breakdown.timePenalty} pts</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-white/10 pt-1.5">
+                  <span className="text-slate-200 font-bold">Final Match Score</span>
+                  <span className="font-black text-[#38bdf8] text-sm">{breakdown.finalScore} PTS</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Highest Rally</span>
+                  <span className="font-black text-amber-300">{highestMatchRally} Hits</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Active Match Time</span>
+                  <span className="font-black text-slate-300">{activeDurationSec}s</span>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Action CTAs */}
           <div className="space-y-2 pt-2">
@@ -1704,7 +1837,7 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
           <div className="text-right pl-1.5 border-l border-white/10">
             <span className="text-[8.5px] text-slate-400 font-bold uppercase block">SCORE</span>
             <span className="text-xs font-mono font-black text-[#38bdf8]">
-              {displayedTotalScore.toLocaleString()}
+              {calculateSoccerPingPongScore(playerGoals, computerGoals, activeDurationSec).finalScore} PTS
             </span>
           </div>
         </div>
@@ -1808,7 +1941,24 @@ export const SoccerPingPongGame: React.FC<SoccerPingPongGameProps> = ({
                 RESTART MATCH
               </button>
               <button
-                onClick={() => setGameState('HUB')}
+                onClick={() => {
+                  const duration = Math.max(1, Math.floor(activeDurationRef.current));
+                  const breakdown = calculateSoccerPingPongScore(
+                    playerGoalsRef.current,
+                    computerGoalsRef.current,
+                    duration
+                  );
+                  if (profile) {
+                    GameBridgeService.submitScore(
+                      'soccer-ping-pong',
+                      breakdown.finalScore,
+                      duration,
+                      profile
+                    );
+                  }
+                  onGameOver(breakdown.finalScore, duration);
+                  setGameState('HUB');
+                }}
                 className="w-full py-3 rounded-xl bg-white/5 text-slate-400 hover:text-white text-xs font-black uppercase cursor-pointer"
               >
                 GAME HUB

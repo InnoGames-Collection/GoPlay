@@ -35,22 +35,23 @@ export interface WordScoreBreakdown {
 }
 
 /**
- * 1. Base Score: 10 points for every correctly completed word
+ * 1. Base Score: 5 points for every correctly completed word / solved question
  */
-export const BASE_WORD_SCORE = 10;
+export const BASE_WORD_SCORE = 5;
 
 /**
  * 2. Time / Speed Bonus:
- * - < 4.0s: +10 (Very fast)
- * - 4.0s – 6.99s: +7 (Fast)
- * - 7.0s – 11.99s: +4 (Normal)
+ * Rewards faster response times based on thinking seconds:
+ * - < 4.0s: +5 (Very fast)
+ * - 4.0s – 6.99s: +4 (Fast)
+ * - 7.0s – 11.99s: +3 (Normal)
  * - 12.0s – 19.99s: +1 (Slow)
  * - >= 20.0s: +0 (Very slow)
  */
 export function calculateSpeedBonus(timeSec: number): number {
-  if (timeSec < 4.0) return 10;
-  if (timeSec < 7.0) return 7;
-  if (timeSec < 12.0) return 4;
+  if (timeSec < 4.0) return 5;
+  if (timeSec < 7.0) return 4;
+  if (timeSec < 12.0) return 3;
   if (timeSec < 20.0) return 1;
   return 0;
 }
@@ -166,7 +167,7 @@ export function calculateWordScore(perf: WordPerformanceData): WordScoreBreakdow
     wordDifficultyBonus;
 
   const levelMultiplier = getLevelMultiplier(perf.levelNumber);
-  const finalWordScore = Math.round(subtotal * levelMultiplier);
+  const finalWordScore = Math.max(0, Math.round(subtotal * levelMultiplier));
 
   return {
     baseScore,

@@ -174,7 +174,7 @@ export const WordLegendLeaderboard: React.FC<WordLegendLeaderboardProps> = ({
                 <span className={`text-xs font-bold font-mono ${
                   entry.isPlayer ? 'text-[#3d2008]' : 'text-[#c7a47b]'
                 }`}>
-                  Lvl {entry.level}
+                  LEVEL {entry.level}
                 </span>
               </div>
             </div>
@@ -215,7 +215,7 @@ export const WordLegendLeaderboard: React.FC<WordLegendLeaderboardProps> = ({
               {userEntry.score.toLocaleString()} PTS
             </div>
             <div className="text-[10px] text-[#4d290b] font-bold">
-              Level {userEntry.level} • {progress.completedLevels.length} Solved
+              LEVEL {userEntry.level} • {progress.completedLevels.length} Solved
             </div>
           </div>
         </div>

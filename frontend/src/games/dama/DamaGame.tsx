@@ -160,14 +160,31 @@ export const DamaGame: React.FC<DamaGameProps> = ({
 
   const matchTimerRef = useRef<number | null>(null);
 
+  const [isDocumentVisible, setIsDocumentVisible] = useState<boolean>(typeof document !== 'undefined' ? !document.hidden : true);
+
   // Sync audio state to audio engine
   useEffect(() => {
-    damaAudio.setEnabled(!progress.settings.isAudioMuted && isAudioEnabled);
+    damaAudio.setEnabled(!progress.settings.isAudioMuted && isAudioEnabled && isDocumentVisible);
+  }, [progress.settings.isAudioMuted, isAudioEnabled, isDocumentVisible]);
+
+  // Backgrounding & audio suspension lifecycle listener
+  useEffect(() => {
+    const handleVisibility = () => {
+      const visible = !document.hidden;
+      setIsDocumentVisible(visible);
+      if (!visible) {
+        damaAudio.setEnabled(false);
+      } else {
+        damaAudio.setEnabled(!progress.settings.isAudioMuted && isAudioEnabled);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [progress.settings.isAudioMuted, isAudioEnabled]);
 
-  // Track match duration timer (only active while playing in GAMEPLAY view)
+  // Track match duration timer (only active while playing in GAMEPLAY view and foregrounded)
   useEffect(() => {
-    if (view === 'GAMEPLAY' && turnState !== 'IDLE' && turnState !== 'GAME_OVER') {
+    if (view === 'GAMEPLAY' && turnState !== 'IDLE' && turnState !== 'GAME_OVER' && isDocumentVisible) {
       matchTimerRef.current = window.setInterval(() => {
         setMatchDuration((prev) => prev + 1);
       }, 1000);
@@ -183,7 +200,7 @@ export const DamaGame: React.FC<DamaGameProps> = ({
         clearInterval(matchTimerRef.current);
       }
     };
-  }, [view, turnState]);
+  }, [view, turnState, isDocumentVisible]);
 
   // Check if player has mandatory capture moves
   const updateMandatoryCaptureStatus = useCallback((currentBoard: BoardState) => {
@@ -793,7 +810,7 @@ export const DamaGame: React.FC<DamaGameProps> = ({
           >
             <Grid className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-xs font-black uppercase tracking-wider text-amber-200">
-              LVL {currentLevel}
+              LEVEL {currentLevel}
             </span>
           </button>
         </div>
@@ -883,12 +900,12 @@ export const DamaGame: React.FC<DamaGameProps> = ({
           ) : turnState === 'COMPUTER_MOVING' ? (
             <div className="flex items-center gap-1.5 text-amber-300 font-medium">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shadow-sm shadow-amber-400/50" />
-              <span>Computer Moving ({currentLevelConfig.name})...</span>
+              <span>Computer Moving (LEVEL {currentLevel})...</span>
             </div>
           ) : turnState === 'COMPUTER_THINKING' ? (
             <div className="flex items-center gap-1.5 text-amber-300 font-medium">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shadow-sm shadow-amber-400/50" />
-              <span>Computer Thinking ({currentLevelConfig.name})...</span>
+              <span>Computer Thinking (LEVEL {currentLevel})...</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 text-amber-200/80 font-medium">

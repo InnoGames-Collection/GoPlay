@@ -65,15 +65,15 @@ function createSplitWingsMatrix(w = 8, h = 8): number[][] {
   return m;
 }
 
-function createDiamondMatrix(w = 7, h = 7): number[][] {
+function createDiamondMatrix(w = 8, h = 8): number[][] {
   const m: number[][] = [];
-  const midX = Math.floor(w / 2);
-  const midY = Math.floor(h / 2);
+  const midX = (w - 1) / 2;
+  const midY = (h - 1) / 2;
   for (let y = 0; y < h; y++) {
     const row: number[] = [];
     for (let x = 0; x < w; x++) {
       const dist = Math.abs(x - midX) + Math.abs(y - midY);
-      row.push(dist <= 3 ? 1 : 0);
+      row.push(dist <= 4 ? 1 : 0);
     }
     m.push(row);
   }
@@ -82,7 +82,7 @@ function createDiamondMatrix(w = 7, h = 7): number[][] {
 
 // Generate all 40 levels
 export const ALL_40_LEVELS: LevelConfig[] = [
-  // LEVEL 1: High-stakes Cross board, 5 fruits, collect 18 strawberries + 16 kiwis + 10 juice stains. 22 moves.
+  // LEVEL 1: High-stakes Cross board, 5 fruits, collect 16 strawberries + 11 juice stains. 22 moves.
   {
     level: 1,
     title: 'Sunny Grove',
@@ -104,7 +104,7 @@ export const ALL_40_LEVELS: LevelConfig[] = [
       { type: 'clear_juice', target: 11, current: 0, label: 'Juice Puddles' },
       { type: 'collect_fruit', fruitType: 'strawberry', target: 16, current: 0, label: 'Strawberries' },
     ],
-    starThresholds: [2500, 4500, 7000],
+    starThresholds: [250, 450, 700],
     hintMessage: 'Match fruits over the honey juice stains to clear them!',
   },
 
@@ -118,18 +118,18 @@ export const ALL_40_LEVELS: LevelConfig[] = [
     moves: 22,
     availableFruits: FRUITS_5,
     blockers: [
-      { x: 1, y: 5, type: 'crate_1' }, { x: 2, y: 5, type: 'crate_1' },
-      { x: 3, y: 5, type: 'crate_1' }, { x: 4, y: 5, type: 'crate_1' }, { x: 5, y: 5, type: 'crate_1' },
+      { x: 1, y: 4, type: 'crate_1' }, { x: 2, y: 4, type: 'crate_1' },
+      { x: 3, y: 4, type: 'crate_1' }, { x: 4, y: 4, type: 'crate_1' }, { x: 5, y: 4, type: 'crate_1' },
     ],
     underlays: [
+      { x: 2, y: 2, type: 'juice_1' }, { x: 3, y: 2, type: 'juice_1' }, { x: 4, y: 2, type: 'juice_1' },
       { x: 2, y: 3, type: 'juice_1' }, { x: 3, y: 3, type: 'juice_1' }, { x: 4, y: 3, type: 'juice_1' },
-      { x: 2, y: 4, type: 'juice_1' }, { x: 3, y: 4, type: 'juice_1' }, { x: 4, y: 4, type: 'juice_1' },
     ],
     objectives: [
       { type: 'break_crates', target: 5, current: 0, label: 'Wooden Crates' },
-      { type: 'collect_fruit', fruitType: 'banana', target: 18, current: 0, label: 'Bananas' },
+      { type: 'collect_fruit', fruitType: 'banana', target: 16, current: 0, label: 'Bananas' },
     ],
-    starThresholds: [3000, 5000, 7500],
+    starThresholds: [300, 500, 750],
     hintMessage: 'Match adjacent fruits to shatter the wooden crates!',
   },
 
@@ -161,7 +161,7 @@ export const ALL_40_LEVELS: LevelConfig[] = [
     objectives: [
       { type: 'clear_juice', target: 20, current: 0, label: 'Juice Puddles' },
     ],
-    starThresholds: [3500, 5800, 8500],
+    starThresholds: [350, 550, 800],
     hintMessage: 'Clear all 20 juice puddles before moves expire!',
   },
 
@@ -184,7 +184,7 @@ export const ALL_40_LEVELS: LevelConfig[] = [
       { type: 'collect_fruit', fruitType: 'strawberry', target: 11, current: 0, label: 'Strawberries' },
       { type: 'collect_fruit', fruitType: 'kiwi', target: 11, current: 0, label: 'Kiwis' },
     ],
-    starThresholds: [3800, 6200, 9000],
+    starThresholds: [350, 550, 800],
     hintMessage: "Don't forget to collect your treasure along the way!",
   },
 
@@ -210,7 +210,7 @@ export const ALL_40_LEVELS: LevelConfig[] = [
       { type: 'clear_juice', target: 30, current: 0, label: 'Juice Puddles' },
       { type: 'break_crates', target: 4, current: 0, label: 'Reinforced Crates' },
     ],
-    starThresholds: [4000, 7000, 10000],
+    starThresholds: [400, 600, 850],
     hintMessage: 'Try matching the bomb with another super fruit for a massive shockwave!',
   },
 
@@ -240,7 +240,7 @@ export const ALL_40_LEVELS: LevelConfig[] = [
     // Board geometry selection
     const matrixType = (lvl % 5 === 0) ? createCenterCutoutMatrix(8, 8) :
       (lvl % 4 === 0) ? createSplitWingsMatrix(8, 8) :
-      (lvl % 3 === 0) ? createDiamondMatrix(7, 7) :
+      (lvl % 3 === 0) ? createDiamondMatrix(8, 8) :
       createCrossMatrix(8, 8);
 
     const gridW = matrixType[0].length;
@@ -249,8 +249,8 @@ export const ALL_40_LEVELS: LevelConfig[] = [
     // Fruits palette (6 fruits on harder stages)
     const fruits = (isVeryHard || isExpertPlus || isMaster || isFinalChallenge) ? FRUITS_6 : FRUITS_5;
 
-    // Moves budget (tight margin for difficulty)
-    const moves = isFinalChallenge ? 25 : Math.max(18, 27 - Math.floor(lvl / 4));
+    // Moves budget (challenging but solvable)
+    const moves = isFinalChallenge ? 28 : Math.max(22, 28 - Math.floor(lvl / 7));
 
     // Blockers & Underlays
     const blockers: { x: number; y: number; type: any }[] = [];
@@ -259,21 +259,26 @@ export const ALL_40_LEVELS: LevelConfig[] = [
 
     // Progressive blocker density
     const crateType = (lvl > 25) ? 'crate_3' : (lvl > 12) ? 'crate_2' : 'crate_1';
-    const crateCount = Math.min(10, 3 + Math.floor(lvl / 5));
+    const maxBlockers = Math.min(7, 3 + Math.floor(lvl / 7));
+    const useChests = lvl >= 15 && lvl % 4 === 0;
 
-    for (let c = 0; c < crateCount; c++) {
+    for (let c = 0; c < maxBlockers; c++) {
       const cx = (c * 2 + 1) % (gridW - 1);
       const cy = Math.min(gridH - 2, 2 + Math.floor(c / 2));
       if (matrixType[cy] && matrixType[cy][cx] === 1) {
-        blockers.push({ x: cx, y: cy, type: c % 3 === 0 && lvl >= 15 ? 'chest' : crateType });
+        blockers.push({
+          x: cx,
+          y: cy,
+          type: useChests ? 'chest' : crateType,
+        });
       }
     }
 
     // Ice overlays in mid-to-high levels
-    if (lvl >= 10) {
+    if (lvl >= 12) {
       const icePositions = [
         { x: 2, y: 1 }, { x: gridW - 3, y: 1 },
-        { x: 1, y: gridH - 2 }, { x: gridW - 2, y: gridH - 2 },
+        { x: 2, y: gridH - 2 }, { x: gridW - 3, y: gridH - 2 },
       ];
       icePositions.forEach(p => {
         if (matrixType[p.y] && matrixType[p.y][p.x] === 1) {
@@ -282,36 +287,68 @@ export const ALL_40_LEVELS: LevelConfig[] = [
       });
     }
 
-    // Juice puddles
-    const juiceCount = Math.min(24, 10 + Math.floor(lvl * 0.4));
-    for (let j = 0; j < juiceCount; j++) {
+    // Juice puddles (strictly deduplicated coordinates)
+    const juiceCount = Math.min(18, 8 + Math.floor(lvl * 0.25));
+    const placedJuice = new Set<string>();
+    for (let j = 0; j < juiceCount * 2 && placedJuice.size < juiceCount; j++) {
       const jx = 1 + (j * 2) % (gridW - 2);
       const jy = 1 + Math.floor((j * 2) / (gridW - 2)) % (gridH - 2);
-      if (matrixType[jy] && matrixType[jy][jx] === 1) {
-        underlays.push({ x: jx, y: jy, type: lvl > 20 && j % 3 === 0 ? 'juice_2' : 'juice_1' });
+      const key = `${jx},${jy}`;
+      if (matrixType[jy] && matrixType[jy][jx] === 1 && !placedJuice.has(key)) {
+        placedJuice.add(key);
+        underlays.push({
+          x: jx,
+          y: jy,
+          type: lvl > 20 && placedJuice.size % 4 === 0 ? 'juice_2' : 'juice_1',
+        });
       }
     }
 
     // Objectives composition
     const targetA = fruits[lvl % fruits.length];
-    const targetB = fruits[(lvl + 2) % fruits.length];
-    const fruitReq = Math.min(28, 14 + Math.floor(lvl * 0.35));
+    // Solvable fruit requirement scaled by fruit pool size
+    const fruitReq = fruits.length === 6
+      ? Math.min(16, 11 + Math.floor(lvl * 0.15))
+      : Math.min(20, 13 + Math.floor(lvl * 0.2));
 
     const objectives: LevelObjective[] = [
-      { type: 'collect_fruit', fruitType: targetA, target: fruitReq, current: 0, label: `${targetA.charAt(0).toUpperCase() + targetA.slice(1)}s` },
-      { type: 'clear_juice', target: underlays.length, current: 0, label: 'Juice Puddles' },
+      {
+        type: 'collect_fruit',
+        fruitType: targetA,
+        target: fruitReq,
+        current: 0,
+        label: `${targetA.charAt(0).toUpperCase() + targetA.slice(1)}s`,
+      },
     ];
 
-    if (blockers.length > 0 && lvl % 2 === 0) {
+    if (underlays.length > 0) {
       objectives.push({
-        type: blockers.some(b => b.type === 'chest') ? 'open_chests' : 'break_crates',
-        target: blockers.length,
+        type: 'clear_juice',
+        target: underlays.length,
         current: 0,
-        label: blockers.some(b => b.type === 'chest') ? 'Chests & Crates' : 'Crates',
+        label: 'Juice Puddles',
       });
     }
 
-    const baseStar = 3500 + lvl * 250;
+    if (blockers.length > 0 && lvl % 2 === 0) {
+      if (useChests) {
+        objectives.push({
+          type: 'open_chests',
+          target: blockers.length,
+          current: 0,
+          label: 'Treasure Chests',
+        });
+      } else {
+        objectives.push({
+          type: 'break_crates',
+          target: blockers.length,
+          current: 0,
+          label: 'Wooden Crates',
+        });
+      }
+    }
+
+    const baseStar = Math.min(500, 320 + Math.floor(lvl * 4));
 
     return {
       level: lvl,
@@ -325,7 +362,7 @@ export const ALL_40_LEVELS: LevelConfig[] = [
       blockers,
       overlays,
       objectives,
-      starThresholds: [baseStar, Math.round(baseStar * 1.6), Math.round(baseStar * 2.4)] as [number, number, number],
+      starThresholds: [baseStar, Math.round(baseStar * 1.5), Math.round(baseStar * 2.1)] as [number, number, number],
       hintMessage: isFinalChallenge
         ? 'The Final Challenge! Deploy striped + bomb combos to conquer the tropical summit!'
         : `Level ${lvl}: Plan your moves carefully to trigger cascades!`,

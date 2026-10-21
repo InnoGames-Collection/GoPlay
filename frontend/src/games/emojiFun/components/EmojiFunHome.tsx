@@ -10,7 +10,7 @@ import { emojiAudio } from '../emojiAudio';
 interface EmojiFunHomeProps {
   onPlay: () => void;
   onLeaderboard: () => void;
-  onStore: () => void;
+  onStore?: () => void;
   onSettings: () => void;
   onHowToPlay: () => void;
   totalScore: number;
@@ -114,26 +114,6 @@ export const EmojiFunHome: React.FC<EmojiFunHomeProps> = ({
           </div>
         </button>
 
-        {/* 3. STORE BUTTON (Teal/Emerald Pill with Shopping Bag 🛍️) */}
-        <button
-          onClick={() => {
-            emojiAudio.playTap();
-            onStore();
-          }}
-          className="group relative w-full flex items-center justify-between px-5 py-3 rounded-3xl bg-gradient-to-b from-[#80cbc4] via-[#4db6ac] to-[#26a69a] border-b-[6px] border-[#00695c] active:border-b-2 active:translate-y-1 shadow-xl hover:brightness-105 transition-all text-white"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-3xl filter drop-shadow group-hover:scale-110 transition-transform">
-              🛍️
-            </span>
-            <span className="text-xl sm:text-2xl font-black tracking-wider uppercase drop-shadow-sm font-['Fredoka',sans-serif]">
-              Store
-            </span>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-white/25 flex items-center justify-center shadow-inner">
-            <span className="text-lg font-black">+</span>
-          </div>
-        </button>
 
         {/* 4. SETTINGS BUTTON (Lime/Mint Pill with Smile Emoji 😊) */}
         <button

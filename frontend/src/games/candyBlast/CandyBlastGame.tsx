@@ -149,6 +149,13 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
   
   // Scores & Level Status
   const [rawScore, setRawScore] = useState<number>(0);
+  const rawScoreRef = useRef<number>(0);
+  rawScoreRef.current = rawScore;
+  const [scoreBreakdown, setScoreBreakdown] = useState<{
+    basePoints: number;
+    comboPoints: number;
+    bonusPoints: number;
+  }>({ basePoints: 0, comboPoints: 0, bonusPoints: 0 });
   const [comboMultiplier, setComboMultiplier] = useState<number>(1);
   const [levelStatus, setLevelStatus] = useState<'playing' | 'sugar_crush' | 'level_won' | 'level_lost' | 'paused'>('playing');
   const [earnedStars, setEarnedStars] = useState<number>(0);
@@ -208,6 +215,25 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
     };
   }, [muted]);
 
+  // Backgrounding & audio suspension lifecycle listener
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        CandyAudio.stopAll();
+        CandyAudio.setMuted(true);
+        if (levelStatusRef.current === 'playing') {
+          setLevelStatus('paused');
+        }
+      } else {
+        if (!muted) {
+          CandyAudio.setMuted(false);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [muted]);
+
   /**
    * Helper to check if all objectives are currently met
    */
@@ -256,6 +282,8 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
     boardRef.current = newBoard;
 
     setRawScore(0);
+    rawScoreRef.current = 0;
+    setScoreBreakdown({ basePoints: 0, comboPoints: 0, bonusPoints: 0 });
     setComboMultiplier(1);
     setEarnedStars(0);
     setSugarCrushBonus(0);
@@ -368,11 +396,13 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
     if (leftoverMoves > 0) {
       for (let m = leftoverMoves; m >= 1; m--) {
         setMovesRemaining(m - 1);
-        const pointsPerMove = 1500;
+        const pointsPerMove = 15;
         bonus += pointsPerMove;
         currScore += pointsPerMove;
         setSugarCrushBonus(bonus);
         setRawScore(currScore);
+        rawScoreRef.current = currScore;
+        setScoreBreakdown((prev) => ({ ...prev, bonusPoints: bonus }));
 
         // Pick random cell for detonation firework
         const randRow = Math.floor(Math.random() * BOARD_ROWS);
@@ -451,11 +481,11 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
         const areObjsMet = areAllObjectivesComplete(objectivesRef.current);
         if (areObjsMet) {
           setTimeout(() => {
-            triggerSugarCrushAndVictory(rawScore, currentMoves);
+            triggerSugarCrushAndVictory(rawScoreRef.current, currentMoves);
           }, 200);
         } else if (currentMoves <= 0) {
           setTimeout(() => {
-            handleLevelLoss(rawScore);
+            handleLevelLoss(rawScoreRef.current);
           }, 250);
         }
 
@@ -670,17 +700,24 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
         }
       });
 
-      // D. Calibrated Score Calculation
-      const basePts = allClearedPositions.length * 60;
+      // D. Calibrated Deterministic Score Calculation (Scores in hundreds scale)
+      const basePts = allClearedPositions.length * 10;
       const specialSpawnBonus = specialPiecesToCreate.reduce((acc, s) => {
-        return acc + (s.type === 'color-bomb' ? 400 : s.type === 'area-bomb' ? 250 : 150);
+        return acc + (s.type === 'color-bomb' ? 35 : s.type === 'area-bomb' ? 20 : 12);
       }, 0);
-      const specialTriggerBonus = triggeredEffects.length * 200;
-      const obstacleBonus = newlyClearedJellies * 350 + newlyDestroyedBlockers * 500;
-      const comboMult = comboCount === 1 ? 1 : comboCount === 2 ? 1.25 : comboCount === 3 ? 1.5 : comboCount === 4 ? 1.8 : 2.2;
+      const specialTriggerBonus = triggeredEffects.length * 15;
+      const obstacleBonus = newlyClearedJellies * 15 + newlyDestroyedBlockers * 20;
+      const comboMult = comboCount === 1 ? 1.0 : comboCount === 2 ? 1.2 : comboCount === 3 ? 1.4 : comboCount === 4 ? 1.6 : 1.8;
       const earnedPoints = Math.round((basePts + specialSpawnBonus + specialTriggerBonus + obstacleBonus) * comboMult);
+      const comboPortion = Math.max(0, earnedPoints - basePts);
 
+      rawScoreRef.current += earnedPoints;
       setRawScore((prev) => prev + earnedPoints);
+      setScoreBreakdown((prev) => ({
+        ...prev,
+        basePoints: prev.basePoints + basePts,
+        comboPoints: prev.comboPoints + comboPortion,
+      }));
       setComboMultiplier(comboCount);
 
       // E. Update Live Objectives State
@@ -958,15 +995,20 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
       blockerMapRef.current = updatedBlockerMap;
     }
 
-    const earnedPoints = Math.round(
-      allClearedPositions.length * 60 +
-      (blastType === 'color-rainbow' ? 500 : blastType === 'bomb-3x3' ? 350 : 250) +
-      totalSecondaryPoints +
-      newlyClearedJellies * 350 +
-      newlyDestroyedBlockers * 500
-    );
+    const basePts = allClearedPositions.length * 10;
+    const specialBonus = (blastType === 'color-rainbow' ? 40 : blastType === 'bomb-3x3' ? 25 : 15);
+    const secondaryBonus = Math.round(totalSecondaryPoints * 0.1);
+    const obstacleBonus = newlyClearedJellies * 15 + newlyDestroyedBlockers * 20;
+    const earnedPoints = Math.round(basePts + specialBonus + secondaryBonus + obstacleBonus);
+    const comboPortion = Math.max(0, earnedPoints - basePts);
 
+    rawScoreRef.current += earnedPoints;
     setRawScore((prev) => prev + earnedPoints);
+    setScoreBreakdown((prev) => ({
+      ...prev,
+      basePoints: prev.basePoints + basePts,
+      comboPoints: prev.comboPoints + comboPortion,
+    }));
     setStats((prev) => ({
       ...prev,
       specialsActivated: prev.specialsActivated + 1 + secondarySpecials.length,
@@ -1156,19 +1198,26 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
         blockerMapRef.current = updatedBlockerMap;
       }
 
-      const comboPts = Math.round(
-        (specialCombo.description.includes('COSMIC')
-          ? 3500
-          : specialCombo.description.includes('RAINBOW')
-          ? 2500
-          : specialCombo.description.includes('5x5')
-          ? 2000
-          : specialCombo.description.includes('TRIPLE')
-          ? 1800
-          : 1200) + comboJellies * 350 + comboBlockers * 500
-      );
+      const basePts = specialCombo.clearedPositions.length * 10;
+      const comboBonus = (specialCombo.description.includes('COSMIC')
+        ? 120
+        : specialCombo.description.includes('RAINBOW')
+        ? 90
+        : specialCombo.description.includes('5x5')
+        ? 75
+        : specialCombo.description.includes('TRIPLE')
+        ? 60
+        : 45) + comboJellies * 15 + comboBlockers * 20;
+      const comboPts = Math.round(basePts + comboBonus);
+      const comboPortion = Math.max(0, comboPts - basePts);
 
+      rawScoreRef.current += comboPts;
       setRawScore((prev) => prev + comboPts);
+      setScoreBreakdown((prev) => ({
+        ...prev,
+        basePoints: prev.basePoints + basePts,
+        comboPoints: prev.comboPoints + comboPortion,
+      }));
       setStats((prev) => ({
         ...prev,
         specialsActivated: prev.specialsActivated + 2,
@@ -1373,8 +1422,23 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
 
   const handleExitToArcade = () => {
     CandyAudio.stopAll();
+    if (rawScoreRef.current > 0) {
+      const elapsed = Math.max(1, Math.round((Date.now() - sessionStartTimeRef.current) / 1000));
+      onGameOver(rawScoreRef.current, elapsed);
+    }
     setCurrentScreen('menu');
   };
+
+  // Save valid score on unmount if playing or paused
+  useEffect(() => {
+    return () => {
+      CandyAudio.stopAll();
+      if (rawScoreRef.current > 0) {
+        const elapsed = Math.max(1, Math.round((Date.now() - sessionStartTimeRef.current) / 1000));
+        onGameOver(rawScoreRef.current, elapsed);
+      }
+    };
+  }, [onGameOver]);
 
   // Android device back button & popstate navigation
   useEffect(() => {
@@ -1884,11 +1948,37 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
           </div>
 
           {/* Final Score Display */}
-          <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight mb-1 drop-shadow-lg">
+          <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight mb-0.5 drop-shadow-lg">
             {rawScore.toLocaleString()}
           </div>
-          <div className="text-[10px] text-amber-300 uppercase tracking-widest font-bold mb-4">
+          <div className="text-[10px] text-amber-300 uppercase tracking-widest font-bold mb-3">
             FINAL LEVEL SCORE
+          </div>
+
+          {/* Transparent Score Breakdown */}
+          <div className="w-full max-w-xs bg-slate-900/90 rounded-2xl p-3 border border-slate-700/80 mb-3 space-y-1.5 text-xs text-left">
+            <div className="text-[10px] text-amber-300 font-bold uppercase tracking-wider mb-1">
+              Score Calculation Breakdown:
+            </div>
+            <div className="flex items-center justify-between text-slate-300">
+              <span>Base Matches</span>
+              <span className="font-bold text-white font-mono">{scoreBreakdown.basePoints} PTS</span>
+            </div>
+            <div className="flex items-center justify-between text-slate-300">
+              <span>Combos & Specials</span>
+              <span className="font-bold text-amber-300 font-mono">+{scoreBreakdown.comboPoints} PTS</span>
+            </div>
+            {scoreBreakdown.bonusPoints > 0 && (
+              <div className="flex items-center justify-between text-slate-300">
+                <span>Sugar Crush (Moves Left)</span>
+                <span className="font-bold text-emerald-400 font-mono">+{scoreBreakdown.bonusPoints} PTS</span>
+              </div>
+            )}
+            <div className="h-px bg-white/10 my-1" />
+            <div className="flex items-center justify-between text-white font-black">
+              <span>Total Score</span>
+              <span className="font-mono text-cyan-300">{rawScore.toLocaleString()} PTS</span>
+            </div>
           </div>
 
           {/* Objectives Completed Checklist */}
@@ -1969,7 +2059,15 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
             })}
           </div>
 
-          {/* Actions: TRY AGAIN & EXIT */}
+          {/* Points Earned on this attempt */}
+          <div className="text-3xl font-black text-white font-mono tracking-tight mb-0.5 drop-shadow-lg">
+            {rawScore.toLocaleString()} <span className="text-xs text-slate-400 font-sans font-bold">PTS</span>
+          </div>
+          <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-3">
+            VALID POINTS EARNED
+          </div>
+
+          {/* Actions: TRY AGAIN, SELECT LEVEL & EXIT */}
           <div className="w-full max-w-xs space-y-2">
             <button
               onClick={handleRestart}
@@ -1977,6 +2075,17 @@ export const CandyBlastGame: React.FC<CandyBlastGameProps> = ({
             >
               <RotateCcw className="w-4 h-4" />
               <span>TRY AGAIN</span>
+            </button>
+
+            <button
+              onClick={() => {
+                CandyAudio.stopAll();
+                setIsLevelSelectOpen(true);
+              }}
+              className="w-full py-2.5 rounded-xl bg-[#1688C9]/20 hover:bg-[#1688C9]/35 text-blue-200 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-[#1688C9]/40"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>Select Level (1–40)</span>
             </button>
 
             <button

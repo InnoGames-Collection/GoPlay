@@ -12,6 +12,42 @@ const DEFAULT_PROGRESS: BubbleSortProgress = {
   highScore: 0,
 };
 
+export interface BubbleSortScoreResult {
+  finalScore: number;
+  validActionPoints: number;
+  difficultyBonus: number;
+  timePenalty: number;
+  mistakePenalty: number;
+}
+
+/**
+ * Calibrated Score Engine for Bubble Sort:
+ * Final score = max(0, valid-action points + difficulty bonus - time penalty - mistake penalty)
+ * - 10 base points per sorted category
+ * - Modest bounded difficulty bonus
+ * - Modest bounded active time penalty
+ * - Mistake penalty for invalid category merges
+ */
+export function calculateBubbleSortScore(
+  completedCategories: number,
+  levelNumber: number,
+  activeDurationSec: number,
+  mistakesCount: number
+): BubbleSortScoreResult {
+  const validActionPoints = Math.max(0, completedCategories) * 10;
+  const difficultyBonus = Math.min(10, Math.floor(Math.max(1, levelNumber) / 4));
+  const timePenalty = Math.min(5, Math.floor(Math.max(0, activeDurationSec) / 30));
+  const mistakePenalty = Math.min(5, Math.max(0, mistakesCount));
+  const finalScore = Math.max(0, validActionPoints + difficultyBonus - timePenalty - mistakePenalty);
+  return {
+    finalScore,
+    validActionPoints,
+    difficultyBonus,
+    timePenalty,
+    mistakePenalty,
+  };
+}
+
 export function loadBubbleSortProgress(): BubbleSortProgress {
   if (typeof window === 'undefined') {
     return DEFAULT_PROGRESS;

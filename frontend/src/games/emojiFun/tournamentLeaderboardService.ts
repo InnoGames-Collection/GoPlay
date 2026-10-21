@@ -2,7 +2,7 @@
  * Emoji Fun — Tournament Leaderboard & Persistent Stats Service
  */
 
-import { TournamentLeaderboardEntry, PlayerStats } from './types';
+import { TournamentLeaderboardEntry, PlayerStats, EmojiAttemptRecord } from './types';
 import { GameLeaderboardService } from '../../services/gameLeaderboardService';
 
 const STORAGE_KEY_STATS = 'emojifun_player_stats_v1';
@@ -17,10 +17,11 @@ export const DEFAULT_PLAYER_STATS: PlayerStats = {
   bestCombo: 0,
   hintsUsed: 0,
   coins: 50,
-  availableHints: 3,
+  availableHints: 5,
   lives: 3,
   starsByLevel: {},
   highScoreByLevel: {},
+  recentAttempts: [],
 };
 
 export class TournamentLeaderboardService {
@@ -47,6 +48,7 @@ export class TournamentLeaderboardService {
           bestCombo: safeCombo,
           starsByLevel: parsed.starsByLevel || {},
           highScoreByLevel: parsed.highScoreByLevel || {},
+          recentAttempts: Array.isArray(parsed.recentAttempts) ? parsed.recentAttempts : [],
         };
       }
     } catch {
@@ -149,55 +151,95 @@ class TournamentLeaderboardManager {
     TournamentLeaderboardService.savePlayerStats(this.stats);
   }
 
+  public recordLevelAttempt(attempt: {
+    level: number;
+    score: number;
+    completed: boolean;
+    accuracy: number;
+    totalQuestions: number;
+    answeredCount: number;
+    unansweredCount: number;
+    correctCount: number;
+    durationSeconds: number;
+  }) {
+    const safeScore = Number.isFinite(attempt.score) ? Math.max(0, Math.round(attempt.score)) : 0;
+    const safeLevel = Math.max(1, Math.min(40, attempt.level));
+
+    this.stats.totalTournamentScore = (this.stats.totalTournamentScore || 0) + safeScore;
+    this.stats.totalQuestionsAnswered = (this.stats.totalQuestionsAnswered || 0) + attempt.answeredCount;
+    this.stats.totalCorrect = (this.stats.totalCorrect || 0) + attempt.correctCount;
+
+    // Record high score for this level (never decreases)
+    this.stats.highScoreByLevel[safeLevel] = Math.max(
+      this.stats.highScoreByLevel[safeLevel] || 0,
+      safeScore
+    );
+
+    // Sequential unlocking: a completed level unlocks the next level
+    // Retrying an earlier level must NEVER erase or decrement unlocked levels!
+    if (attempt.completed && safeLevel >= (this.stats.unlockedLevel || 1) && (this.stats.unlockedLevel || 1) < 40) {
+      this.stats.unlockedLevel = safeLevel + 1;
+    }
+    this.stats.currentLevel = Math.max(this.stats.unlockedLevel || 1, safeLevel);
+
+    // Record attempt details
+    const record: EmojiAttemptRecord = {
+      score: safeScore,
+      level: safeLevel,
+      completed: attempt.completed,
+      timestamp: new Date().toISOString(),
+      totalQuestions: attempt.totalQuestions,
+      answeredCount: attempt.answeredCount,
+      unansweredCount: attempt.unansweredCount,
+      correctCount: attempt.correctCount,
+      durationSeconds: attempt.durationSeconds,
+    };
+    if (!Array.isArray(this.stats.recentAttempts)) {
+      this.stats.recentAttempts = [];
+    }
+    this.stats.recentAttempts.unshift(record);
+    if (this.stats.recentAttempts.length > 50) {
+      this.stats.recentAttempts = this.stats.recentAttempts.slice(0, 50);
+    }
+
+    this.saveStats();
+  }
+
   public recordLevelCompletion(
     level: number,
     levelScore: number,
     accuracy: number,
     bestCombo: number,
-    coinsWon: number = 10
+    coinsWon: number = 0
   ) {
-    const safeScore = Number.isFinite(levelScore) ? levelScore : 0;
-    const safeCoins = Number.isFinite(coinsWon) ? coinsWon : 10;
-    const currentScore = Number.isFinite(this.stats.totalTournamentScore) ? this.stats.totalTournamentScore : 0;
-    const currentCoins = Number.isFinite(this.stats.coins) ? this.stats.coins : 50;
-
-    this.stats.totalTournamentScore = currentScore + safeScore;
-    this.stats.coins = currentCoins + safeCoins;
-    this.stats.highScoreByLevel[level] = Math.max(
-      this.stats.highScoreByLevel[level] || 0,
-      safeScore
-    );
-    this.stats.bestCombo = Math.max(
-      this.stats.bestCombo || 0,
-      Number.isFinite(bestCombo) ? bestCombo : 0
-    );
-
-    if (level >= this.stats.unlockedLevel && this.stats.unlockedLevel < 40) {
-      this.stats.unlockedLevel = level + 1;
-    }
-    this.stats.currentLevel = Math.min(40, level + 1);
-
-    this.saveStats();
+    this.recordLevelAttempt({
+      level,
+      score: levelScore,
+      completed: true,
+      accuracy,
+      totalQuestions: 10,
+      answeredCount: 10,
+      unansweredCount: 0,
+      correctCount: Math.round((accuracy / 100) * 10),
+      durationSeconds: 30,
+    });
   }
 
   public useHint(): boolean {
-    if (this.stats.availableHints > 0) {
-      this.stats.availableHints -= 1;
-      this.stats.hintsUsed += 1;
-      this.saveStats();
-      return true;
+    if (this.stats.availableHints <= 0) {
+      // Auto-replenish free hints - never block players with coin purchases
+      this.stats.availableHints = 5;
     }
-    return false;
+    this.stats.availableHints -= 1;
+    this.stats.hintsUsed = (this.stats.hintsUsed || 0) + 1;
+    this.saveStats();
+    return true;
   }
 
-  public addHints(count: number, costCoins: number) {
+  public addHints(count: number, costCoins: number = 0) {
     const safeCount = Number.isFinite(count) ? count : 3;
-    const safeCost = Number.isFinite(costCoins) ? costCoins : 0;
-    const currentHints = Number.isFinite(this.stats.availableHints) ? this.stats.availableHints : 3;
-    const currentCoins = Number.isFinite(this.stats.coins) ? this.stats.coins : 50;
-
+    const currentHints = Number.isFinite(this.stats.availableHints) ? this.stats.availableHints : 5;
     this.stats.availableHints = currentHints + safeCount;
-    this.stats.coins = Math.max(0, currentCoins - safeCost);
     this.saveStats();
   }
 

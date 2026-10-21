@@ -164,7 +164,7 @@ export const WordLegendMainMenu: React.FC<WordLegendMainMenuProps> = ({
             >
               <div className="text-[9px] text-[#6b3e15] font-black uppercase tracking-wider">CURRENT</div>
               <div className="text-base font-black text-[#2a1708] font-mono">
-                LVL {currentLevel}
+                LEVEL {currentLevel}
               </div>
             </div>
 

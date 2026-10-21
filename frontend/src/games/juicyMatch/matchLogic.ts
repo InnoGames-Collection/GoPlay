@@ -7,6 +7,63 @@ import { Cell, LevelConfig, FruitType, SpecialType, FruitPiece, BlockerType } fr
 
 let nextFruitId = 1;
 
+/**
+ * Transparent scoring calibrated to keep standard scores in the hundreds (300-800)
+ * while awarding earned bonuses for cascades, special fruit creation, and tactical clears.
+ */
+export const SCORING = {
+  BASE_MATCH_3: 15,
+  BASE_MATCH_4: 25,
+  BASE_MATCH_5: 40,
+  CASCADE_BONUS_STEP: 10,
+  MAX_CASCADE_BONUS: 50,
+  SPECIAL_CREATION_BONUS: 10,
+  SPECIAL_CLEARED_PIECE: 3,
+  SPECIAL_COMBO_PIECE: 5,
+  BLOCKER_CLEARED: 5,
+  UNDERLAY_CLEARED: 5,
+  BOOSTER_HAMMER: 10,
+  BOOSTER_ROCKET_PIECE: 3,
+  BOOSTER_RAINBOW_PIECE: 3,
+};
+
+export function calculateMatchScore(
+  matchedCount: number,
+  cascadeIndex: number,
+  specialCreationsCount = 0
+): number {
+  let base = SCORING.BASE_MATCH_3;
+  if (matchedCount === 4) {
+    base = SCORING.BASE_MATCH_4;
+  } else if (matchedCount >= 5) {
+    base = SCORING.BASE_MATCH_5;
+  } else if (matchedCount > 3) {
+    base = matchedCount * 5;
+  }
+
+  const cascadeBonus =
+    cascadeIndex > 1
+      ? Math.min(SCORING.MAX_CASCADE_BONUS, (cascadeIndex - 1) * SCORING.CASCADE_BONUS_STEP)
+      : 0;
+
+  const specialCreationBonus = specialCreationsCount * SCORING.SPECIAL_CREATION_BONUS;
+  return base + cascadeBonus + specialCreationBonus;
+}
+
+/**
+ * Reproducible PRNG for deterministic testing and level configuration
+ */
+export function createRng(seed?: number): () => number {
+  if (seed === undefined) {
+    return () => Math.random();
+  }
+  let s = (Math.abs(seed) % 2147483647) || 1234567;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
 export function generateFruit(type: FruitType, special: SpecialType = 'none'): FruitPiece {
   return {
     id: `fruit_${Date.now()}_${nextFruitId++}`,
@@ -20,10 +77,97 @@ export function generateFruit(type: FruitType, special: SpecialType = 'none'): F
 }
 
 /**
- * Creates initial valid board guaranteed to have NO initial 3-matches
- * and at least 1 legal move available.
+ * Arranges a valid swap on the board without creating initial 3-in-a-row matches
  */
-export function createInitialBoard(config: LevelConfig): Cell[][] {
+export function ensureAtLeastOneLegalMove(
+  grid: Cell[][],
+  availableFruits: FruitType[],
+  rng: () => number = Math.random
+): boolean {
+  const h = grid.length;
+  const w = grid[0].length;
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w - 2; x++) {
+      const c1 = grid[y][x];
+      const c2 = grid[y][x + 1];
+      const c3 = grid[y][x + 2];
+      if (
+        c1.valid && !c1.blocker && c1.overlay !== 'chain' &&
+        c2.valid && !c2.blocker && c2.overlay !== 'chain' &&
+        c3.valid && !c3.blocker && c3.overlay !== 'chain'
+      ) {
+        // Try vertical swap neighbor to (x+2, y)
+        for (const dy of [-1, 1]) {
+          const ny = y + dy;
+          if (ny >= 0 && ny < h) {
+            const swapNeighbor = grid[ny][x + 2];
+            if (swapNeighbor.valid && !swapNeighbor.blocker && swapNeighbor.overlay !== 'chain') {
+              const fruitA = availableFruits[Math.floor(rng() * availableFruits.length)];
+              const otherFruits = availableFruits.filter((f) => f !== fruitA);
+              const fruitB = otherFruits.length > 0 ? otherFruits[0] : fruitA;
+
+              c1.fruit = generateFruit(fruitA);
+              c2.fruit = generateFruit(fruitA);
+              c3.fruit = generateFruit(fruitB);
+              swapNeighbor.fruit = generateFruit(fruitA);
+
+              const m = findMatches(grid);
+              if (m.matchedCells.length === 0 && hasLegalMoves(grid, availableFruits)) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Also try vertical orientation
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h - 2; y++) {
+      const c1 = grid[y][x];
+      const c2 = grid[y + 1][x];
+      const c3 = grid[y + 2][x];
+      if (
+        c1.valid && !c1.blocker && c1.overlay !== 'chain' &&
+        c2.valid && !c2.blocker && c2.overlay !== 'chain' &&
+        c3.valid && !c3.blocker && c3.overlay !== 'chain'
+      ) {
+        for (const dx of [-1, 1]) {
+          const nx = x + dx;
+          if (nx >= 0 && nx < w) {
+            const swapNeighbor = grid[y + 2][nx];
+            if (swapNeighbor.valid && !swapNeighbor.blocker && swapNeighbor.overlay !== 'chain') {
+              const fruitA = availableFruits[Math.floor(rng() * availableFruits.length)];
+              const otherFruits = availableFruits.filter((f) => f !== fruitA);
+              const fruitB = otherFruits.length > 0 ? otherFruits[0] : fruitA;
+
+              c1.fruit = generateFruit(fruitA);
+              c2.fruit = generateFruit(fruitA);
+              c3.fruit = generateFruit(fruitB);
+              swapNeighbor.fruit = generateFruit(fruitA);
+
+              const m = findMatches(grid);
+              if (m.matchedCells.length === 0 && hasLegalMoves(grid, availableFruits)) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return hasLegalMoves(grid, availableFruits);
+}
+
+/**
+ * Creates initial valid board guaranteed to have NO initial 3-matches
+ * and at least 1 legal move available. Supports deterministic seed.
+ */
+export function createInitialBoard(config: LevelConfig, seed?: number): Cell[][] {
+  const rng = createRng(seed);
   const h = config.gridHeight;
   const w = config.gridWidth;
   const grid: Cell[][] = [];
@@ -97,8 +241,8 @@ export function createInitialBoard(config: LevelConfig): Cell[][] {
 
           const pool = config.availableFruits.filter((f) => !forbidden.includes(f));
           const chosen = pool.length > 0
-            ? pool[Math.floor(Math.random() * pool.length)]
-            : config.availableFruits[Math.floor(Math.random() * config.availableFruits.length)];
+            ? pool[Math.floor(rng() * pool.length)]
+            : config.availableFruits[Math.floor(rng() * config.availableFruits.length)];
 
           cell.fruit = generateFruit(chosen);
         }
@@ -108,6 +252,11 @@ export function createInitialBoard(config: LevelConfig): Cell[][] {
     if (hasLegalMoves(grid, config.availableFruits)) {
       populated = true;
     }
+  }
+
+  // If after 50 attempts no legal moves were formed, strategically arrange one
+  if (!populated || !hasLegalMoves(grid, config.availableFruits)) {
+    ensureAtLeastOneLegalMove(grid, config.availableFruits, rng);
   }
 
   return grid;
@@ -171,7 +320,12 @@ export function hasLegalMoves(grid: Cell[][], availableFruits: FruitType[]): boo
 /**
  * Reshuffle only movable fruits when no legal moves are available
  */
-export function reshuffleMovableFruits(grid: Cell[][], availableFruits: FruitType[]): boolean {
+export function reshuffleMovableFruits(
+  grid: Cell[][],
+  availableFruits: FruitType[],
+  seed?: number
+): boolean {
+  const rng = createRng(seed);
   const movableCoords: [number, number][] = [];
   const fruits: FruitPiece[] = [];
 
@@ -186,14 +340,31 @@ export function reshuffleMovableFruits(grid: Cell[][], availableFruits: FruitTyp
 
   if (fruits.length < 3) return false;
 
+  // Verify that there are at least 3 pieces of some fruit type
+  const counts: Record<string, number> = {};
+  fruits.forEach((f) => {
+    counts[f.type] = (counts[f.type] || 0) + 1;
+  });
+  const hasAtLeast3OfAny = Object.values(counts).some((c) => c >= 3);
+  if (!hasAtLeast3OfAny && !fruits.some((f) => f.special === 'rainbow')) {
+    const dominantType = fruits[0].type;
+    let replaced = 0;
+    for (const f of fruits) {
+      if (f.type !== dominantType && replaced < 2) {
+        f.type = dominantType;
+        replaced++;
+      }
+    }
+  }
+
   let success = false;
   let attempts = 0;
 
-  while (!success && attempts < 30) {
+  while (!success && attempts < 50) {
     attempts++;
     // Fisher-Yates shuffle
     for (let i = fruits.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(rng() * (i + 1));
       [fruits[i], fruits[j]] = [fruits[j], fruits[i]];
     }
 
@@ -206,6 +377,10 @@ export function reshuffleMovableFruits(grid: Cell[][], availableFruits: FruitTyp
     if (m.matchedCells.length === 0 && hasLegalMoves(grid, availableFruits)) {
       success = true;
     }
+  }
+
+  if (!success) {
+    success = ensureAtLeastOneLegalMove(grid, availableFruits, rng);
   }
 
   return success;

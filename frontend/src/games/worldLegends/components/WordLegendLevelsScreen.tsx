@@ -193,8 +193,8 @@ export const WordLegendLevelsScreen: React.FC<WordLegendLevelsScreenProps> = ({
               </div>
 
               {/* LEVEL NUMBER */}
-              <div className={`font-black text-sm sm:text-base font-mono leading-none ${textStyle}`}>
-                {lvlNum}
+              <div className={`font-black text-[11px] sm:text-xs font-mono leading-none ${textStyle}`}>
+                LEVEL {lvlNum}
               </div>
 
               {/* BOTTOM STATUS TEXT */}

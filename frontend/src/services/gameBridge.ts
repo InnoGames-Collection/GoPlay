@@ -4,10 +4,11 @@
  * and leaderboard synchronization.
  */
 
-import { GameDefinition, GameSessionResult, UserProfile, RewardTransaction } from '../types';
+import { GameDefinition, GameSessionResult, UserProfile, RewardTransaction, GameAttemptRecord, AttemptOutcome } from '../types';
 import { StorageService } from './storageService';
 import { CompetitiveService } from './competitiveService';
 import { GameLeaderboardService } from './gameLeaderboardService';
+import { GameCatalog } from './gameCatalog';
 
 export const GAME_ENTRY_COIN_COST = 10;
 
@@ -112,8 +113,22 @@ export const GameBridgeService = {
     rawScore: number,
     durationSeconds: number,
     profile: UserProfile,
-    tournamentId?: string
+    tournamentIdOrOutcome?: string | AttemptOutcome,
+    explicitOutcome?: AttemptOutcome
   ): { result: GameSessionResult; updatedProfile: UserProfile; transaction?: RewardTransaction } {
+    let tournamentId: string | undefined = undefined;
+    let outcome: AttemptOutcome | undefined = explicitOutcome;
+
+    if (
+      tournamentIdOrOutcome === 'win' ||
+      tournamentIdOrOutcome === 'loss' ||
+      tournamentIdOrOutcome === 'interrupted'
+    ) {
+      outcome = tournamentIdOrOutcome;
+    } else {
+      tournamentId = tournamentIdOrOutcome;
+    }
+
     // Preserve authentic game score without artificial capping
     const validScore = Math.max(0, Math.round(rawScore));
 
@@ -126,6 +141,37 @@ export const GameBridgeService = {
       ...(profile.highScores || {}),
       [gameId]: Math.max(currentHighScore, validScore),
     };
+
+    // Look up game title for display in attempt history
+    const catalogItem = GameCatalog.getById(gameId);
+    const gameTitle = catalogItem?.gameName || gameId;
+
+    // Build attempt record separately from highest score
+    const resolvedOutcome: AttemptOutcome = outcome || (validScore > 0 ? 'win' : 'loss');
+    const existingAttempts = profile.recentAttempts || [];
+
+    // Deduplicate rapid duplicate submissions within 1.5 seconds with identical score and duration
+    const now = Date.now();
+    const isDuplicate =
+      existingAttempts.length > 0 &&
+      existingAttempts[0].gameId === gameId &&
+      existingAttempts[0].score === validScore &&
+      Math.abs(existingAttempts[0].timestamp - now) < 1500;
+
+    const updatedAttempts: GameAttemptRecord[] = isDuplicate
+      ? existingAttempts
+      : [
+          {
+            id: `att_${now}_${Math.random().toString(36).substring(2, 6)}`,
+            gameId,
+            gameTitle,
+            score: validScore,
+            durationSeconds: Math.max(1, Math.round(durationSeconds)),
+            outcome: resolvedOutcome,
+            timestamp: now,
+          },
+          ...existingAttempts,
+        ].slice(0, 30);
 
     // Record daily score for date-based leaderboard calculation
     const todayStr = new Date().toISOString().split('T')[0];
@@ -149,6 +195,7 @@ export const GameBridgeService = {
       ...profile,
       highScores: updatedHighScores,
       dailyScores: updatedDailyScores,
+      recentAttempts: updatedAttempts,
       coins: profile.coins, // Preserved: coins are modified strictly by the server
       xp: newXP,
       level: newLevel,

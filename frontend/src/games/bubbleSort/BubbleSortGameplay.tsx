@@ -7,7 +7,12 @@ import { BubbleSortPauseModal } from './BubbleSortPauseModal';
 import { BubbleSortCompleteModal } from './BubbleSortCompleteModal';
 import { BubbleSortGameOverModal } from './BubbleSortGameOverModal';
 import { BubbleSortRewardModal } from './BubbleSortRewardModal';
-import { saveLevelCompletion, loadBubbleSortProgress, unlockBoosterReward } from './storage';
+import {
+  saveLevelCompletion,
+  loadBubbleSortProgress,
+  unlockBoosterReward,
+  calculateBubbleSortScore,
+} from './storage';
 
 interface BubbleSortGameplayProps {
   levelNumber: number;
@@ -28,6 +33,12 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
   const [movesLeft, setMovesLeft] = useState<number>(levelData.movesLimit);
   const [score, setScore] = useState<number>(0);
   const [completedCategoriesCount, setCompletedCategoriesCount] = useState<number>(0);
+  const [mistakesCount, setMistakesCount] = useState<number>(0);
+  const [activeDurationSec, setActiveDurationSec] = useState<number>(0);
+
+  const activeDurationRef = useRef<number>(0);
+  const mistakesCountRef = useRef<number>(0);
+  const completedCountRef = useRef<number>(0);
   const totalCategories = levelData.categories.length;
 
   // Active bubbles in the arena & reserve queue
@@ -65,6 +76,40 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
 
   const startTimeRef = useRef<number>(Date.now());
   const animFrameRef = useRef<number | null>(null);
+
+  // Active duration interval tracking (strictly pauses when paused or backgrounded)
+  useEffect(() => {
+    if (isPaused || isLevelComplete || isGameOver) return;
+
+    let lastActiveTimestamp = performance.now();
+    const interval = setInterval(() => {
+      if (document.hidden) {
+        lastActiveTimestamp = performance.now();
+        return;
+      }
+      const now = performance.now();
+      const deltaSec = (now - lastActiveTimestamp) / 1000;
+      lastActiveTimestamp = now;
+      activeDurationRef.current += deltaSec;
+      setActiveDurationSec(Math.floor(activeDurationRef.current));
+    }, 250);
+
+    const handleVisibilityChange = () => {
+      lastActiveTimestamp = performance.now();
+      if (document.hidden) {
+        BubbleSortAudio.pauseBgm();
+        setIsPaused(true);
+      } else {
+        BubbleSortAudio.resumeBgm();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isPaused, isLevelComplete, isGameOver]);
 
   // Initialize Level Puzzles
   const initLevel = useCallback(() => {
@@ -107,6 +152,11 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
     setMovesLeft(levelData.movesLimit);
     setScore(0);
     setCompletedCategoriesCount(0);
+    setMistakesCount(0);
+    setActiveDurationSec(0);
+    activeDurationRef.current = 0;
+    mistakesCountRef.current = 0;
+    completedCountRef.current = 0;
     setSelectedBubbleId(null);
     setPraiseText(null);
     setShowPlus5Ticket(false);
@@ -270,8 +320,8 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
     // Spend 1 move on attempt
     setMovesLeft((prev) => {
       const nextMoves = Math.max(0, prev - 1);
-      if (nextMoves === 0 && completedCategoriesCount < totalCategories) {
-        setTimeout(() => setIsGameOver(true), 600);
+      if (nextMoves === 0 && completedCountRef.current < totalCategories) {
+        setTimeout(() => handleLevelFailure(), 600);
       }
       return nextMoves;
     });
@@ -357,9 +407,18 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
           // Remove category bubble
           setBubbles((prev) => prev.filter((b) => b.id !== mergedBubble.id));
 
-          // Increment Progress
+          // Increment Progress and calculate calibrated score (10 base points per category)
           setCompletedCategoriesCount((prev) => {
             const nextCount = prev + 1;
+            completedCountRef.current = nextCount;
+
+            const scoreData = calculateBubbleSortScore(
+              nextCount,
+              levelNumber,
+              Math.floor(activeDurationRef.current),
+              mistakesCountRef.current
+            );
+            setScore(scoreData.finalScore);
 
             // Replenish from reserve queue if items remain
             if (reserveQueue.length > 0) {
@@ -374,14 +433,11 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
 
             // Check Level Victory!
             if (nextCount >= totalCategories) {
-              handleLevelSuccess();
+              handleLevelSuccess(nextCount);
             }
 
             return nextCount;
           });
-
-          // Add Score
-          setScore((prev) => prev + 250 + movesLeft * 10);
         }, 550);
       } else {
         // Partial merge (2 or 3 items)
@@ -396,21 +452,45 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
           prev.map((b) => (b.id === clickedBubble.id ? mergedBubble : b)).filter((b) => b.id !== firstBubble.id)
         );
         setSelectedBubbleId(null);
-        setScore((prev) => prev + 50);
       }
     } else {
       // Mismatch!
+      mistakesCountRef.current += 1;
+      setMistakesCount(mistakesCountRef.current);
+
+      const scoreData = calculateBubbleSortScore(
+        completedCountRef.current,
+        levelNumber,
+        Math.floor(activeDurationRef.current),
+        mistakesCountRef.current
+      );
+      setScore(scoreData.finalScore);
+
       BubbleSortAudio.playErrorSound();
+      setPraiseText({ text: 'Not a Match!', color: '#EF4444' });
+      setTimeout(() => setPraiseText(null), 900);
       setSelectedBubbleId(null);
     }
   };
 
-  // Level Complete Celebration
-  const handleLevelSuccess = () => {
-    const duration = Math.round((Date.now() - startTimeRef.current) / 1000);
-    const finalScore = score + 500 + movesLeft * 25;
+  // Level Complete Celebration (calibrated score)
+  const handleLevelSuccess = (finalCount?: number) => {
+    const duration = Math.max(1, Math.floor(activeDurationRef.current));
+    const count = finalCount ?? completedCountRef.current;
+    const scoreData = calculateBubbleSortScore(
+      count,
+      levelNumber,
+      duration,
+      mistakesCountRef.current
+    );
+    const finalScore = scoreData.finalScore;
 
-    const { progress: updated, stars } = saveLevelCompletion(levelNumber, finalScore, movesLeft, duration);
+    const { progress: updated, stars } = saveLevelCompletion(
+      levelNumber,
+      finalScore,
+      movesLeft,
+      duration
+    );
 
     setEarnedStars(stars);
     setCurrentWisdom(updated.wisdom);
@@ -424,6 +504,40 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
     setTimeout(() => {
       setIsLevelComplete(true);
     }, 600);
+  };
+
+  // Level Failure (Out of moves)
+  const handleLevelFailure = () => {
+    const duration = Math.max(1, Math.floor(activeDurationRef.current));
+    const scoreData = calculateBubbleSortScore(
+      completedCountRef.current,
+      levelNumber,
+      duration,
+      mistakesCountRef.current
+    );
+    const finalScore = scoreData.finalScore;
+    setScore(finalScore);
+
+    if (onSessionComplete) {
+      onSessionComplete(finalScore, duration);
+    }
+
+    setIsGameOver(true);
+  };
+
+  // Pause Menu Exit
+  const handlePauseExit = () => {
+    const duration = Math.max(1, Math.floor(activeDurationRef.current));
+    const scoreData = calculateBubbleSortScore(
+      completedCountRef.current,
+      levelNumber,
+      duration,
+      mistakesCountRef.current
+    );
+    if (onSessionComplete) {
+      onSessionComplete(scoreData.finalScore, duration);
+    }
+    onExitToLevelSelect();
   };
 
   // Next Level Action
@@ -474,7 +588,7 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
         <div className="flex items-center justify-between gap-2">
           {/* Top Back Button */}
           <button
-            onClick={onExitToLevelSelect}
+            onClick={handlePauseExit}
             className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#072147]/85 border border-cyan-400/30 text-xs font-black text-cyan-200 hover:text-white active:scale-95 transition-all shadow cursor-pointer"
             title="Return to Level Selection"
           >
@@ -482,11 +596,11 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
             <span>BACK</span>
           </button>
 
-          {/* Prominent Score Indicator (as requested in Section 8) */}
+          {/* Prominent Score Indicator (calibrated) */}
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#041630]/90 border border-white/20 text-xs shadow-inner">
             <span className="text-[10px] font-extrabold text-cyan-300 uppercase tracking-wider">SCORE</span>
             <span className="font-mono font-black text-amber-300 text-sm tracking-wide">
-              {score.toLocaleString()}
+              {score.toLocaleString()} PTS
             </span>
           </div>
 
@@ -603,7 +717,6 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
             <div
               key={b.id}
               onClick={() => handleBubbleClick(b)}
-              onTouchStart={() => handleBubbleClick(b)}
               style={{
                 left: `${b.x}%`,
                 top: `${b.y}%`,
@@ -740,19 +853,22 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
           score={score}
           onResume={() => setIsPaused(false)}
           onRestart={initLevel}
-          onExitToLevelSelect={onExitToLevelSelect}
+          onExitToLevelSelect={handlePauseExit}
         />
       )}
 
       {isLevelComplete && (
         <BubbleSortCompleteModal
           levelNumber={levelNumber}
-          timeSeconds={Math.round((Date.now() - startTimeRef.current) / 1000)}
+          timeSeconds={activeDurationSec}
           movesLeft={movesLeft}
           score={score}
           stars={earnedStars}
           wisdom={currentWisdom}
           coins={currentCoins}
+          completedCategories={completedCategoriesCount}
+          totalCategories={totalCategories}
+          mistakes={mistakesCount}
           onNextLevel={handleProceedNextLevel}
         />
       )}
@@ -773,8 +889,10 @@ export const BubbleSortGameplay: React.FC<BubbleSortGameplayProps> = ({
           completedCategories={completedCategoriesCount}
           totalCategories={totalCategories}
           score={score}
+          mistakes={mistakesCount}
+          activeDurationSec={activeDurationSec}
           onRetry={initLevel}
-          onExitToLevelSelect={onExitToLevelSelect}
+          onExitToLevelSelect={handlePauseExit}
         />
       )}
     </div>

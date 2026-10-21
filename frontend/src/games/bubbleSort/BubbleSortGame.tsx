@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GameDefinition, UserProfile } from '../../types';
+import { GameBridgeService } from '../../services/gameBridge';
 import { BubbleSortScreen, BubbleSortProgress } from './types';
 import { loadBubbleSortProgress } from './storage';
 import { BubbleSortAudio } from './audio';
@@ -16,6 +17,7 @@ interface BubbleSortGameProps {
 }
 
 export const BubbleSortGame: React.FC<BubbleSortGameProps> = ({
+  profile,
   onGameOver,
   onExit,
   isAudioEnabled = true,
@@ -75,6 +77,9 @@ export const BubbleSortGame: React.FC<BubbleSortGameProps> = ({
 
   const handleSessionComplete = (score: number, durationSeconds: number) => {
     setProgress(loadBubbleSortProgress());
+    if (profile) {
+      GameBridgeService.submitScore('bubble-sort', score, durationSeconds, profile);
+    }
     if (onGameOver) {
       onGameOver(score, durationSeconds);
     }

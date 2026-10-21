@@ -37,7 +37,8 @@ import {
   Sparkles, 
   Volume2, 
   VolumeX,
-  Plus
+  Plus,
+  LogOut
 } from 'lucide-react';
 import { GamesContentPage } from './content/GamesContentPage';
 import { PricingPage } from './content/PricingPage';
@@ -46,6 +47,7 @@ import { HelpSupportPage } from './content/HelpSupportPage';
 import { SubscriptionPage } from './content/SubscriptionPage';
 import { TermsPage } from './content/TermsPage';
 import { PrivacyPage } from './content/PrivacyPage';
+import { MyScoresPage } from './content/MyScoresPage';
 import { EntitlementService } from '../services/entitlementService';
 import { GameCatalog } from '../services/gameCatalog';
 import { catalogGameToDefinition } from '../games/registry';
@@ -94,9 +96,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   onOpenBuyCoins,
   onOpenAuthModal,
   onProfileUpdate,
+  onSignOut,
 }) => {
   const [subView, setSubView] = useState<ProfileSubView>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Derive real identity strictly from the authenticated carrier session
   const isRegistered = Boolean(profile?.isRegistered && profile?.phoneNumber);
@@ -228,60 +232,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   }
 
   if (subView === 'my_scores') {
-    const allGames = GameCatalog.getAll();
-    const playedCount = Object.keys(profile.highScores || {}).length;
-
     return (
-      <div className="min-h-screen bg-[#F4F7F6] text-[#183345] pb-24 max-w-md md:max-w-xl lg:max-w-3xl mx-auto px-3.5 pt-3 select-none space-y-4">
-        <div className="flex items-center justify-between gap-3 bg-[#102B3F] text-white p-3.5 rounded-2xl shadow-xs border border-[#116B73]/40">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSubView(null)}
-              className="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
-            </button>
-            <h1 className="text-base font-black tracking-tight">My High Scores</h1>
-          </div>
-          <span className="text-xs font-bold text-[#DFF7EA]">
-            {playedCount} Recorded
-          </span>
-        </div>
-
-        <div className="rounded-2xl border border-[#DCE7E8] overflow-hidden bg-white shadow-2xs divide-y divide-[#DCE7E8]">
-          {allGames.map((game) => {
-            const score = profile.highScores?.[game.gameId] ?? 0;
-            return (
-              <div key={game.gameId} className="p-3.5 flex items-center justify-between hover:bg-[#F4F7F6] transition-colors">
-                <div className="flex items-center gap-3 min-w-0">
-                  {game.thumbnail && (
-                    <img 
-                      src={game.thumbnail} 
-                      alt={game.gameName} 
-                      className="w-10 h-10 rounded-xl object-cover bg-slate-900 shrink-0" 
-                    />
-                  )}
-                  <div className="min-w-0">
-                    <div className="text-xs font-black text-[#183345] truncate">
-                      {game.gameName}
-                    </div>
-                    <div className="text-[10px] text-[#607582] capitalize">
-                      {game.category}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-sm font-black font-mono shrink-0">
-                  {score > 0 ? (
-                    <span className="text-[#087F8C]">{score.toLocaleString()} pts</span>
-                  ) : (
-                    <span className="text-[#607582] text-xs font-normal">Not Played</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <MyScoresPage
+        profile={profile}
+        onBack={() => setSubView(null)}
+        showHeader={true}
+      />
     );
   }
 
@@ -441,11 +397,65 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         </button>
       </div>
 
+      {/* Log Out Action Button */}
+      <div className="pt-1">
+        <button
+          id="profile-logout-btn"
+          type="button"
+          onClick={() => setShowLogoutConfirm(true)}
+          className="w-full py-3 px-4 rounded-2xl bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-xs font-black flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-2xs"
+        >
+          <LogOut className="w-4 h-4 stroke-[2.5]" />
+          <span>Log Out</span>
+        </button>
+      </div>
+
       {/* GoPlay Info */}
       <div className="text-center pt-2 text-[10px] text-slate-400 font-bold space-y-0.5">
         <div>GoPlay v2.0 • Gaming Edition</div>
         <div>Official Gaming Portal</div>
       </div>
+
+      {/* Log Out Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="profile-logout-dialog-title"
+        >
+          <div className="bg-white rounded-2xl max-w-sm w-full p-5 text-center shadow-2xl border border-slate-200">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
+              <LogOut className="w-6 h-6 stroke-[2.5]" />
+            </div>
+            <h3 id="profile-logout-dialog-title" className="text-base font-black text-[#183345] mb-1.5">
+              Log Out of GoPlay?
+            </h3>
+            <p className="text-xs text-[#607582] leading-relaxed mb-5">
+              Your saved game progression, high scores, and attempt records will remain safe on this device. You will return to guest status.
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(false)}
+                className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLogoutConfirm(false);
+                  onSignOut?.();
+                }}
+                className="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs transition-colors cursor-pointer shadow-xs"
+              >
+                Log Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -66,11 +66,24 @@ export interface UserProfile {
   };
   highScores: Record<string, number>; // gameId -> highScore
   dailyScores?: Record<string, Record<string, number>>;
+  recentAttempts?: GameAttemptRecord[];
   achievements: string[];
   matchesPlayed: number;
   trophiesCount: number;
   // telebirr identity
   telebirrId?: string;
+}
+
+export type AttemptOutcome = 'win' | 'loss' | 'interrupted';
+
+export interface GameAttemptRecord {
+  id: string;
+  gameId: string;
+  gameTitle: string;
+  score: number;
+  durationSeconds: number;
+  outcome: AttemptOutcome;
+  timestamp: number;
 }
 
 export interface GameDefinition {

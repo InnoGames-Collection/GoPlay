@@ -209,7 +209,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
                   <span>⭐</span> Score & Star Thresholds
                 </h3>
                 <p>
-                  Each candy matched yields 30 base points multiplied by the cascade index. Earn 1, 2, or 3 stars by surpassing the level score milestones!
+                  Matches yield 15 to 40 base points, plus controlled bonuses for cascades, special fruit creation, and tactical combos. Earn 1, 2, or 3 stars by surpassing the level score milestones!
                 </p>
               </div>
 

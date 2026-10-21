@@ -82,9 +82,9 @@ export const ALL_ACHIEVEMENTS: AchievementDef[] = [
     id: 'score_5000',
     category: 'SCORE',
     name: 'Candy Tycoon',
-    description: 'Score 5,000 points in a single level',
+    description: 'Score 1,500 points in a single level',
     icon: '👑',
-    target: 5000,
+    target: 1500,
   },
   {
     id: 'high_score',

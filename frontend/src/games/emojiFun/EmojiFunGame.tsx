@@ -1,7 +1,14 @@
 /**
  * Emoji Fun — Main Game Container
- * Implements complete game loop matching reference video 'emoji.mp4'
- * 40 levels, tournament scoring, audio, hints, lives, leaderboard, store, and settings
+ *
+ * Implements:
+ * - 40 numbered tournament levels (LEVEL 1 to LEVEL 40)
+ * - Calibrated time-based scoring: 5 base points per correct answer + speed bonus (0 for wrong/unanswered)
+ * - Complete removal of lives/hearts and coin purchase requirements
+ * - Smooth question timeout handling as unanswered without failure popups
+ * - End-of-attempt result screen showing final score, total, answered, unanswered, and correct counts
+ * - Reliable score persistence to My High Scores via onGameOver callback
+ * - Working Retry and Back to Menu controls
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -19,7 +26,6 @@ import { EmojiFunLevelInfo } from './components/EmojiFunLevelInfo';
 import { EmojiFunPlayView } from './components/EmojiFunPlayView';
 import { EmojiFunFeedbackModal } from './components/EmojiFunFeedbackModal';
 import { EmojiFunLeaderboardModal } from './components/EmojiFunLeaderboardModal';
-import { EmojiFunStoreModal } from './components/EmojiFunStoreModal';
 import { EmojiFunSettingsModal } from './components/EmojiFunSettingsModal';
 import { EmojiFunHowToPlayModal } from './components/EmojiFunHowToPlayModal';
 
@@ -41,33 +47,43 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
   // In-level active state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [activeQuestions, setActiveQuestions] = useState<EmojiQuestion[]>([]);
-  const [lives, setLives] = useState<number>(3);
   const [levelScore, setLevelScore] = useState<number>(0);
   const [comboCount, setComboCount] = useState<number>(0);
   const [levelBestCombo, setLevelBestCombo] = useState<number>(0);
   const [levelCorrectCount, setLevelCorrectCount] = useState<number>(0);
-  const [levelPerfectCount, setLevelPerfectCount] = useState<number>(0);
+  const [answeredCount, setAnsweredCount] = useState<number>(0);
+  const [unansweredCount, setUnansweredCount] = useState<number>(0);
   const [levelStartTime, setLevelStartTime] = useState<number>(Date.now());
   const [hintsUsedInQuestion, setHintsUsedInQuestion] = useState<number>(0);
   const [eliminatedOptions, setEliminatedOptions] = useState<number[]>([]);
 
   // Feedback modal state
-  const [feedbackType, setFeedbackType] = useState<
-    'CORRECT' | 'INCORRECT' | 'TIME_OUT' | 'NO_LIVES' | 'LEVEL_CLEAR' | null
-  >(null);
-  const [lastScoreResult, setLastScoreResult] = useState<TournamentScoreCalculation | undefined>(
-    undefined
-  );
+  const [feedbackType, setFeedbackType] = useState<'CORRECT' | 'INCORRECT' | 'LEVEL_CLEAR' | null>(null);
+  const [lastScoreResult, setLastScoreResult] = useState<TournamentScoreCalculation | undefined>(undefined);
 
   // Sub-modals
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
-  const [showStore, setShowStore] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showHowToPlay, setShowHowToPlay] = useState<boolean>(false);
 
   // Settings
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => emojiAudio.isAudioEnabled());
   const [musicEnabled, setMusicEnabled] = useState<boolean>(() => emojiAudio.isMusicEnabled());
+
+  // Backgrounding & audio suspension lifecycle handler
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        emojiAudio.setAudioEnabled(false);
+        emojiAudio.setMusicEnabled(false);
+      } else {
+        emojiAudio.setAudioEnabled(soundEnabled);
+        emojiAudio.setMusicEnabled(musicEnabled);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [soundEnabled, musicEnabled]);
 
   // Current active level configuration
   const currentLevelConfig: EmojiLevelConfig =
@@ -83,17 +99,54 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
     const questions = getQuestionsForLevel(selectedLevelNumber);
     setActiveQuestions(questions);
     setCurrentQuestionIndex(0);
-    setLives(3);
     setLevelScore(0);
     setComboCount(0);
     setLevelBestCombo(0);
     setLevelCorrectCount(0);
-    setLevelPerfectCount(0);
+    setAnsweredCount(0);
+    setUnansweredCount(0);
     setLevelStartTime(Date.now());
     setHintsUsedInQuestion(0);
     setEliminatedOptions([]);
     setFeedbackType(null);
     setGameState('PLAYING');
+  };
+
+  // Conclude an attempt and persist results
+  const finishLevelAttempt = (
+    finalScore: number,
+    correctCount: number,
+    ansCount: number,
+    unansCount: number
+  ) => {
+    const totalQ = activeQuestions.length || 10;
+    const finalAccuracy = totalQ > 0 ? Math.round((correctCount / totalQ) * 100) : 0;
+    const duration = Math.max(1, Math.round((Date.now() - levelStartTime) / 1000));
+
+    // 1. Record in tournament leaderboard service (updates best score and advances unlockedLevel)
+    tournamentLeaderboardService.recordLevelAttempt({
+      level: selectedLevelNumber,
+      score: finalScore,
+      completed: true,
+      accuracy: finalAccuracy,
+      totalQuestions: totalQ,
+      answeredCount: ansCount,
+      unansweredCount: unansCount,
+      correctCount,
+      durationSeconds: duration,
+    });
+    refreshStats();
+
+    // 2. Play celebratory sound if passed
+    if (correctCount > 0) {
+      emojiAudio.playLevelClear();
+    }
+
+    // 3. Persist score to GoPlay portal & My High Scores
+    onGameOver?.(finalScore, duration);
+
+    // 4. Show final result screen
+    setFeedbackType('LEVEL_CLEAR');
   };
 
   // Handle Answer Selection
@@ -102,6 +155,8 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
     if (!question) return;
 
     const isCorrect = chosenIndex === question.correctIndex;
+    const newAnswered = answeredCount + 1;
+    setAnsweredCount(newAnswered);
 
     if (isCorrect) {
       // Correct Answer!
@@ -110,19 +165,18 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
       if (newCombo > levelBestCombo) {
         setLevelBestCombo(newCombo);
       }
-      setLevelCorrectCount((prev) => prev + 1);
+      const newCorrect = levelCorrectCount + 1;
+      setLevelCorrectCount(newCorrect);
 
-      // Calculate tournament score using tournament scoring engine
+      // Calculate time-based score: exactly 5 base points + time-based bonus
       const scoreCalc = calculateQuestionTournamentScore({
         question,
         timeRemainingSeconds,
         comboCount: newCombo,
         hintsUsedOnThisQuestion: hintsUsedInQuestion,
-        levelMultiplier: currentLevelConfig.scoreMultiplier,
       });
 
       if (scoreCalc.isPerfect) {
-        setLevelPerfectCount((prev) => prev + 1);
         emojiAudio.playPerfect();
       } else {
         emojiAudio.playCorrect();
@@ -132,42 +186,37 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
       setLastScoreResult(scoreCalc);
       setFeedbackType('CORRECT');
     } else {
-      // Incorrect Answer!
+      // Incorrect Answer! (No lives lost, 0 points earned)
       emojiAudio.playIncorrect();
       setComboCount(0);
-      const remainingLives = lives - 1;
-      setLives(remainingLives);
-
-      if (remainingLives <= 0) {
-        setFeedbackType('NO_LIVES');
-      } else {
-        setFeedbackType('INCORRECT');
-      }
+      setFeedbackType('INCORRECT');
     }
   };
 
-  // Handle Time Expired on Question
+  // Handle Time Expired on Question (Unanswered Question)
+  // Spec: When a question times out, record it as unanswered and continue according to the question sequence.
+  // Do not display a failure popup after every unanswered question.
   const handleTimeExpired = () => {
     emojiAudio.playIncorrect();
     setComboCount(0);
-    const remainingLives = lives - 1;
-    setLives(remainingLives);
 
-    if (remainingLives <= 0) {
-      setFeedbackType('NO_LIVES');
+    const newUnanswered = unansweredCount + 1;
+    setUnansweredCount(newUnanswered);
+
+    const nextIdx = currentQuestionIndex + 1;
+    if (nextIdx >= activeQuestions.length) {
+      // Level attempt ended via timeout on final question
+      finishLevelAttempt(levelScore, levelCorrectCount, answeredCount, newUnanswered);
     } else {
-      setFeedbackType('TIME_OUT');
+      // Advance to next question immediately
+      setCurrentQuestionIndex(nextIdx);
+      setHintsUsedInQuestion(0);
+      setEliminatedOptions([]);
     }
   };
 
   // Handle Hint Usage
   const handleUseHint = () => {
-    if (playerStats.availableHints <= 0) {
-      // Prompt store
-      setShowStore(true);
-      return;
-    }
-
     const question = activeQuestions[currentQuestionIndex];
     if (!question) return;
 
@@ -178,109 +227,73 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
 
     if (wrongIndices.length === 0) return;
 
-    // Pick 1 or 2 options to eliminate
+    // Eliminate 1 wrong option
     const toEliminate = wrongIndices.slice(0, 1);
-    const nextEliminated = [...eliminatedOptions, ...toEliminate];
-    setEliminatedOptions(nextEliminated);
+    setEliminatedOptions([...eliminatedOptions, ...toEliminate]);
     setHintsUsedInQuestion((prev) => prev + 1);
 
-    // Consume 1 hint from player stats
     tournamentLeaderboardService.useHint();
     refreshStats();
     emojiAudio.playHint();
   };
 
-  // Advance to next question or complete level
+  // Advance from Question Feedback Modal (Continue or OK)
   const handleAdvanceFromFeedback = () => {
-    if (feedbackType === 'CORRECT') {
-      const nextIdx = currentQuestionIndex + 1;
+    const nextIdx = currentQuestionIndex + 1;
 
-      if (nextIdx >= activeQuestions.length) {
-        // LEVEL CLEAR!
-        emojiAudio.playLevelClear();
-
-        // Calculate final stats
-        const finalAccuracy = Math.round(
-          (levelCorrectCount / activeQuestions.length) * 100
-        );
-        const coinsWon = currentLevelConfig.rewardCoins || 10;
-
-        // Record completed level in tournament leaderboard service
-        tournamentLeaderboardService.recordLevelCompletion(
-          selectedLevelNumber,
-          levelScore,
-          finalAccuracy,
-          levelBestCombo,
-          coinsWon
-        );
-        refreshStats();
-
-        setFeedbackType('LEVEL_CLEAR');
-      } else {
-        // Next question
-        setCurrentQuestionIndex(nextIdx);
-        setHintsUsedInQuestion(0);
-        setEliminatedOptions([]);
-        setFeedbackType(null);
-      }
-    } else if (feedbackType === 'INCORRECT' || feedbackType === 'TIME_OUT') {
-      // Continue to next question if lives remain
-      const nextIdx = currentQuestionIndex + 1;
-      if (nextIdx >= activeQuestions.length) {
-        // Ended questions with remaining lives
-        const finalAccuracy = Math.round(
-          (levelCorrectCount / activeQuestions.length) * 100
-        );
-        tournamentLeaderboardService.recordLevelCompletion(
-          selectedLevelNumber,
-          levelScore,
-          finalAccuracy,
-          levelBestCombo,
-          5
-        );
-        refreshStats();
-        const duration = Math.max(1, Math.round((Date.now() - levelStartTime) / 1000));
-        onGameOver?.(levelScore, duration);
-        setFeedbackType('LEVEL_CLEAR');
-      } else {
-        setCurrentQuestionIndex(nextIdx);
-        setHintsUsedInQuestion(0);
-        setEliminatedOptions([]);
-        setFeedbackType(null);
-      }
-    } else if (feedbackType === 'LEVEL_CLEAR') {
-      // Proceed to Level Info for next level
-      const nextLevel = Math.min(40, selectedLevelNumber + 1);
-      setSelectedLevelNumber(nextLevel);
+    if (nextIdx >= activeQuestions.length) {
+      // Completed all questions in the level!
+      finishLevelAttempt(levelScore, levelCorrectCount, answeredCount, unansweredCount);
+    } else {
+      // Advance to next question
+      setCurrentQuestionIndex(nextIdx);
+      setHintsUsedInQuestion(0);
+      setEliminatedOptions([]);
       setFeedbackType(null);
-      setGameState('LEVEL_INFO');
-    } else if (feedbackType === 'NO_LIVES') {
-      const duration = Math.max(1, Math.round((Date.now() - levelStartTime) / 1000));
-      onGameOver?.(levelScore, duration);
-      setFeedbackType(null);
-      setGameState('LEVEL_INFO');
     }
   };
 
-  // Buy Item in Store
-  const handleBuyStoreItem = (itemId: string, costCoins: number, itemType: 'HINT' | 'LIFE' | 'THEME') => {
-    if (itemType === 'HINT') {
-      const hintCount = itemId === 'hint_pack_8' ? 8 : 3;
-      tournamentLeaderboardService.addHints(hintCount, costCoins);
-    } else if (itemType === 'LIFE') {
-      tournamentLeaderboardService.addCoins(-costCoins);
-      setLives(3);
-    } else {
-      tournamentLeaderboardService.addCoins(-costCoins);
+  // Advance to Next Level from Result Screen
+  const handleProceedToNextLevel = () => {
+    const nextLevel = Math.min(40, selectedLevelNumber + 1);
+    setSelectedLevelNumber(nextLevel);
+    setFeedbackType(null);
+    setGameState('LEVEL_INFO');
+  };
+
+  // Back to Menu from Result Screen or In-Game
+  const handleBackToMenu = () => {
+    setFeedbackType(null);
+    setGameState('LEVEL_INFO');
+  };
+
+  // Handle early exit while playing: ensure attempt is persisted
+  const handleEarlyExitFromPlay = () => {
+    if (answeredCount > 0 || levelScore > 0) {
+      const duration = Math.max(1, Math.round((Date.now() - levelStartTime) / 1000));
+      tournamentLeaderboardService.recordLevelAttempt({
+        level: selectedLevelNumber,
+        score: levelScore,
+        completed: false,
+        accuracy: answeredCount > 0 ? Math.round((levelCorrectCount / answeredCount) * 100) : 0,
+        totalQuestions: activeQuestions.length || 10,
+        answeredCount,
+        unansweredCount,
+        correctCount: levelCorrectCount,
+        durationSeconds: duration,
+      });
+      refreshStats();
+      onGameOver?.(levelScore, duration);
     }
-    refreshStats();
+    setFeedbackType(null);
+    setGameState('LEVEL_INFO');
   };
 
   // Leaderboard data for previews and modals
   const leaderboardPreview = tournamentLeaderboardService.getLeaderboardPreview();
   const allLeaderboardEntries = tournamentLeaderboardService.getLeaderboard();
 
-  // Elapsed time formatted for level clear
+  // Elapsed time formatted for display
   const totalSecondsSpent = Math.max(1, Math.round((Date.now() - levelStartTime) / 1000));
   const timeFormatted = `00:${String(Math.floor(totalSecondsSpent / 60)).padStart(2, '0')}:${String(
     totalSecondsSpent % 60
@@ -290,24 +303,22 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
 
   return (
     <div className="relative w-full h-full min-h-[600px] flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-[#fce4ec] via-[#f3e5f5] to-[#e1f5fe] font-sans">
-      {/* Dynamic Floating Emojis Background (From Video) */}
+      {/* Dynamic Floating Emojis Background */}
       <BackgroundEmojis />
 
       {/* Top Bar HUD */}
       <EmojiFunHeader
-        coins={playerStats.coins}
-        lives={lives}
+        levelNumber={gameState === 'PLAYING' ? selectedLevelNumber : undefined}
+        score={gameState === 'PLAYING' ? levelScore : undefined}
         hints={playerStats.availableHints}
-        showLives={gameState === 'PLAYING'}
         showHints={gameState === 'PLAYING'}
-        onOpenCoins={() => setShowStore(true)}
         onOpenSettings={() => setShowSettings(true)}
         onUseHint={gameState === 'PLAYING' ? handleUseHint : undefined}
         onBack={
           gameState === 'LEVEL_INFO'
             ? () => setGameState('HOME')
             : gameState === 'PLAYING'
-            ? () => setGameState('LEVEL_INFO')
+            ? handleEarlyExitFromPlay
             : undefined
         }
         onExit={gameState === 'HOME' ? onExit : undefined}
@@ -323,13 +334,12 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
             setGameState('LEVEL_INFO');
           }}
           onLeaderboard={() => setShowLeaderboard(true)}
-          onStore={() => setShowStore(true)}
           onSettings={() => setShowSettings(true)}
           onHowToPlay={() => setShowHowToPlay(true)}
         />
       )}
 
-      {/* VIEW 2: BEFORE GAME — LEVEL INFORMATION MENU (Section 4) */}
+      {/* VIEW 2: LEVEL INFORMATION MENU (Strictly Numbered Levels 1 to 40) */}
       {gameState === 'LEVEL_INFO' && (
         <EmojiFunLevelInfo
           levelConfig={currentLevelConfig}
@@ -358,43 +368,42 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
         />
       )}
 
-      {/* FEEDBACK & LEVEL CLEAR MODAL */}
+      {/* FEEDBACK & RESULT MODAL */}
       {feedbackType && (
         <EmojiFunFeedbackModal
           type={feedbackType}
           scoreResult={lastScoreResult}
           correctAnswerText={
-            feedbackType === 'INCORRECT' || feedbackType === 'TIME_OUT'
+            feedbackType === 'INCORRECT'
               ? currentQuestion?.options[currentQuestion?.correctIndex]
               : undefined
           }
-          coinsEarned={currentLevelConfig.rewardCoins || 10}
           timeSpentFormatted={timeFormatted}
           accuracyPercent={
             activeQuestions.length > 0
               ? Math.round((levelCorrectCount / activeQuestions.length) * 100)
-              : 100
+              : 0
           }
           levelScore={levelScore}
+          totalQuestions={activeQuestions.length || 10}
+          answeredCount={answeredCount}
+          unansweredCount={unansweredCount}
+          correctCount={levelCorrectCount}
           totalTournamentScore={playerStats.totalTournamentScore}
-          perfectCount={levelPerfectCount}
-          bestCombo={levelBestCombo}
-          hintsUsed={hintsUsedInQuestion}
           userRank={leaderboardPreview.userRank}
-          onContinue={handleAdvanceFromFeedback}
+          levelNumber={selectedLevelNumber}
+          onContinue={
+            feedbackType === 'LEVEL_CLEAR'
+              ? handleProceedToNextLevel
+              : handleAdvanceFromFeedback
+          }
           onRetry={handleStartLevel}
+          onBackToMenu={handleBackToMenu}
           onLeaderboard={() => {
             setFeedbackType(null);
             setShowLeaderboard(true);
           }}
-          onClose={
-            feedbackType === 'NO_LIVES'
-              ? () => {
-                  setFeedbackType(null);
-                  setGameState('LEVEL_INFO');
-                }
-              : undefined
-          }
+          onClose={handleBackToMenu}
         />
       )}
 
@@ -407,16 +416,6 @@ export const EmojiFunGame: React.FC<EmojiFunGameProps> = ({ onExit, onGameOver }
           nextPlayerScore={leaderboardPreview.nextPlayerScore}
           pointsToNextRank={leaderboardPreview.pointsToNextRank}
           onClose={() => setShowLeaderboard(false)}
-        />
-      )}
-
-      {/* STORE MODAL */}
-      {showStore && (
-        <EmojiFunStoreModal
-          coins={playerStats.coins}
-          availableHints={playerStats.availableHints}
-          onBuyItem={handleBuyStoreItem}
-          onClose={() => setShowStore(false)}
         />
       )}
 

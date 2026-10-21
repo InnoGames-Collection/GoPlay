@@ -72,10 +72,31 @@ const DEFAULT_SAVE: JuicyMatchSaveData = {
   achievements: {},
 };
 
+const memoryStore: Record<string, string> = {};
+
+function getStorageItem(key: string): string | null {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+  } catch {}
+  return memoryStore[key] || null;
+}
+
+function setStorageItem(key: string, val: string): void {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, val);
+      return;
+    }
+  } catch {}
+  memoryStore[key] = val;
+}
+
 export class JuicyStorage {
   public static load(): JuicyMatchSaveData {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = getStorageItem(STORAGE_KEY);
       if (!raw) return { ...DEFAULT_SAVE };
       const parsed = JSON.parse(raw);
       return {
@@ -103,7 +124,7 @@ export class JuicyStorage {
 
   public static save(data: JuicyMatchSaveData) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      setStorageItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       // Storage unavailable
     }

@@ -86,7 +86,7 @@ export const DamaLeaderboard: React.FC<DamaLeaderboardProps> = ({
                 </span>
               </div>
               <span className="text-[11px] text-slate-400">
-                Highest Level: <strong className="text-slate-200">Level {progress.highestUnlockedLevel}</strong> •{' '}
+                Highest Level: <strong className="text-slate-200">LEVEL {progress.highestUnlockedLevel}</strong> •{' '}
                 {completedCount} Cleared
               </span>
             </div>

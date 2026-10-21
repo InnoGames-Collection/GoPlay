@@ -198,3 +198,35 @@ export function calculateSkillScore(
 export function calculateGoalBonus(level: number, rally: number, difficultyTier: string = 'Moderate', streak: number = 0): number {
   return calculateGoalScore(level, difficultyTier, rally, streak, 'PERFECT').total;
 }
+
+export interface SoccerPingPongScoreResult {
+  finalScore: number;
+  playerGoalPoints: number;
+  concededPenalty: number;
+  timePenalty: number;
+}
+
+/**
+ * Calibrated Goal-Based Scoring Engine
+ * Final score = max(0, player goals * 10 - conceded penalty - time penalty)
+ * - 10 base points per player goal
+ * - Conceded goal penalty (3 pts per conceded goal)
+ * - Modest time penalty based on active duration (1 pt per 20s, bounded max 5 pts)
+ * - Always non-negative and bounded
+ */
+export function calculateSoccerPingPongScore(
+  playerGoals: number,
+  computerGoals: number,
+  activeDurationSec: number
+): SoccerPingPongScoreResult {
+  const playerGoalPoints = Math.max(0, playerGoals) * 10;
+  const concededPenalty = Math.max(0, computerGoals) * 3;
+  const timePenalty = Math.min(5, Math.floor(Math.max(0, activeDurationSec) / 20));
+  const finalScore = Math.max(0, playerGoalPoints - concededPenalty - timePenalty);
+  return {
+    finalScore,
+    playerGoalPoints,
+    concededPenalty,
+    timePenalty,
+  };
+}

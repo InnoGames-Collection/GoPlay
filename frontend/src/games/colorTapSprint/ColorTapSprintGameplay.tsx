@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Target, Play, Film } from 'lucide-react';
+import { ArrowLeft, Target, Play, Pause, Film } from 'lucide-react';
 import { CardItem, ColorId, ColorTapSprintLevel, FloatingFeedback } from './types';
 import { getColorTapSprintLevel, COLOR_DEFINITIONS } from './levels';
 import { ColorTapSprintAudio } from './audio';
@@ -48,6 +48,7 @@ export const ColorTapSprintGameplay: React.FC<ColorTapSprintGameplayProps> = ({
   const [isAdPlaying, setIsAdPlaying] = useState<boolean>(false);
 
   // Modals
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isLevelComplete, setIsLevelComplete] = useState<boolean>(false);
   const [earnedStars, setEarnedStars] = useState<number>(3);
@@ -137,9 +138,23 @@ export const ColorTapSprintGameplay: React.FC<ColorTapSprintGameplayProps> = ({
     };
   }, []);
 
-  // Main Sprint Timer Loop
+  // Backgrounding & Audio Suspension Lifecycle Listener
   useEffect(() => {
-    if (!isPlaying || isGameOver || isLevelComplete) {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        ColorTapSprintAudio.stopBgm();
+        if (isPlaying && !isGameOver && !isLevelComplete) {
+          setIsPaused(true);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isPlaying, isGameOver, isLevelComplete]);
+
+  // Main Sprint Timer Loop (strictly freezes when isPaused or window hidden)
+  useEffect(() => {
+    if (!isPlaying || isPaused || isGameOver || isLevelComplete) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
@@ -157,7 +172,7 @@ export const ColorTapSprintGameplay: React.FC<ColorTapSprintGameplayProps> = ({
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPlaying, isGameOver, isLevelComplete]);
+  }, [isPlaying, isPaused, isGameOver, isLevelComplete]);
 
   // Time Expired -> Game Over
   const handleTimeExpired = () => {
@@ -326,15 +341,31 @@ export const ColorTapSprintGameplay: React.FC<ColorTapSprintGameplayProps> = ({
       {/* ----------------- TOP HEADER SECTION (Exact layout from Video 00:04) ----------------- */}
       <div className="relative z-30 w-full max-w-md px-3 pt-2.5 pb-1 flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
-          {/* Top Back Button */}
-          <button
-            onClick={onExitToLevelSelect}
-            className="flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-pink-300 text-xs font-black text-pink-600 hover:bg-pink-50 active:scale-95 transition-all shadow-xs cursor-pointer"
-            title="Return to Level Selection"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>BACK</span>
-          </button>
+          {/* Top Back & Pause Buttons */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onExitToLevelSelect}
+              className="flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-pink-300 text-xs font-black text-pink-600 hover:bg-pink-50 active:scale-95 transition-all shadow-xs cursor-pointer"
+              title="Return to Level Selection"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>BACK</span>
+            </button>
+
+            {isPlaying && (
+              <button
+                type="button"
+                onClick={() => {
+                  ColorTapSprintAudio.stopBgm();
+                  setIsPaused(true);
+                }}
+                className="w-7 h-7 rounded-full bg-white border border-pink-300 flex items-center justify-center text-pink-600 hover:bg-pink-50 active:scale-95 transition-all shadow-xs cursor-pointer"
+                title="Pause Sprint"
+              >
+                <Pause className="w-3.5 h-3.5 fill-pink-600" />
+              </button>
+            )}
+          </div>
 
           {/* Level Title */}
           <div className="px-3 py-1 rounded-full bg-white border border-amber-300 text-xs font-black text-amber-800 shadow-xs">
@@ -497,6 +528,47 @@ export const ColorTapSprintGameplay: React.FC<ColorTapSprintGameplayProps> = ({
           <span>{isAdPlaying ? 'GRANTING FOCUS...' : 'WATCH AD (+1 FOCUS)'}</span>
         </button>
       </div>
+
+      {/* ----------------- PAUSE MODAL ----------------- */}
+      {isPaused && (
+        <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-150">
+          <div className="w-full max-w-xs rounded-3xl bg-white border-2 border-pink-300 p-6 text-center space-y-4 shadow-2xl">
+            <h2 className="text-xl font-black text-slate-800 tracking-tight uppercase">
+              SPRINT PAUSED
+            </h2>
+            <p className="text-xs text-slate-500 font-bold">
+              Level {levelNumber} • Score: {score} pts
+            </p>
+            <div className="space-y-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPaused(false);
+                  ColorTapSprintAudio.startBgm();
+                }}
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 hover:brightness-110 active:scale-95 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+              >
+                <Play className="w-4 h-4 fill-white" />
+                <span>RESUME SPRINT</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPaused(false);
+                  const durationSec = Math.round((Date.now() - startTimeRef.current) / 1000);
+                  if (onSessionComplete && score > 0) {
+                    onSessionComplete(score, durationSec);
+                  }
+                  onExitToLevelSelect();
+                }}
+                className="w-full py-2.5 rounded-2xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                <span>EXIT TO MENU</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ----------------- MODALS ----------------- */}
       {isGameOver && (

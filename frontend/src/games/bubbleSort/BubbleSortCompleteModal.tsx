@@ -10,6 +10,9 @@ interface BubbleSortCompleteModalProps {
   stars: number;
   wisdom: number;
   coins: number;
+  completedCategories?: number;
+  totalCategories?: number;
+  mistakes?: number;
   onNextLevel: () => void;
 }
 
@@ -21,6 +24,9 @@ export const BubbleSortCompleteModal: React.FC<BubbleSortCompleteModalProps> = (
   stars,
   wisdom,
   coins,
+  completedCategories = 0,
+  totalCategories = 0,
+  mistakes = 0,
   onNextLevel,
 }) => {
   const [phase, setPhase] = useState<'stars' | 'wisdom'>('stars');
@@ -100,10 +106,15 @@ export const BubbleSortCompleteModal: React.FC<BubbleSortCompleteModalProps> = (
             LEVEL COMPLETE
           </h2>
 
-          {/* Time Counter Pill */}
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-black/50 border border-white/20 text-white font-mono font-bold text-sm shadow-md">
-            <Clock className="w-4 h-4 text-cyan-300" />
-            <span>{timeFormatted}</span>
+          {/* Stats Pills */}
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-black/50 border border-white/20 text-white font-mono font-bold text-sm shadow-md">
+              <Clock className="w-4 h-4 text-cyan-300" />
+              <span>{timeFormatted}</span>
+            </div>
+            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 font-mono font-bold text-sm shadow-md">
+              <span>{score} PTS</span>
+            </div>
           </div>
         </div>
       )}

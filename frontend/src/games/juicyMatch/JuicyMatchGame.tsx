@@ -29,6 +29,8 @@ import {
   damageBlockersAndUnderlays,
   applyGravity,
   refillTopCells,
+  calculateMatchScore,
+  SCORING,
 } from './matchLogic';
 import { MapScreen } from './MapScreen';
 import { MainMenuScreen } from './MainMenuScreen';
@@ -56,12 +58,14 @@ import { ArrowLeft, Pause, Volume2, VolumeX, Star, Hammer, RefreshCw, Zap, Disc 
 interface JuicyMatchGameProps {
   onBackToHub?: () => void;
   onLevelComplete?: (score: number, durationSeconds?: number) => void;
+  onGameOver?: (score: number, durationSeconds?: number) => void;
   onScoreUpdate?: (score: number) => void;
 }
 
 export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
   onBackToHub,
   onLevelComplete,
+  onGameOver,
   onScoreUpdate,
 }) => {
   // Persistence state
@@ -133,6 +137,7 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
   const movesLeftRef = useRef<number>(24);
   const scoreRef = useRef<number>(0);
   const isLevelFinishedRef = useRef<boolean>(false);
+  const hasReportedCompletionRef = useRef<boolean>(false);
 
   // Sync mute state on mount
   useEffect(() => {
@@ -146,6 +151,28 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
       soundManager.stopMusic();
     };
   }, [saveData.soundEnabled, saveData.musicEnabled, viewMode]);
+
+  // Backgrounding lifecycle & audio suspension
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        soundManager.stopMusic();
+        soundManager.setMuted(true);
+        if (viewMode === 'playing' && activeModal === 'none') {
+          setActiveModal('pause');
+        }
+      } else {
+        if (saveData.soundEnabled) {
+          soundManager.setMuted(false);
+          if (saveData.musicEnabled && viewMode === 'playing' && activeModal === 'none') {
+            soundManager.startMusic();
+          }
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [viewMode, activeModal, saveData.soundEnabled, saveData.musicEnabled]);
 
   // Toggle Sound
   const toggleSound = useCallback(() => {
@@ -219,6 +246,7 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
     setBoard(initialGrid);
 
     isLevelFinishedRef.current = false;
+    hasReportedCompletionRef.current = false;
     movesLeftRef.current = cfg.moves;
     setMovesLeft(cfg.moves);
 
@@ -356,9 +384,20 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
         setReshufflingNotice(true);
         soundManager.playSpecialCreate();
         await new Promise((r) => setTimeout(r, 600));
-        reshuffleMovableFruits(currentGrid, levelConfig.availableFruits);
+        const reshuffled = reshuffleMovableFruits(currentGrid, levelConfig.availableFruits);
         setReshufflingNotice(false);
         setBoard([...currentGrid]);
+
+        if (!reshuffled || !hasLegalMoves(currentGrid, levelConfig.availableFruits)) {
+          // If no valid move remains and rules support reshuffling, safe reshuffle was attempted.
+          // Since reshuffle could not produce any legal move, follow defined failure rules:
+          if (!isLevelFinishedRef.current) {
+            handleLevelFail();
+          }
+          setIsProcessing(false);
+          isExecutingRef.current = false;
+          return;
+        }
       }
 
       // CRITICAL: Final Authoritative Objective & Completion Validation
@@ -366,7 +405,6 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
       const isWon = checkWinCondition(objectivesRef.current);
       if (isWon) {
         if (!isLevelFinishedRef.current) {
-          isLevelFinishedRef.current = true;
           handleLevelVictory();
         }
         setIsProcessing(false);
@@ -377,7 +415,6 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
       // Only fail if NOT won and no moves remain
       if (movesLeftRef.current <= 0) {
         if (!isLevelFinishedRef.current) {
-          isLevelFinishedRef.current = true;
           handleLevelFail();
         }
         setIsProcessing(false);
@@ -408,8 +445,26 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
     // Small delay for pop animation
     await new Promise((r) => setTimeout(r, 160));
 
-    // 4. Calculate score & damage blockers
-    const addedScore = matchedCells.length * 30 * cascadeIndex;
+    // 4. Damage adjacent blockers & underlays first
+    const { juiceCleared, cratesBroken, chestsOpened } = damageBlockersAndUnderlays(
+      currentGrid,
+      matchedCells
+    );
+
+    if (cratesBroken > 0) soundManager.playCrateBreak();
+    if (juiceCleared > 0) soundManager.playJuiceClear();
+
+    // 5. Calculate score with transparent calibrated formula
+    const baseMatchScore = calculateMatchScore(
+      matchedCells.length,
+      cascadeIndex,
+      specialCreations.length
+    );
+    const blockerScore =
+      (cratesBroken + chestsOpened) * SCORING.BLOCKER_CLEARED +
+      juiceCleared * SCORING.UNDERLAY_CLEARED;
+    const addedScore = baseMatchScore + blockerScore;
+
     scoreRef.current += addedScore;
     const nextCalculatedScore = scoreRef.current;
     setScore(nextCalculatedScore);
@@ -448,22 +503,13 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
     const [firstX, firstY] = matchedCells[0];
     addFloatingScore(firstX, firstY, addedScore);
 
-    // Damage adjacent blockers & underlays
-    const { juiceCleared, cratesBroken, chestsOpened } = damageBlockersAndUnderlays(
-      currentGrid,
-      matchedCells
-    );
-
-    if (cratesBroken > 0) soundManager.playCrateBreak();
-    if (juiceCleared > 0) soundManager.playJuiceClear();
-
-    // 5. Update objectives synchronously & keep UI in sync
+    // 6. Update objectives synchronously & keep UI in sync
     const matchedFruitTypes = matchedCells
       .map(([mx, my]) => currentGrid[my][mx].fruit?.type)
       .filter(Boolean) as FruitType[];
     updateObjectivesProgress(matchedFruitTypes, juiceCleared, cratesBroken, chestsOpened);
 
-    // 6. Clear matched fruits & place newly generated special fruits
+    // 7. Clear matched fruits & place newly generated special fruits
     matchedCells.forEach(([mx, my]) => {
       currentGrid[my][mx].fruit = null;
     });
@@ -479,7 +525,7 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
     setBoard([...currentGrid]);
     await new Promise((r) => setTimeout(r, 120));
 
-    // 7. Apply gravity & refill
+    // 8. Apply gravity & refill
     let falling = true;
     while (falling) {
       const moved = applyGravity(currentGrid);
@@ -491,7 +537,7 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
       }
     }
 
-    // 8. Cascade to next round
+    // 9. Cascade to next round
     await resolveBoardCascades(currentGrid, cascadeIndex + 1);
   };
 
@@ -502,11 +548,24 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
     soundManager.stopMusic();
     soundManager.playLevelFail();
     JuicyStorage.failLevel(currentLevelNum);
+
+    const currentScore = scoreRef.current;
+    if (!hasReportedCompletionRef.current) {
+      hasReportedCompletionRef.current = true;
+      if (onGameOver) {
+        onGameOver(currentScore, 60);
+      } else if (onLevelComplete) {
+        onLevelComplete(currentScore, 60);
+      }
+    }
+
     setActiveModal('fail');
   };
 
   // Handle Level Victory
   const handleLevelVictory = () => {
+    if (isLevelFinishedRef.current) return;
+    isLevelFinishedRef.current = true;
     soundManager.stopMusic();
     soundManager.playLevelComplete();
 
@@ -534,8 +593,13 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
     }
 
     // Genuinely report completed level to portal once upon victory
-    if (onLevelComplete) {
-      onLevelComplete(currentScore, 60);
+    if (!hasReportedCompletionRef.current) {
+      hasReportedCompletionRef.current = true;
+      if (onLevelComplete) {
+        onLevelComplete(currentScore, 60);
+      } else if (onGameOver) {
+        onGameOver(currentScore, 60);
+      }
     }
 
     setTimeout(() => {
@@ -605,7 +669,10 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
       // Synchronously update authoritative objectives and UI
       updateObjectivesProgress(clearedFruitTypes, juiceCleared, cratesBroken, chestsOpened);
 
-      const addedScore = specialCombo.affectedCells.length * 60;
+      const addedScore =
+        specialCombo.affectedCells.length * SCORING.SPECIAL_COMBO_PIECE +
+        (cratesBroken + chestsOpened) * SCORING.BLOCKER_CLEARED +
+        juiceCleared * SCORING.UNDERLAY_CLEARED;
       scoreRef.current += addedScore;
       setScore(scoreRef.current);
       if (onScoreUpdate) onScoreUpdate(scoreRef.current);
@@ -655,7 +722,7 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
 
   // Booster action handler
   const handleBoosterClick = (type: BoosterType) => {
-    if (isProcessing) return;
+    if (isProcessing || isLevelFinishedRef.current || movesLeftRef.current <= 0 || activeModal !== 'none') return;
     soundManager.playButtonClick();
     if (activeBooster === type) {
       setActiveBooster(null);
@@ -666,7 +733,7 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
 
   // Execute active booster on target cell
   const applyBoosterOnCell = async (x: number, y: number) => {
-    if (!activeBooster || isProcessing || isLevelFinishedRef.current) return;
+    if (!activeBooster || isProcessing || isLevelFinishedRef.current || movesLeftRef.current <= 0 || activeModal !== 'none') return;
     const cell = board[y][x];
     if (!cell.valid) return;
 
@@ -695,9 +762,14 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
       cell.fruit = null;
       if (cell.overlay !== 'none') cell.overlay = 'none';
       setBoard([...board]);
-      addFloatingScore(x, y, 100);
-      scoreRef.current += 100;
+      const addedScore =
+        SCORING.BOOSTER_HAMMER +
+        (cratesBroken + chestsOpened) * SCORING.BLOCKER_CLEARED +
+        juiceCleared * SCORING.UNDERLAY_CLEARED;
+      addFloatingScore(x, y, addedScore);
+      scoreRef.current += addedScore;
       setScore(scoreRef.current);
+      if (onScoreUpdate) onScoreUpdate(scoreRef.current);
     } else if (activeBooster === 'reshuffle') {
       soundManager.playSpecialCreate();
       reshuffleMovableFruits(board, levelConfig.availableFruits);
@@ -723,8 +795,13 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
         }
       }
       setBoard([...board]);
-      scoreRef.current += levelConfig.gridWidth * 50;
+      const addedScore =
+        levelConfig.gridWidth * SCORING.BOOSTER_ROCKET_PIECE +
+        (cratesBroken + chestsOpened) * SCORING.BLOCKER_CLEARED +
+        juiceCleared * SCORING.UNDERLAY_CLEARED;
+      scoreRef.current += addedScore;
       setScore(scoreRef.current);
+      if (onScoreUpdate) onScoreUpdate(scoreRef.current);
     } else if (activeBooster === 'rainbow_bomb') {
       soundManager.playRainbowLaser();
       if (cell.fruit) {
@@ -739,8 +816,10 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
         );
       }
       setBoard([...board]);
-      scoreRef.current += clearedFruits.length * 60;
+      const addedScore = clearedFruits.length * SCORING.BOOSTER_RAINBOW_PIECE;
+      scoreRef.current += addedScore;
       setScore(scoreRef.current);
+      if (onScoreUpdate) onScoreUpdate(scoreRef.current);
     }
 
     updateObjectivesProgress(clearedFruits, juiceCleared, cratesBroken, chestsOpened);
@@ -782,7 +861,7 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
 
   // Cell Interaction (Click / Tap)
   const handleCellClick = (x: number, y: number) => {
-    if (isProcessing || activeModal === 'pause') return;
+    if (isProcessing || isLevelFinishedRef.current || movesLeftRef.current <= 0 || activeModal !== 'none') return;
 
     if (activeBooster) {
       applyBoosterOnCell(x, y);
@@ -810,13 +889,16 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
 
   // Drag / Swipe Handlers
   const handleTouchStart = (e: React.TouchEvent, x: number, y: number) => {
-    if (isProcessing || activeBooster || activeModal === 'pause') return;
+    if (isProcessing || isLevelFinishedRef.current || movesLeftRef.current <= 0 || activeBooster || activeModal !== 'none') return;
     const touch = e.touches[0];
     dragStartRef.current = { x, y, clientX: touch.clientX, clientY: touch.clientY };
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!dragStartRef.current || isProcessing || activeBooster || activeModal === 'pause') return;
+    if (!dragStartRef.current || isProcessing || isLevelFinishedRef.current || movesLeftRef.current <= 0 || activeBooster || activeModal !== 'none') {
+      dragStartRef.current = null;
+      return;
+    }
     const touch = e.changedTouches[0];
     const dx = touch.clientX - dragStartRef.current.clientX;
     const dy = touch.clientY - dragStartRef.current.clientY;
@@ -1082,10 +1164,12 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
                       onClick={() => handleCellClick(x, y)}
                       onTouchStart={(e) => handleTouchStart(e, x, y)}
                       onTouchEnd={handleTouchEnd}
-                      className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center cursor-pointer transition-transform duration-100 ${
+                      className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-transform duration-100 ${
                         isSelected
-                          ? 'ring-4 ring-amber-400 scale-105 z-20 bg-amber-200'
-                          : 'bg-amber-100/60 hover:bg-amber-200/50'
+                          ? 'ring-4 ring-amber-400 scale-105 z-20 bg-amber-200 cursor-pointer'
+                          : isProcessing || movesLeft <= 0 || isLevelFinishedRef.current
+                          ? 'bg-amber-100/40 cursor-not-allowed opacity-90'
+                          : 'bg-amber-100/60 hover:bg-amber-200/50 cursor-pointer'
                       }`}
                       style={{ touchAction: 'none' }}
                     >
@@ -1239,11 +1323,20 @@ export const JuicyMatchGame: React.FC<JuicyMatchGameProps> = ({
       {activeModal === 'fail' && (
         <FailModal
           level={currentLevelNum}
+          score={scoreRef.current}
           objectives={objectivesRef.current.length > 0 ? objectivesRef.current : objectives}
           onRetry={startLevelGameplay}
           onExitToMap={() => {
             setActiveModal('none');
             setViewMode('map');
+          }}
+          onExitToMainMenu={() => {
+            setActiveModal('none');
+            if (onBackToHub) {
+              onBackToHub();
+            } else {
+              setViewMode('menu');
+            }
           }}
         />
       )}

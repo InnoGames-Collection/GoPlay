@@ -6,46 +6,46 @@
 import { EmojiQuestion, EmojiLevelConfig } from './types';
 
 export const LEVEL_CONFIGS: EmojiLevelConfig[] = [
-  { level: 1, title: 'Emoji Basics', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 1200, questionCount: 10, theme: 'Easy Recognition', rewardCoins: 10, scoreMultiplier: 1.0 },
-  { level: 2, title: 'Happy Faces', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 1250, questionCount: 10, theme: 'Smiles & Gestures', rewardCoins: 10, scoreMultiplier: 1.0 },
-  { level: 3, title: 'Animal Friends', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 1300, questionCount: 10, theme: 'Wild & Pets', rewardCoins: 10, scoreMultiplier: 1.0 },
-  { level: 4, title: 'Tasty Treats', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 1350, questionCount: 10, theme: 'Snacks & Fruits', rewardCoins: 10, scoreMultiplier: 1.0 },
-  { level: 5, title: 'Simple Mix', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 1400, questionCount: 10, theme: 'Basic Pairs', rewardCoins: 10, scoreMultiplier: 1.0 },
-  { level: 6, title: 'Love & Hearts', difficultyStars: 2, timeLimitSeconds: 14, targetScore: 1500, questionCount: 10, theme: 'Feelings', rewardCoins: 12, scoreMultiplier: 1.1 },
-  { level: 7, title: 'Emoji Pairs', difficultyStars: 2, timeLimitSeconds: 14, targetScore: 1550, questionCount: 10, theme: 'Combinations', rewardCoins: 12, scoreMultiplier: 1.1 },
-  { level: 8, title: 'Guess the Meal', difficultyStars: 2, timeLimitSeconds: 14, targetScore: 1600, questionCount: 10, theme: 'Food Combos', rewardCoins: 12, scoreMultiplier: 1.1 },
-  { level: 9, title: 'Daily Life', difficultyStars: 2, timeLimitSeconds: 13, targetScore: 1650, questionCount: 10, theme: 'Everyday Actions', rewardCoins: 12, scoreMultiplier: 1.1 },
-  { level: 10, title: 'Movie Night I', difficultyStars: 2, timeLimitSeconds: 13, targetScore: 1700, questionCount: 10, theme: 'Famous Movies', rewardCoins: 12, scoreMultiplier: 1.1 },
-  { level: 11, title: 'Odd One Out I', difficultyStars: 2, timeLimitSeconds: 13, targetScore: 1750, questionCount: 10, theme: 'Spot the Difference', rewardCoins: 15, scoreMultiplier: 1.2 },
-  { level: 12, title: 'Category Clash', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 1850, questionCount: 10, theme: 'Not Belonging', rewardCoins: 15, scoreMultiplier: 1.2 },
-  { level: 13, title: 'Sports Center', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 1900, questionCount: 10, theme: 'Games & Athletics', rewardCoins: 15, scoreMultiplier: 1.2 },
-  { level: 14, title: 'Travel Clues', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 1950, questionCount: 10, theme: 'Vehicles & Journeys', rewardCoins: 15, scoreMultiplier: 1.2 },
-  { level: 15, title: 'World Places I', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 2000, questionCount: 10, theme: 'Countries & Landmarks', rewardCoins: 15, scoreMultiplier: 1.2 },
-  { level: 16, title: 'Emoji Sequence I', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 2100, questionCount: 10, theme: 'Logical Patterns', rewardCoins: 18, scoreMultiplier: 1.3 },
-  { level: 17, title: 'Memory Flash I', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 2150, questionCount: 10, theme: 'Visual Recall', rewardCoins: 18, scoreMultiplier: 1.3 },
-  { level: 18, title: 'Movie Night II', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 2200, questionCount: 10, theme: 'Blockbusters', rewardCoins: 18, scoreMultiplier: 1.3 },
-  { level: 19, title: 'Common Sayings', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 2250, questionCount: 10, theme: 'Phrases & Idioms', rewardCoins: 18, scoreMultiplier: 1.3 },
-  { level: 20, title: 'Midway Tournament', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 2350, questionCount: 10, theme: 'Championship Trial', rewardCoins: 20, scoreMultiplier: 1.3 },
-  { level: 21, title: 'Odd One Out II', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 2450, questionCount: 10, theme: 'Micro-Differences', rewardCoins: 20, scoreMultiplier: 1.4 },
-  { level: 22, title: 'Music & Songs', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 2500, questionCount: 10, theme: 'Hit Titles', rewardCoins: 20, scoreMultiplier: 1.4 },
-  { level: 23, title: 'Nature & Cosmos', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 2550, questionCount: 10, theme: 'Planets & Earth', rewardCoins: 20, scoreMultiplier: 1.4 },
-  { level: 24, title: 'Speed Round I', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 2600, questionCount: 10, theme: 'Rapid Reflex', rewardCoins: 20, scoreMultiplier: 1.4 },
-  { level: 25, title: 'World Places II', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 2700, questionCount: 10, theme: 'Cities & Cultures', rewardCoins: 20, scoreMultiplier: 1.4 },
-  { level: 26, title: 'Memory Flash II', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 2800, questionCount: 10, theme: 'Multi-Symbol Recall', rewardCoins: 25, scoreMultiplier: 1.5 },
-  { level: 27, title: 'Emoji Sequence II', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 2850, questionCount: 10, theme: 'Evolution Cycles', rewardCoins: 25, scoreMultiplier: 1.5 },
-  { level: 28, title: 'Fantasy & Magic', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 2900, questionCount: 10, theme: 'Mythical Legends', rewardCoins: 25, scoreMultiplier: 1.5 },
-  { level: 29, title: 'Foodies Deluxe', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 2950, questionCount: 10, theme: 'Global Dishes', rewardCoins: 25, scoreMultiplier: 1.5 },
-  { level: 30, title: 'Speed Round II', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 3050, questionCount: 10, theme: 'Fast Deciders', rewardCoins: 25, scoreMultiplier: 1.5 },
-  { level: 31, title: 'Tricky Idioms', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 3200, questionCount: 10, theme: 'Abstract Phrases', rewardCoins: 30, scoreMultiplier: 1.6 },
-  { level: 32, title: 'Cinema Legends', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 3250, questionCount: 10, theme: 'Classic Films', rewardCoins: 30, scoreMultiplier: 1.6 },
-  { level: 33, title: 'Odd One Out III', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 3300, questionCount: 10, theme: 'Master Imposters', rewardCoins: 30, scoreMultiplier: 1.6 },
-  { level: 34, title: 'Tech & Modern Life', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 3350, questionCount: 10, theme: 'Gadgets & Apps', rewardCoins: 30, scoreMultiplier: 1.6 },
-  { level: 35, title: 'Memory Grandmaster', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 3400, questionCount: 10, theme: 'High-Density Recall', rewardCoins: 30, scoreMultiplier: 1.6 },
-  { level: 36, title: 'Grand Combinations', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 3550, questionCount: 10, theme: 'Multi-Emoji Riddles', rewardCoins: 35, scoreMultiplier: 1.8 },
-  { level: 37, title: 'Global Odyssey', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 3600, questionCount: 10, theme: 'Geographic Puzzles', rewardCoins: 35, scoreMultiplier: 1.8 },
-  { level: 38, title: 'Sequence Mastery', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 3650, questionCount: 10, theme: 'Complex Patterns', rewardCoins: 35, scoreMultiplier: 1.8 },
-  { level: 39, title: 'Lightning Round', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 3750, questionCount: 10, theme: 'Speed Tournament', rewardCoins: 35, scoreMultiplier: 1.8 },
-  { level: 40, title: 'Tournament Championship', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 3900, questionCount: 10, theme: 'Ultimate Finals', rewardCoins: 50, scoreMultiplier: 2.0 },
+  { level: 1, title: 'LEVEL 1', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 40, questionCount: 10, theme: 'Level 1', rewardCoins: 10, scoreMultiplier: 1.0 },
+  { level: 2, title: 'LEVEL 2', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 40, questionCount: 10, theme: 'Level 2', rewardCoins: 10, scoreMultiplier: 1.0 },
+  { level: 3, title: 'LEVEL 3', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 40, questionCount: 10, theme: 'Level 3', rewardCoins: 10, scoreMultiplier: 1.0 },
+  { level: 4, title: 'LEVEL 4', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 45, questionCount: 10, theme: 'Level 4', rewardCoins: 10, scoreMultiplier: 1.0 },
+  { level: 5, title: 'LEVEL 5', difficultyStars: 1, timeLimitSeconds: 15, targetScore: 45, questionCount: 10, theme: 'Level 5', rewardCoins: 10, scoreMultiplier: 1.0 },
+  { level: 6, title: 'LEVEL 6', difficultyStars: 2, timeLimitSeconds: 14, targetScore: 45, questionCount: 10, theme: 'Level 6', rewardCoins: 12, scoreMultiplier: 1.0 },
+  { level: 7, title: 'LEVEL 7', difficultyStars: 2, timeLimitSeconds: 14, targetScore: 50, questionCount: 10, theme: 'Level 7', rewardCoins: 12, scoreMultiplier: 1.0 },
+  { level: 8, title: 'LEVEL 8', difficultyStars: 2, timeLimitSeconds: 14, targetScore: 50, questionCount: 10, theme: 'Level 8', rewardCoins: 12, scoreMultiplier: 1.0 },
+  { level: 9, title: 'LEVEL 9', difficultyStars: 2, timeLimitSeconds: 13, targetScore: 50, questionCount: 10, theme: 'Level 9', rewardCoins: 12, scoreMultiplier: 1.0 },
+  { level: 10, title: 'LEVEL 10', difficultyStars: 2, timeLimitSeconds: 13, targetScore: 50, questionCount: 10, theme: 'Level 10', rewardCoins: 12, scoreMultiplier: 1.0 },
+  { level: 11, title: 'LEVEL 11', difficultyStars: 2, timeLimitSeconds: 13, targetScore: 55, questionCount: 10, theme: 'Level 11', rewardCoins: 15, scoreMultiplier: 1.0 },
+  { level: 12, title: 'LEVEL 12', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 55, questionCount: 10, theme: 'Level 12', rewardCoins: 15, scoreMultiplier: 1.0 },
+  { level: 13, title: 'LEVEL 13', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 55, questionCount: 10, theme: 'Level 13', rewardCoins: 15, scoreMultiplier: 1.0 },
+  { level: 14, title: 'LEVEL 14', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 55, questionCount: 10, theme: 'Level 14', rewardCoins: 15, scoreMultiplier: 1.0 },
+  { level: 15, title: 'LEVEL 15', difficultyStars: 3, timeLimitSeconds: 12, targetScore: 55, questionCount: 10, theme: 'Level 15', rewardCoins: 15, scoreMultiplier: 1.0 },
+  { level: 16, title: 'LEVEL 16', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 60, questionCount: 10, theme: 'Level 16', rewardCoins: 18, scoreMultiplier: 1.0 },
+  { level: 17, title: 'LEVEL 17', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 60, questionCount: 10, theme: 'Level 17', rewardCoins: 18, scoreMultiplier: 1.0 },
+  { level: 18, title: 'LEVEL 18', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 60, questionCount: 10, theme: 'Level 18', rewardCoins: 18, scoreMultiplier: 1.0 },
+  { level: 19, title: 'LEVEL 19', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 60, questionCount: 10, theme: 'Level 19', rewardCoins: 18, scoreMultiplier: 1.0 },
+  { level: 20, title: 'LEVEL 20', difficultyStars: 3, timeLimitSeconds: 11, targetScore: 60, questionCount: 10, theme: 'Level 20', rewardCoins: 20, scoreMultiplier: 1.0 },
+  { level: 21, title: 'LEVEL 21', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 60, questionCount: 10, theme: 'Level 21', rewardCoins: 20, scoreMultiplier: 1.0 },
+  { level: 22, title: 'LEVEL 22', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 60, questionCount: 10, theme: 'Level 22', rewardCoins: 20, scoreMultiplier: 1.0 },
+  { level: 23, title: 'LEVEL 23', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 60, questionCount: 10, theme: 'Level 23', rewardCoins: 20, scoreMultiplier: 1.0 },
+  { level: 24, title: 'LEVEL 24', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 60, questionCount: 10, theme: 'Level 24', rewardCoins: 20, scoreMultiplier: 1.0 },
+  { level: 25, title: 'LEVEL 25', difficultyStars: 4, timeLimitSeconds: 10, targetScore: 65, questionCount: 10, theme: 'Level 25', rewardCoins: 20, scoreMultiplier: 1.0 },
+  { level: 26, title: 'LEVEL 26', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 65, questionCount: 10, theme: 'Level 26', rewardCoins: 25, scoreMultiplier: 1.0 },
+  { level: 27, title: 'LEVEL 27', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 65, questionCount: 10, theme: 'Level 27', rewardCoins: 25, scoreMultiplier: 1.0 },
+  { level: 28, title: 'LEVEL 28', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 65, questionCount: 10, theme: 'Level 28', rewardCoins: 25, scoreMultiplier: 1.0 },
+  { level: 29, title: 'LEVEL 29', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 65, questionCount: 10, theme: 'Level 29', rewardCoins: 25, scoreMultiplier: 1.0 },
+  { level: 30, title: 'LEVEL 30', difficultyStars: 4, timeLimitSeconds: 9, targetScore: 65, questionCount: 10, theme: 'Level 30', rewardCoins: 25, scoreMultiplier: 1.0 },
+  { level: 31, title: 'LEVEL 31', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 65, questionCount: 10, theme: 'Level 31', rewardCoins: 30, scoreMultiplier: 1.0 },
+  { level: 32, title: 'LEVEL 32', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 65, questionCount: 10, theme: 'Level 32', rewardCoins: 30, scoreMultiplier: 1.0 },
+  { level: 33, title: 'LEVEL 33', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 65, questionCount: 10, theme: 'Level 33', rewardCoins: 30, scoreMultiplier: 1.0 },
+  { level: 34, title: 'LEVEL 34', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 65, questionCount: 10, theme: 'Level 34', rewardCoins: 30, scoreMultiplier: 1.0 },
+  { level: 35, title: 'LEVEL 35', difficultyStars: 5, timeLimitSeconds: 8, targetScore: 65, questionCount: 10, theme: 'Level 35', rewardCoins: 30, scoreMultiplier: 1.0 },
+  { level: 36, title: 'LEVEL 36', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 70, questionCount: 10, theme: 'Level 36', rewardCoins: 35, scoreMultiplier: 1.0 },
+  { level: 37, title: 'LEVEL 37', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 70, questionCount: 10, theme: 'Level 37', rewardCoins: 35, scoreMultiplier: 1.0 },
+  { level: 38, title: 'LEVEL 38', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 70, questionCount: 10, theme: 'Level 38', rewardCoins: 35, scoreMultiplier: 1.0 },
+  { level: 39, title: 'LEVEL 39', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 70, questionCount: 10, theme: 'Level 39', rewardCoins: 35, scoreMultiplier: 1.0 },
+  { level: 40, title: 'LEVEL 40', difficultyStars: 5, timeLimitSeconds: 7, targetScore: 70, questionCount: 10, theme: 'Level 40', rewardCoins: 50, scoreMultiplier: 1.0 },
 ];
 
 /**
@@ -323,7 +323,7 @@ const LEVEL_QUESTIONS_DATA: Record<number, RawQ[]> = {
     { type: 'GUESS_PHRASE', prompt: 'Guess this musical phrase:', display: '👂 + 🎵', options: ['Music to my ears', 'Loud concert', 'Headphones on', 'Singing bird'], correctIndex: 0 },
     { type: 'GUESS_PHRASE', prompt: 'Identify this wise advice:', display: '📖 + 🙈', options: ['Don\'t judge a book by its cover', 'Blind reading', 'Closed library', 'Secret diary'], correctIndex: 0 },
     { type: 'GUESS_PHRASE', prompt: 'What phrase is represented?', display: '🧊 + 🔨', options: ['Break the ice', 'Ice cube maker', 'Winter construction', 'Frozen lake'], correctIndex: 0 },
-    { type: 'GUESS_PHRASE', prompt: 'Guess the sweet metaphor:', display: 'Piece of + 🍰', options: ['A piece of cake (Easy task)', 'Bakery shop', 'Sweet tooth', 'Birthday dessert'], correctIndex: 0 },
+    { type: 'GUESS_PHRASE', prompt: 'Guess the sweet metaphor:', display: '🧩 + 🍰', options: ['A piece of cake (Easy task)', 'Bakery shop', 'Sweet tooth', 'Birthday dessert'], correctIndex: 0 },
     { type: 'GUESS_PHRASE', prompt: 'Identify this idiom:', display: '👀 + 👁️ + 👁️', options: ['An eye for an eye', 'Three eyes alien', 'Optometry exam', 'Looking both ways'], correctIndex: 0 },
     { type: 'GUESS_PHRASE', prompt: 'What expression is this?', display: '🦋 + 🥪 + 🤰', options: ['Butterflies in my stomach', 'Caterpillar lunch', 'Healthy diet', 'Insect bite'], correctIndex: 0 },
     { type: 'GUESS_PHRASE', prompt: 'Guess this saying:', display: '💧 + 🌊 + 🪣', options: ['A drop in the ocean / bucket', 'Filling water bucket', 'Sea wave splashing', 'Rainstorm'], correctIndex: 0 },
@@ -348,7 +348,7 @@ const LEVEL_QUESTIONS_DATA: Record<number, RawQ[]> = {
 // Ensures 40 full tournament levels with rich, unambiguous content!
 const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion['type']; items: Array<{ prompt: string; display: string; options: [string, string, string, string]; correctIndex: number; exp?: string; memoryEmojis?: string[] }> }> = {
   21: {
-    title: 'Odd One Out II',
+    title: 'LEVEL 21',
     category: 'ODD_EMOJI',
     items: [
       { prompt: 'Find the odd facial expression:', display: '😂 😂 😂 😭 😂', options: ['Loud Crying (😭)', 'Laughing (😂)', 'Smirking (😏)', 'Winking (😉)'], correctIndex: 0 },
@@ -364,13 +364,13 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   22: {
-    title: 'Music & Songs',
+    title: 'LEVEL 22',
     category: 'GUESS_PHRASE',
     items: [
       { prompt: 'Guess this Beatles hit song:', display: '☀️ + ☀️ + ☀️', options: ['Here Comes the Sun', 'Yellow Submarine', 'Let It Be', 'Hey Jude'], correctIndex: 0 },
       { prompt: 'Identify this Queen anthem:', display: '👑 + 🎸 + 🥁', options: ['We Will Rock You', 'Bohemian Rhapsody', 'Radio Ga Ga', 'Killer Queen'], correctIndex: 0 },
       { prompt: 'Guess this dance pop song:', display: '💃 + 🕺 + 🪩', options: ['Dancing Queen', 'Stayin\' Alive', 'Uptown Funk', 'Levitating'], correctIndex: 0 },
-      { prompt: 'Identify this Michael Jackson hit:', display: 'Thriller + 🧟‍♂️ + 🌕', options: ['Thriller', 'Billie Jean', 'Beat It', 'Bad'], correctIndex: 0 },
+      { prompt: 'Identify this Michael Jackson hit:', display: '🧟‍♂️ + 🌕 + 🕺', options: ['Thriller', 'Billie Jean', 'Beat It', 'Bad'], correctIndex: 0 },
       { prompt: 'Guess the song title:', display: '👁️ + 🐯', options: ['Eye of the Tiger', 'Roar', 'Wild Things', 'Jungle Boogie'], correctIndex: 0 },
       { prompt: 'What melody is this?', display: '🌧️ + 💜', options: ['Purple Rain', 'Singing in the Rain', 'November Rain', 'Rain on Me'], correctIndex: 0 },
       { prompt: 'Guess this rock classic:', display: '🚪 + 🏨 + 🌴', options: ['Hotel California', 'Stairway to Heaven', 'Sweet Child O Mine', 'Roxanne'], correctIndex: 0 },
@@ -380,7 +380,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   23: {
-    title: 'Nature & Cosmos',
+    title: 'LEVEL 23',
     category: 'EMOJI_COMBINATION',
     items: [
       { prompt: 'What cosmic event is shown?', display: '☀️ + 🌑 + 🌍', options: ['Solar Eclipse', 'Northern Lights', 'Meteor Shower', 'Supernova'], correctIndex: 0 },
@@ -396,7 +396,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   24: {
-    title: 'Speed Round I',
+    title: 'LEVEL 24',
     category: 'EMOJI_SPEED_ROUND',
     items: [
       { prompt: 'Fast! What animal gives milk and says moo?', display: '🐮', options: ['Cow', 'Horse', 'Goat', 'Sheep'], correctIndex: 0 },
@@ -412,7 +412,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   25: {
-    title: 'World Places II',
+    title: 'LEVEL 25',
     category: 'EMOJI_COUNTRY',
     items: [
       { prompt: 'Identify the city from landmarks:', display: '🗽 + 🚕 + 🍎', options: ['New York City (The Big Apple)', 'Los Angeles', 'Chicago', 'Miami'], correctIndex: 0 },
@@ -428,7 +428,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   26: {
-    title: 'Memory Flash II',
+    title: 'LEVEL 26',
     category: 'EMOJI_MEMORY',
     items: [
       { prompt: 'Which fruit was in the memory group?', display: '👀 RECALL', memoryEmojis: ['🥝', '🚀', '🎸', '🦁'], options: ['🥝 (Kiwi)', '🍎 (Apple)', '🍌 (Banana)', '🍇 (Grapes)'], correctIndex: 0 },
@@ -444,7 +444,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   27: {
-    title: 'Emoji Sequence II',
+    title: 'LEVEL 27',
     category: 'EMOJI_SEQUENCE',
     items: [
       { prompt: 'Complete the evolution of flight:', display: '🕊️ 🪁 🛩️ ?', options: ['🚀 (Space Rocket)', '🚗 (Car)', '🚢 (Ship)', '🚲 (Bicycle)'], correctIndex: 0 },
@@ -460,7 +460,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   28: {
-    title: 'Fantasy & Magic',
+    title: 'LEVEL 28',
     category: 'EMOJI_COMBINATION',
     items: [
       { prompt: 'Identify this mythical beast:', display: '🐴 + 🦄 + ✨', options: ['Magical Unicorn', 'Pegasus', 'Centaur', 'Dragon'], correctIndex: 0 },
@@ -476,7 +476,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   29: {
-    title: 'Foodies Deluxe',
+    title: 'LEVEL 29',
     category: 'GUESS_FOOD',
     items: [
       { prompt: 'Identify this Spanish seafood dish:', display: '🥘 + 🦐 + 🍋', options: ['Paella', 'Risotto', 'Clam Chowder', 'Sushi Bowl'], correctIndex: 0 },
@@ -492,7 +492,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   30: {
-    title: 'Speed Round II',
+    title: 'LEVEL 30',
     category: 'EMOJI_SPEED_ROUND',
     items: [
       { prompt: 'Rapid! Which insect makes sweet honey?', display: '🐝', options: ['Honeybee', 'Wasp', 'Hornet', 'Fly'], correctIndex: 0 },
@@ -508,7 +508,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   31: {
-    title: 'Tricky Idioms',
+    title: 'LEVEL 31',
     category: 'GUESS_PHRASE',
     items: [
       { prompt: 'Guess this clever expression:', display: '🐺 + 🐑 + 👕', options: ['A wolf in sheep\'s clothing', 'Farm animal reunion', 'Wool factory', 'Carnivore dinner'], correctIndex: 0 },
@@ -524,7 +524,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   32: {
-    title: 'Cinema Legends',
+    title: 'LEVEL 32',
     category: 'GUESS_MOVIE',
     items: [
       { prompt: 'Identify this boxing champion film:', display: '🥊 + 🥩 + 🏛️', options: ['Rocky', 'Million Dollar Baby', 'Creed', 'Raging Bull'], correctIndex: 0 },
@@ -540,7 +540,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   33: {
-    title: 'Odd One Out III',
+    title: 'LEVEL 33',
     category: 'ODD_EMOJI',
     items: [
       { prompt: 'Spot the imposter animal:', display: '🐬 🐬 🐬 🦈 🐬', options: ['Shark (Cartilaginous fish, others are mammals)', 'Dolphin', 'Whale', 'Seal'], correctIndex: 0 },
@@ -556,7 +556,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   34: {
-    title: 'Tech & Modern Life',
+    title: 'LEVEL 34',
     category: 'EMOJI_COMBINATION',
     items: [
       { prompt: 'Identify this modern habit:', display: '📱 + 🤳 + 📸', options: ['Taking a selfie on phone', 'Listening to vinyl record', 'Reading printed newspaper', 'Watching VHS tape'], correctIndex: 0 },
@@ -572,7 +572,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   35: {
-    title: 'Memory Grandmaster',
+    title: 'LEVEL 35',
     category: 'EMOJI_MEMORY',
     items: [
       { prompt: 'Which rare emoji was in the group?', display: '👀 GRANDMASTER', memoryEmojis: ['🦥', '🚀', '🍕', '💎', '🎸'], options: ['🦥 (Sloth)', '🦁 (Lion)', '🐼 (Panda)', '🦊 (Fox)'], correctIndex: 0 },
@@ -588,7 +588,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   36: {
-    title: 'Grand Combinations',
+    title: 'LEVEL 36',
     category: 'EMOJI_COMBINATION',
     items: [
       { prompt: 'Solve this 4-part emoji riddle:', display: '☀️ + 🕶️ + 🏖️ + 🍹', options: ['Tropical Beach Vacation', 'Winter Ski Trip', 'Office Working Day', 'Desert Lost Journey'], correctIndex: 0 },
@@ -604,7 +604,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   37: {
-    title: 'Global Odyssey',
+    title: 'LEVEL 37',
     category: 'EMOJI_COUNTRY',
     items: [
       { prompt: 'Identify this ancient wonder country:', display: '🏺 + 🏛️ + 🫒 + 🇬🇷', options: ['Greece', 'Italy', 'Spain', 'Turkey'], correctIndex: 0 },
@@ -620,7 +620,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   38: {
-    title: 'Sequence Mastery',
+    title: 'LEVEL 38',
     category: 'EMOJI_SEQUENCE',
     items: [
       { prompt: 'Solve the cosmic expansion sequence:', display: '🌌 🪐 🌍 ?', options: ['🏙️ (Human Civilizations)', '🍎 (Apple)', '🚗 (Car)', '🎸 (Guitar)'], correctIndex: 0 },
@@ -636,7 +636,7 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   39: {
-    title: 'Lightning Round',
+    title: 'LEVEL 39',
     category: 'EMOJI_SPEED_ROUND',
     items: [
       { prompt: 'Speed! What animal has black and white stripes?', display: '🦓', options: ['Zebra', 'Horse', 'Donkey', 'Tiger'], correctIndex: 0 },
@@ -652,13 +652,13 @@ const PROCEDURAL_THEMES: Record<number, { title: string; category: EmojiQuestion
     ],
   },
   40: {
-    title: 'Tournament Championship Finals',
+    title: 'LEVEL 40',
     category: 'EMOJI_COMBINATION',
     items: [
       { prompt: 'Final Challenge 1: The Ultimate Champion:', display: '🧠 + ⚡ + 🏆 + 🥇', options: ['The Ultimate Grandmaster Champion', 'Casual Player', 'Runner-up', 'Disqualified'], correctIndex: 0 },
       { prompt: 'Final Challenge 2: Master Movie Riddle:', display: '🧙‍♂️ + 🧝‍♀️ + 💍 + 🌋', options: ['The Lord of the Rings: Return of the King', 'Harry Potter', 'Star Wars', 'The Hobbit'], correctIndex: 0 },
       { prompt: 'Final Challenge 3: Extreme Odd One Out:', display: '👑 👑 👑 🧢 👑', options: ['Baseball Cap (Casual hat, others are royal crowns)', 'Crown', 'Tiara', 'Diadem'], correctIndex: 0 },
-      { prompt: 'Final Challenge 4: Ultimate Idiom:', display: '⚡ + 瓶 (Bottle)', options: ['Catching lightning in a bottle (Rare genius feat)', 'Electric shock', 'Recycling glass', 'Thunderstorm'], correctIndex: 0 },
+      { prompt: 'Final Challenge 4: Ultimate Idiom:', display: '⚡ + 🍾', options: ['Catching lightning in a bottle (Rare genius feat)', 'Electric shock', 'Recycling glass', 'Thunderstorm'], correctIndex: 0 },
       { prompt: 'Final Challenge 5: Global Landmark Riddle:', display: '🕌 + 🏛️ + 🛕 + 🌏', options: ['Ancient World Wonders & Heritage', 'Theme park', 'City mall', 'Hospital'], correctIndex: 0 },
       { prompt: 'Final Challenge 6: Master Sequence:', display: '🌱 🌿 🌳 🪵 ?', options: ['🔥 (Rebirth of the Forest)', '🌧️ (Rain)', '🚗 (Car)', '📱 (Phone)'], correctIndex: 0 },
       { prompt: 'Final Challenge 7: Category Elimination:', display: '💎 💍 👑 🪨', options: ['Rough Stone (Unpolished rock, others are royal jewelry)', 'Diamond', 'Ring', 'Crown'], correctIndex: 0 },
@@ -700,17 +700,8 @@ export function getQuestionsForLevel(levelNumber: number): EmojiQuestion[] {
   const difficulty: EmojiQuestion['difficulty'] =
     level <= 5 ? 'EASY' : level <= 15 ? 'MEDIUM' : level <= 30 ? 'HARD' : 'EXPERT';
 
-  const basePointsMap: Record<EmojiQuestion['difficulty'], number> = {
-    EASY: 60,
-    MEDIUM: 110,
-    HARD: 180,
-    EXPERT: 260,
-  };
-
   return rawList.slice(0, 10).map((raw, idx) => {
     // Shuffle options while tracking the correct answer index
-    const originalCorrectText = raw.options[raw.correctIndex];
-    // Create a deterministic pseudo-shuffle based on question id and level
     const optionsWithMarker = raw.options.map((text, i) => ({
       text,
       isCorrect: i === raw.correctIndex,
@@ -736,7 +727,7 @@ export function getQuestionsForLevel(levelNumber: number): EmojiQuestion[] {
       correctIndex: newCorrectIndex >= 0 ? newCorrectIndex : 0,
       explanation: raw.explanation,
       difficulty,
-      basePoints: (raw.points || basePointsMap[difficulty]) + (idx % 3) * 10,
+      basePoints: 5,
       timeLimitSeconds: cfg.timeLimitSeconds,
     };
   });

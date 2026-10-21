@@ -40,6 +40,8 @@ export interface MatchStats {
   cleanSheet: boolean;
   scoreBreakdown: {
     baseGoals: number;
+    concededPenalty?: number;
+    timePenalty?: number;
     cleanSheetBonus: number;
     accuracyBonus: number;
     turnEfficiencyBonus: number;

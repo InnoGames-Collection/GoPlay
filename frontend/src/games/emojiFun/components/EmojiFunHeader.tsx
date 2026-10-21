@@ -1,6 +1,6 @@
 /**
  * Emoji Fun — Top Bar & In-Game HUD Header
- * Closely reproduces the reference video's top bar proportions and playful styling
+ * Lives and coin purchase mechanisms removed per spec.
  */
 
 import React from 'react';
@@ -8,26 +8,26 @@ import { Settings, Lightbulb, X, ArrowLeft } from 'lucide-react';
 import { emojiAudio } from '../emojiAudio';
 
 interface EmojiFunHeaderProps {
-  coins: number;
-  lives?: number;
+  levelNumber?: number;
   hints?: number;
-  showLives?: boolean;
   showHints?: boolean;
-  onOpenCoins?: () => void;
+  score?: number;
   onOpenSettings?: () => void;
   onUseHint?: () => void;
   onExit?: () => void;
   onBack?: () => void;
-  isAudioOn?: boolean;
+  // Deprecated props retained for signature compatibility
+  coins?: number;
+  lives?: number;
+  showLives?: boolean;
+  onOpenCoins?: () => void;
 }
 
 export const EmojiFunHeader: React.FC<EmojiFunHeaderProps> = ({
-  coins,
-  lives = 3,
-  hints = 3,
-  showLives = false,
+  levelNumber,
+  hints = 5,
   showHints = false,
-  onOpenCoins,
+  score,
   onOpenSettings,
   onUseHint,
   onExit,
@@ -35,7 +35,7 @@ export const EmojiFunHeader: React.FC<EmojiFunHeaderProps> = ({
 }) => {
   return (
     <header className="w-full flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 z-30 select-none">
-      {/* Left side: Back / Exit or Coins Pill */}
+      {/* Left side: Back or Exit button */}
       <div className="flex items-center gap-2">
         {onBack ? (
           <button
@@ -43,7 +43,7 @@ export const EmojiFunHeader: React.FC<EmojiFunHeaderProps> = ({
               emojiAudio.playTap();
               onBack();
             }}
-            className="w-10 h-10 rounded-full bg-white/70 hover:bg-white active:scale-95 shadow-md flex items-center justify-center text-slate-700 transition-all border border-white/50"
+            className="w-10 h-10 rounded-full bg-white/80 hover:bg-white active:scale-95 shadow-md flex items-center justify-center text-slate-700 transition-all border border-white/60 cursor-pointer"
             aria-label="Back"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -54,44 +54,27 @@ export const EmojiFunHeader: React.FC<EmojiFunHeaderProps> = ({
               emojiAudio.playTap();
               onExit();
             }}
-            className="w-10 h-10 rounded-full bg-white/70 hover:bg-white active:scale-95 shadow-md flex items-center justify-center text-slate-700 transition-all border border-white/50"
+            className="w-10 h-10 rounded-full bg-white/80 hover:bg-white active:scale-95 shadow-md flex items-center justify-center text-slate-700 transition-all border border-white/60 cursor-pointer"
             aria-label="Exit Game"
           >
             <X className="w-5 h-5" />
           </button>
         ) : null}
 
-        {/* Coins Pill (Directly from reference: glossy pill with coin and '+' button) */}
-        <button
-          onClick={() => {
-            emojiAudio.playTap();
-            onOpenCoins?.();
-          }}
-          className="flex items-center gap-1.5 bg-[#42a5f5] hover:bg-[#29b6f6] active:scale-95 text-white font-extrabold px-3 py-1.5 rounded-full shadow-md border-2 border-white/80 transition-all"
-        >
-          <span className="text-base leading-none drop-shadow">🪙</span>
-          <span className="text-sm font-black tracking-wide drop-shadow-sm">{coins}</span>
-          <span className="w-5 h-5 rounded-full bg-[#66bb6a] text-white flex items-center justify-center text-xs font-black shadow-inner ml-0.5">
-            +
+        {/* Brand / Game Title Badge */}
+        <div className="flex items-center gap-1.5 bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-white/80">
+          <span className="text-base leading-none">🎯</span>
+          <span className="text-xs sm:text-sm font-black text-purple-900 tracking-wide font-['Fredoka',sans-serif]">
+            {levelNumber ? `LEVEL ${levelNumber}` : 'EMOJI FUN'}
           </span>
-        </button>
+        </div>
       </div>
 
-      {/* Center: Lives (if active in question mode) */}
-      {showLives && (
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-white/40 backdrop-blur-sm rounded-full shadow-sm border border-white/60">
-          {[1, 2, 3].map((heartIndex) => (
-            <span
-              key={heartIndex}
-              className={`text-xl transition-transform ${
-                heartIndex <= lives
-                  ? 'scale-100 filter drop-shadow animate-pulse'
-                  : 'scale-90 opacity-25 grayscale'
-              }`}
-            >
-              ❤️
-            </span>
-          ))}
+      {/* Center: Active Score if playing */}
+      {typeof score === 'number' && (
+        <div className="hidden sm:flex items-center gap-1 px-3 py-1 bg-white/60 backdrop-blur-sm rounded-full shadow-sm border border-white/70">
+          <span className="text-[10px] font-black uppercase text-slate-500">Score</span>
+          <span className="text-sm font-black text-amber-700 font-mono">{score}</span>
         </div>
       )}
 
@@ -103,7 +86,7 @@ export const EmojiFunHeader: React.FC<EmojiFunHeaderProps> = ({
               emojiAudio.playTap();
               onUseHint?.();
             }}
-            className="flex items-center gap-1 bg-white/90 hover:bg-white active:scale-95 text-sky-600 font-bold px-3 py-1.5 rounded-2xl shadow-md border-2 border-[#81d4fa] transition-all"
+            className="flex items-center gap-1 bg-white/90 hover:bg-white active:scale-95 text-sky-600 font-bold px-3 py-1.5 rounded-2xl shadow-md border-2 border-[#81d4fa] transition-all cursor-pointer"
             title="Use Hint"
           >
             <Lightbulb className="w-4 h-4 text-amber-500 fill-amber-400" />
@@ -120,7 +103,7 @@ export const EmojiFunHeader: React.FC<EmojiFunHeaderProps> = ({
               emojiAudio.playTap();
               onOpenSettings();
             }}
-            className="w-10 h-10 rounded-full bg-white/70 hover:bg-white active:scale-95 shadow-md flex items-center justify-center text-slate-700 transition-all border border-white/50"
+            className="w-10 h-10 rounded-full bg-white/80 hover:bg-white active:scale-95 shadow-md flex items-center justify-center text-slate-700 transition-all border border-white/60 cursor-pointer"
             aria-label="Settings"
           >
             <Settings className="w-5 h-5 text-slate-700" />

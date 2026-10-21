@@ -7,6 +7,8 @@ interface BubbleSortGameOverModalProps {
   completedCategories: number;
   totalCategories: number;
   score: number;
+  mistakes?: number;
+  activeDurationSec?: number;
   onRetry: () => void;
   onExitToLevelSelect: () => void;
 }
@@ -16,6 +18,8 @@ export const BubbleSortGameOverModal: React.FC<BubbleSortGameOverModalProps> = (
   completedCategories,
   totalCategories,
   score,
+  mistakes = 0,
+  activeDurationSec = 0,
   onRetry,
   onExitToLevelSelect,
 }) => {
@@ -23,6 +27,10 @@ export const BubbleSortGameOverModal: React.FC<BubbleSortGameOverModalProps> = (
     BubbleSortAudio.playTapSound();
     onRetry();
   };
+
+  const mins = Math.floor(activeDurationSec / 60);
+  const secs = activeDurationSec % 60;
+  const timeFormatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in zoom-in-95 duration-200 select-none">
@@ -50,6 +58,14 @@ export const BubbleSortGameOverModal: React.FC<BubbleSortGameOverModalProps> = (
             </span>
           </div>
           <div className="flex items-center justify-between text-slate-300">
+            <span>Mistakes</span>
+            <span className="font-bold text-rose-400">{mistakes}</span>
+          </div>
+          <div className="flex items-center justify-between text-slate-300">
+            <span>Active Time</span>
+            <span className="font-bold font-mono text-slate-300">{timeFormatted}</span>
+          </div>
+          <div className="flex items-center justify-between border-t border-slate-800 pt-1.5 text-slate-300">
             <span>Score Achieved</span>
             <span className="font-bold font-mono text-cyan-300">{score.toLocaleString()} PTS</span>
           </div>

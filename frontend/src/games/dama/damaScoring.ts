@@ -165,7 +165,7 @@ export function calculateDamaScore(params: CalculateScoreParams): DamaScoreBreak
   }
 
   // 9. TACTICAL STREAK BONUS: +2 per consecutive tactical capture turn (max 8)
-  const tacticalStreakBonus = Math.min(8, matchStats.tacticalCapturesSequence * 2);
+  const tacticalStreakBonus = Math.min(8, (matchStats.tacticalCapturesSequence || 0) * 2);
 
   // 10. CLEAN PLAY BONUS: 0 invalid attempts = +5
   const cleanPlayBonus = isWin && invalidAttempts === 0 ? 5 : 0;

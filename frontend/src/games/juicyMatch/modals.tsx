@@ -242,6 +242,8 @@ interface WinModalProps {
 }
 
 export const WinModal: React.FC<WinModalProps> = ({ level, score, stars, coinsEarned, onContinue }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in font-['Plus_Jakarta_Sans',sans-serif]">
       <div className="relative w-full max-w-xs bg-white rounded-3xl shadow-2xl border-4 border-amber-300 overflow-hidden text-center">
@@ -296,13 +298,16 @@ export const WinModal: React.FC<WinModalProps> = ({ level, score, stars, coinsEa
             </div>
           </div>
 
-          {/* Continue Button */}
+          {/* Continue Button guarded against duplicate clicks */}
           <button
+            disabled={isSubmitting}
             onClick={() => {
+              if (isSubmitting) return;
+              setIsSubmitting(true);
               soundManager.playButtonClick();
               onContinue();
             }}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-b from-lime-400 to-emerald-600 text-white font-black text-lg shadow-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition-transform"
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-b from-lime-400 to-emerald-600 text-white font-black text-lg shadow-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition-transform disabled:opacity-50 cursor-pointer"
           >
             Continue
           </button>
@@ -373,16 +378,27 @@ export const AchievementGiftModal: React.FC<AchievementGiftModalProps> = ({ onCl
 };
 
 /* =========================================================================
-   5. FAIL MODAL (Out of Moves, Retry)
+   5. FAIL MODAL (Out of Moves, Final Score, Retry, Navigation)
    ========================================================================= */
 interface FailModalProps {
   level: number;
+  score: number;
   objectives: LevelObjective[];
   onRetry: () => void;
   onExitToMap: () => void;
+  onExitToMainMenu?: () => void;
 }
 
-export const FailModal: React.FC<FailModalProps> = ({ level, objectives, onRetry, onExitToMap }) => {
+export const FailModal: React.FC<FailModalProps> = ({
+  level,
+  score,
+  objectives,
+  onRetry,
+  onExitToMap,
+  onExitToMainMenu,
+}) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in font-['Plus_Jakarta_Sans',sans-serif]">
       <div className="relative w-full max-w-xs bg-white rounded-3xl shadow-2xl border-4 border-rose-300 overflow-hidden text-center">
@@ -394,13 +410,34 @@ export const FailModal: React.FC<FailModalProps> = ({ level, objectives, onRetry
         </div>
 
         <div className="p-5 bg-rose-50/50">
-          <p className="text-xs text-slate-600 font-medium mb-4">
+          {/* Trophy & Final Score Display */}
+          <div className="bg-white rounded-2xl p-3 shadow-sm border border-rose-200 flex items-center justify-center gap-3 mb-3">
+            <Trophy className="w-6 h-6 text-amber-500" />
+            <div className="text-left">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase">Final Score</span>
+              <span className="text-lg font-black text-slate-800">{score.toLocaleString()}</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-600 font-medium mb-3">
             You were so close! Don't give up!
           </p>
 
-          <div className="flex items-center justify-center gap-2 mb-5">
+          <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
             {objectives.map((obj, i) => (
-              <div key={i} className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-xl border border-rose-200">
+              <div
+                key={i}
+                className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-xl border border-rose-200 shadow-sm"
+              >
+                {obj.type === 'collect_fruit' && obj.fruitType ? (
+                  <FruitGraphic type={obj.fruitType} size={20} />
+                ) : obj.type === 'clear_juice' ? (
+                  <span className="text-sm">🧃</span>
+                ) : obj.type === 'break_crates' ? (
+                  <span className="text-sm">📦</span>
+                ) : (
+                  <span className="text-sm">🎁</span>
+                )}
                 <span className="text-xs font-black text-slate-700">
                   {obj.current} / {obj.target}
                 </span>
@@ -410,24 +447,45 @@ export const FailModal: React.FC<FailModalProps> = ({ level, objectives, onRetry
 
           <div className="flex flex-col gap-2">
             <button
+              disabled={isSubmitting}
               onClick={() => {
+                if (isSubmitting) return;
+                setIsSubmitting(true);
                 soundManager.playButtonClick();
                 onRetry();
               }}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-b from-lime-400 to-emerald-600 text-white font-black text-base shadow-lg border-b-4 border-emerald-700 active:translate-y-0.5 transition-transform"
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-b from-lime-400 to-emerald-600 text-white font-black text-base shadow-lg border-b-4 border-emerald-700 active:translate-y-0.5 transition-transform disabled:opacity-50 cursor-pointer"
             >
               Try Again
             </button>
 
             <button
+              disabled={isSubmitting}
               onClick={() => {
+                if (isSubmitting) return;
+                setIsSubmitting(true);
                 soundManager.playButtonClick();
                 onExitToMap();
               }}
-              className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 transition-colors"
+              className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 transition-colors disabled:opacity-50 cursor-pointer"
             >
               Return to Map
             </button>
+
+            {onExitToMainMenu && (
+              <button
+                disabled={isSubmitting}
+                onClick={() => {
+                  if (isSubmitting) return;
+                  setIsSubmitting(true);
+                  soundManager.playButtonClick();
+                  onExitToMainMenu();
+                }}
+                className="w-full py-2.5 rounded-xl bg-rose-50 text-rose-700 font-bold text-xs hover:bg-rose-100 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                GoPlay Menu
+              </button>
+            )}
           </div>
         </div>
       </div>

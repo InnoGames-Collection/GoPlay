@@ -219,11 +219,11 @@ export function calculateLevelScore(params: {
 
   const finalScore = Math.max(0, Math.round(rawScore));
 
-  const previousBest = currentProgress.completedLevels[levelConfig.level]?.highScore || 0;
+  const previousBest = currentProgress?.completedLevels?.[levelConfig.level]?.highScore || 0;
   const isNewBest = isCompleted && finalScore > previousBest;
 
   // Calculate new cumulative total tournament score
-  let newCumulativeTotal = currentProgress.totalScore;
+  let newCumulativeTotal = currentProgress?.totalScore || 0;
   if (isCompleted) {
     if (previousBest === 0) {
       newCumulativeTotal += finalScore;
@@ -312,8 +312,11 @@ export function recordCompletedLevel(
     newTotalScore += lvlData.highScore || 0;
   });
 
-  // Next level unlock rule: if this level was just completed, unlock next level up to 40
-  const nextLevel = Math.min(40, Math.max(progress.highestUnlockedLevel, lvl + 1));
+  // Next level unlock rule: if this level was successfully completed, unlock next level up to 40
+  const isCompleted = breakdown.isCompleted ?? (breakdown.tilesHit >= breakdown.targetNotes && breakdown.misses <= 5);
+  const nextLevel = isCompleted
+    ? Math.min(40, Math.max(progress.highestUnlockedLevel, lvl + 1))
+    : progress.highestUnlockedLevel;
 
   // Update lifetime statistics
   const currentStats = progress.stats;

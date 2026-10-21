@@ -81,6 +81,15 @@ export function getTargetTimeSeconds(level: BubbleShooterLevel): number {
   return Math.max(30, 25 + Math.floor(level.levelNumber * 1.2));
 }
 
+/**
+ * Derive maximum allowed shots/moves for a level to enforce finite moves
+ */
+export function getMaxShotsForLevel(level: BubbleShooterLevel): number {
+  if (level.maxShots && level.maxShots > 0) return level.maxShots;
+  const par = getParShots(level);
+  return Math.max(24, Math.round(par * 1.5) + 6);
+}
+
 export interface ScoreInputParams {
   level: BubbleShooterLevel;
   accumulatedPopScore: number;
@@ -120,20 +129,22 @@ export function computeLevelScoreBreakdown(params: ScoreInputParams): LevelScore
   const parShots = getParShots(level);
   const targetTimeSeconds = getTargetTimeSeconds(level);
 
-  // 1. Efficiency bonus: reward beating par shots, mild penalty for going over
+  // 1. Efficiency bonus: reward beating par shots, reduction for exceeding par shots
   let efficiencyBonus = 0;
   if (shotsUsed <= parShots) {
     efficiencyBonus = (parShots - shotsUsed) * 3;
   } else {
-    // Mild over-par reduction
-    efficiencyBonus = -Math.min(15, (shotsUsed - parShots) * 1);
+    // Bounded over-par reduction
+    efficiencyBonus = -Math.min(25, (shotsUsed - parShots) * 2);
   }
 
-  // 2. Active time bonus: reward faster completion
+  // 2. Active time bonus: reward faster completion, bounded deduction for slow play
   const roundedTime = Math.max(1, Math.round(activeElapsedSeconds));
   let timeBonus = 0;
-  if (roundedTime < targetTimeSeconds) {
+  if (roundedTime <= targetTimeSeconds) {
     timeBonus = Math.floor((targetTimeSeconds - roundedTime) * 0.5);
+  } else {
+    timeBonus = -Math.min(20, Math.floor((roundedTime - targetTimeSeconds) * 0.5));
   }
 
   // 3. Average time per effective shot precision bonus

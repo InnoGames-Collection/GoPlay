@@ -159,13 +159,13 @@ export const DamaMenu: React.FC<DamaMenuProps> = ({
       <div className="w-full bg-slate-900/80 border border-amber-600/30 rounded-2xl p-4 backdrop-blur-md shadow-xl my-2">
         <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-[11px] font-bold text-amber-400 uppercase tracking-wider">
           <span>Tournament Progress</span>
-          <span className="font-mono">LVL {currentLvl} / 40</span>
+          <span className="font-mono">LEVEL {currentLvl} / 40</span>
         </div>
 
         <div className="grid grid-cols-3 gap-2 pt-3 text-center">
           <div className="bg-slate-800/60 rounded-xl p-2.5 border border-slate-700/40">
             <span className="text-[10px] text-slate-400 block uppercase tracking-tight">Unlocked</span>
-            <span className="text-base font-black text-amber-300 font-mono">Level {currentLvl}</span>
+            <span className="text-base font-black text-amber-300 font-mono">LEVEL {currentLvl}</span>
           </div>
 
           <div className="bg-slate-800/60 rounded-xl p-2.5 border border-slate-700/40">
@@ -217,7 +217,7 @@ export const DamaMenu: React.FC<DamaMenuProps> = ({
           className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-stone-950 font-black text-lg tracking-wide uppercase shadow-lg shadow-amber-600/30 border border-amber-300/40 flex items-center justify-center gap-3 transition-all transform active:scale-[0.98] cursor-pointer"
         >
           <Play className="w-6 h-6 fill-current text-stone-950" />
-          <span>Play Level {currentLvl}</span>
+          <span>Play LEVEL {currentLvl}</span>
         </button>
 
         {/* 2-Column Menu Grid */}

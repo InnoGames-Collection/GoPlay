@@ -49,7 +49,8 @@ import {
   ArrowLeft,
   Tag,
   Lightbulb,
-  BookOpen
+  BookOpen,
+  ChevronRight
 } from 'lucide-react';
 
 interface WorldLegendsGameProps {
@@ -186,6 +187,22 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
     WorldLegendsAudio.setMuted(!isSoundOn);
   }, [isSoundOn]);
 
+  // Backgrounding & audio suspension lifecycle listener
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        WorldLegendsAudio.setMuted(true);
+        setGameState((prev) => (prev === 'playing' ? 'paused' : prev));
+      } else {
+        if (isSoundOn) {
+          WorldLegendsAudio.setMuted(false);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isSoundOn]);
+
   const toggleSound = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsSoundOn((prev) => !prev);
@@ -240,6 +257,16 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
   const [isCurrentWordSolved, setIsCurrentWordSolved] = useState<boolean>(false);
   const [hintRevealedIndices, setHintRevealedIndices] = useState<number[]>([]);
   const [sessionWordRecords, setSessionWordRecords] = useState<WordRecord[]>([]);
+  const [levelHintsUsed, setLevelHintsUsed] = useState<number>(0);
+  const [levelCompleteData, setLevelCompleteData] = useState<{
+    levelNumber: number;
+    scoreEarned: number;
+    totalScore: number;
+    wordsSolved: number;
+    totalWords: number;
+    nextLevelIdx: number;
+  } | null>(null);
+  const isTransitioningRef = useRef<boolean>(false);
 
   // Derived current question
   const currentQuestion: WordQuestion = multiWordLevel.questions[currentQuestionIndex] || multiWordLevel.questions[0];
@@ -278,6 +305,8 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
     setCelebrateLevel(false);
     setCelebrationBanner(null);
     setWordScoreToast(null);
+    setLevelHintsUsed(0);
+    setLevelCompleteData(null);
 
     // Reset level & word performance metrics
     levelStartTimeRef.current = Date.now();
@@ -331,6 +360,8 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
     hintsUsedRef.current = 0;
     shufflesUsedRef.current = 0;
     setCurrentLevelIndex(0);
+    setLevelHintsUsed(0);
+    setLevelCompleteData(null);
     loadLevel(0);
     setScore(0);
     setStreak(0);
@@ -338,6 +369,59 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
     setShowReview(false);
     setGameState('playing');
     WorldLegendsAudio.playButton();
+  };
+
+  // Save valid score on unmount if game is closed or exited
+  useEffect(() => {
+    return () => {
+      if (scoreRef.current > 0) {
+        const totalElapsedSecs = Math.max(1, Math.round((Date.now() - sessionStartTimeRef.current) / 1000));
+        onGameOver(scoreRef.current, totalElapsedSecs);
+      }
+    };
+  }, [onGameOver]);
+
+  /**
+   * Level Complete flow handlers:
+   * - Continue loads the next unlocked level exactly once.
+   * - Guarded by isTransitioningRef to prevent repeated taps from loading multiple times.
+   */
+  const handleContinueNextLevel = () => {
+    if (isTransitioningRef.current || !levelCompleteData) return;
+    isTransitioningRef.current = true;
+
+    const nextIdx = levelCompleteData.nextLevelIdx;
+    setLevelCompleteData(null);
+
+    if (nextIdx >= 40) {
+      handleEndGame();
+      setTimeout(() => {
+        isTransitioningRef.current = false;
+      }, 500);
+      return;
+    }
+
+    setCurrentLevelIndex(nextIdx);
+    loadLevel(nextIdx);
+    setTimeout(() => {
+      isTransitioningRef.current = false;
+    }, 500);
+  };
+
+  const handleReplayCurrentLevel = () => {
+    if (isTransitioningRef.current || !levelCompleteData) return;
+    isTransitioningRef.current = true;
+    const currentIdx = levelCompleteData.levelNumber - 1;
+    setLevelCompleteData(null);
+    loadLevel(currentIdx);
+    setTimeout(() => {
+      isTransitioningRef.current = false;
+    }, 500);
+  };
+
+  const handleBackToMenuFromComplete = () => {
+    setLevelCompleteData(null);
+    setCurrentScreen('menu');
   };
 
   // Format MM:SS for internal performance analytics display
@@ -417,7 +501,7 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
 
   // TOUCH & DRAG EVENT HANDLERS
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || levelCompleteData !== null) return;
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
 
     const tileIdx = findTileIndexAt(e.clientX, e.clientY);
@@ -434,7 +518,7 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging || gameState !== 'playing') return;
+    if (!isDragging || gameState !== 'playing' || levelCompleteData !== null) return;
 
     if (wheelContainerRef.current) {
       const rect = wheelContainerRef.current.getBoundingClientRect();
@@ -476,9 +560,10 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
     setPointerPos(null);
   };
 
-  // Handle Hint (Reveals first hidden letter of current word)
+  // Handle Hint (Reveals first hidden letter of current word - strictly max 1 per level attempt)
   const handleHint = () => {
-    if (gameState !== 'playing' || isCurrentWordSolved) return;
+    if (gameState !== 'playing' || isCurrentWordSolved || levelHintsUsed >= 1 || levelCompleteData !== null) return;
+    setLevelHintsUsed(1);
     hintsUsedRef.current += 1;
     wordHintsUsedRef.current += 1;
 
@@ -568,16 +653,16 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
       } else {
         // All words in level solved! Level Complete!
         const levelBonus = Math.round(50 * (1 + (multiWordLevel.levelNumber - 1) * 0.05));
+        const finalLevelScore = levelScoreRef.current + levelBonus;
         setScore((prev) => prev + levelBonus);
         setLevelScore((prev) => prev + levelBonus);
         levelScoreRef.current += levelBonus;
 
-        setCelebrationBanner(`LEVEL ${multiWordLevel.levelNumber} COMPLETE! +${levelBonus} BONUS`);
-        setCelebrateLevel(true);
-        WorldLegendsAudio.playLevelComplete();
-
         const nextLevelIdx = currentLevelIndex + 1;
         const finalSessionScore = scoreRef.current + earnedPts + levelBonus;
+        const totalElapsedSecs = Math.max(1, Math.round((Date.now() - sessionStartTimeRef.current) / 1000));
+        
+        // Persist to local progression and My High Scores immediately
         const { progress: updatedProgress } = recordWorldLegendsCompletion(multiWordLevel.levelNumber, finalSessionScore);
         setWorldProgress(updatedProgress);
         setUnlockedLevel(updatedProgress.unlockedLevel);
@@ -587,18 +672,24 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
           // ignore
         }
 
-        if (nextLevelIdx >= 40) {
-          setTimeout(() => {
-            handleEndGame();
-          }, 1400);
-          return;
-        }
+        onGameOver(finalSessionScore, totalElapsedSecs);
 
-        // Automatic progression to next level
-        setTimeout(() => {
-          setCurrentLevelIndex(nextLevelIdx);
-          loadLevel(nextLevelIdx);
-        }, 1100);
+        WorldLegendsAudio.playLevelComplete();
+
+        // Stop accepting input and freeze gameplay
+        setIsDragging(false);
+        setSelectedIndices([]);
+        setPointerPos(null);
+
+        // Show explicit Level Complete confirmation dialog with Continue button
+        setLevelCompleteData({
+          levelNumber: multiWordLevel.levelNumber,
+          scoreEarned: finalLevelScore,
+          totalScore: finalSessionScore,
+          wordsSolved: multiWordLevel.totalWords,
+          totalWords: multiWordLevel.totalWords,
+          nextLevelIdx,
+        });
       }
       return;
     }
@@ -762,8 +853,8 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
           >
             <Compass className="w-3.5 h-3.5 text-[#8a501a]" />
             <div className="flex flex-col leading-none">
-              <span className="text-xs font-black text-[#22140a] font-mono tracking-wide">
-                LVL {multiWordLevel.levelNumber}
+              <span className="text-[11px] font-black text-[#22140a] font-mono tracking-wide">
+                LEVEL {multiWordLevel.levelNumber}
               </span>
               <span className="text-[7px] font-bold text-emerald-800 uppercase tracking-widest">
                 SELECT
@@ -1060,17 +1151,23 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
         {/* C. LETTER WHEEL AREA: TACTILE WARM WOOD TILES ON ROTARY DIAL            */}
         {/* ----------------------------------------------------------------------- */}
         <div className="relative w-full flex items-center justify-center my-auto z-10 shrink-0">
-          {/* Hint Button on Left of Wheel */}
+          {/* Hint Button on Left of Wheel (Strictly 1 Hint Per Level) */}
           <button
             onClick={handleHint}
             onPointerDown={(e) => e.stopPropagation()}
-            disabled={gameState !== 'playing'}
-            className="absolute left-3 sm:left-6 z-20 w-11 h-11 rounded-full text-[#22140a] flex flex-col items-center justify-center font-bold text-[9px] shadow-lg border border-[#c98833] active:scale-95 transition-transform cursor-pointer"
+            disabled={gameState !== 'playing' || levelHintsUsed >= 1 || isCurrentWordSolved || levelCompleteData !== null}
+            className={`absolute left-3 sm:left-6 z-20 w-11 h-11 rounded-full text-[#22140a] flex flex-col items-center justify-center font-bold text-[9px] shadow-lg border border-[#c98833] transition-all ${
+              levelHintsUsed >= 1 || gameState !== 'playing' || levelCompleteData !== null
+                ? 'opacity-40 cursor-not-allowed'
+                : 'active:scale-95 cursor-pointer hover:brightness-110'
+            }`}
             style={WOOD_MATERIAL.tileOrButton}
-            title="Get a Hint"
+            title={levelHintsUsed >= 1 ? 'Hint consumed for this level attempt' : 'Use 1 Hint for this level'}
           >
-            <Lightbulb className="w-4 h-4 text-[#8a501a]" />
-            <span className="text-[7.5px] font-black uppercase text-[#22140a] leading-none mt-0.5">HINT</span>
+            <Lightbulb className={`w-4 h-4 ${levelHintsUsed >= 1 ? 'text-slate-400' : 'text-[#8a501a]'}`} />
+            <span className="text-[7.5px] font-black uppercase text-[#22140a] leading-none mt-0.5">
+              {levelHintsUsed >= 1 ? 'USED' : 'HINT'}
+            </span>
           </button>
 
           <div 
@@ -1268,10 +1365,100 @@ export const WorldLegendsGame: React.FC<WorldLegendsGameProps> = ({
               </button>
 
               <button
-                onClick={() => setCurrentScreen('menu')}
+                onClick={() => {
+                  const totalElapsedSecs = Math.max(1, Math.round((Date.now() - sessionStartTimeRef.current) / 1000));
+                  onGameOver(scoreRef.current, totalElapsedSecs);
+                  setCurrentScreen('menu');
+                }}
                 className="w-full py-2 text-xs text-[#5c3510] hover:text-[#22140a] font-semibold transition-colors cursor-pointer"
               >
                 EXIT TO MENU
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3B. LEVEL COMPLETE CONFIRMATION MODAL                                     */}
+      {/* ========================================================================= */}
+      {levelCompleteData && (
+        <div 
+          id="world-legend-level-complete-modal"
+          className="absolute inset-0 z-50 bg-[#0a180f]/85 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 text-center animate-in zoom-in-95 select-none"
+        >
+          <div 
+            className="rounded-3xl p-6 w-full max-w-sm shadow-2xl border-2 border-[#b37324] flex flex-col items-center text-[#22140a] relative overflow-hidden"
+            style={WOOD_MATERIAL.modalCard}
+          >
+            {/* Header Badge */}
+            <div 
+              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[#22140a] text-xs font-black uppercase tracking-wider mb-2 border border-[#c98833] shadow-md"
+              style={WOOD_MATERIAL.tileOrButton}
+            >
+              <Sparkles className="w-4 h-4 text-amber-600 animate-spin" />
+              <span>LEVEL CLEARED!</span>
+            </div>
+
+            {/* Level Label */}
+            <h2 className="text-2xl font-black font-mono text-[#22140a] tracking-tight mb-0.5">
+              LEVEL {levelCompleteData.levelNumber}
+            </h2>
+            <p className="text-[11px] text-[#5c3510] font-bold uppercase tracking-wider mb-3">
+              All Words Solved Successfully
+            </p>
+
+            {/* Score & Stats Card */}
+            <div 
+              className="w-full rounded-2xl p-4 my-2 flex flex-col gap-2.5 border border-[#b37324]/50"
+              style={WOOD_MATERIAL.basin}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#5c3510] uppercase">Level Points Earned</span>
+                <span className="text-xl font-black text-emerald-800 font-mono">+{levelCompleteData.scoreEarned} PTS</span>
+              </div>
+              <div className="h-px bg-[#b37324]/40" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#5c3510] uppercase">Total Tournament Score</span>
+                <span className="text-2xl font-black text-[#22140a] font-mono">{levelCompleteData.totalScore}</span>
+              </div>
+              <div className="h-px bg-[#b37324]/40" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#5c3510] uppercase">Words Solved</span>
+                <span className="text-sm font-bold text-[#22140a] font-mono">
+                  {levelCompleteData.wordsSolved} / {levelCompleteData.totalWords}
+                </span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2 w-full mt-3">
+              <button
+                type="button"
+                id="world-legend-continue-btn"
+                onClick={handleContinueNextLevel}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-b from-[#168a3a] to-[#0d5924] hover:brightness-110 active:translate-y-0.5 text-[#ecfdf5] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer border border-[#4ade80]/50"
+              >
+                <span>CONTINUE</span>
+                <ChevronRight className="w-4 h-4 stroke-[3]" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleReplayCurrentLevel}
+                className="w-full py-2.5 px-4 rounded-xl hover:brightness-105 active:translate-y-0.5 text-[#22140a] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer border border-[#c98833] shadow-sm"
+                style={WOOD_MATERIAL.tileOrButton}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>REPLAY LEVEL {levelCompleteData.levelNumber}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleBackToMenuFromComplete}
+                className="w-full py-2 rounded-xl text-[#5c3510] hover:text-[#22140a] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                BACK TO MENU
               </button>
             </div>
           </div>

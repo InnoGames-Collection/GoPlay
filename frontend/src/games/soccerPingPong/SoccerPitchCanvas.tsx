@@ -181,8 +181,10 @@ export const SoccerPitchCanvas = forwardRef<SoccerPitchCanvasHandle, SoccerPitch
 
     // Spawn visual impact particles
     const spawnParticles = (x: number, y: number, color: string, count = 12) => {
-      for (let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+      // Keep particles clean and bounded so they never obscure the ball or paddle
+      const actualCount = Math.min(count, 15);
+      for (let i = 0; i < actualCount; i++) {
+        const angle = (i / actualCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
         const spd = 40 + Math.random() * 80;
         stateRef.current.particles.push({
           x,
@@ -194,6 +196,9 @@ export const SoccerPitchCanvas = forwardRef<SoccerPitchCanvasHandle, SoccerPitch
           color,
           size: 2 + Math.random() * 2.5,
         });
+      }
+      if (stateRef.current.particles.length > 25) {
+        stateRef.current.particles.splice(0, stateRef.current.particles.length - 25);
       }
     };
 
@@ -511,7 +516,13 @@ export const SoccerPitchCanvas = forwardRef<SoccerPitchCanvasHandle, SoccerPitch
     // Handle transitions into isRunning
     useEffect(() => {
       if (isRunning) {
-        prepareComputerServe();
+        stateRef.current.lastTime = performance.now();
+        const s = stateRef.current;
+        // Only trigger serve if there is no active ball in play (e.g. countdown kickoff or post-goal restart)
+        // Never wipe or reset an in-flight ball when resuming from pause!
+        if (!s.ball.active || s.phase === 'COUNTDOWN' || s.phase === 'GOAL_SCORED') {
+          prepareComputerServe();
+        }
       }
     }, [isRunning, prepareComputerServe]);
 
@@ -731,17 +742,24 @@ export const SoccerPitchCanvas = forwardRef<SoccerPitchCanvasHandle, SoccerPitch
           if (s.ball.trail.length > 8) s.ball.trail.shift();
           s.ball.trail.push({ x: s.ball.x, y: s.ball.y, alpha: 1.0 });
 
-          // Wall bounces (Left & Right touchlines)
+          // Wall bounces (Left & Right touchlines) - enforce minimum lateral & vertical speeds so ball never freezes
+          const MIN_LATERAL_BOUNCE = 50;
           if (s.ball.x - s.ball.radius <= s.pitch.left) {
             s.ball.x = s.pitch.left + s.ball.radius;
-            s.ball.vx = Math.abs(s.ball.vx) * 0.98;
+            s.ball.vx = Math.max(MIN_LATERAL_BOUNCE, Math.abs(s.ball.vx) * 0.98);
+            if (Math.abs(s.ball.vy) < 180) {
+              s.ball.vy = (s.ball.vy >= 0 ? 1 : -1) * 180;
+            }
             soccerAudio.playBounce(0.35);
-            spawnParticles(s.pitch.left, s.ball.y, '#ffffff', 5);
+            spawnParticles(s.pitch.left, s.ball.y, '#ffffff', 4);
           } else if (s.ball.x + s.ball.radius >= s.pitch.right) {
             s.ball.x = s.pitch.right - s.ball.radius;
-            s.ball.vx = -Math.abs(s.ball.vx) * 0.98;
+            s.ball.vx = -Math.max(MIN_LATERAL_BOUNCE, Math.abs(s.ball.vx) * 0.98);
+            if (Math.abs(s.ball.vy) < 180) {
+              s.ball.vy = (s.ball.vy >= 0 ? 1 : -1) * 180;
+            }
             soccerAudio.playBounce(0.35);
-            spawnParticles(s.pitch.right, s.ball.y, '#ffffff', 5);
+            spawnParticles(s.pitch.right, s.ball.y, '#ffffff', 4);
           }
 
           // ===================================================================
@@ -970,14 +988,85 @@ export const SoccerPitchCanvas = forwardRef<SoccerPitchCanvasHandle, SoccerPitch
         ctx.textAlign = 'right';
         ctx.fillText('STRIKE ZONE', p.right - 8, zoneTop + 14);
 
-        // 5. Goal Nets
+        // 5. Goal Nets & Distinct White/Silver Posts
         const goalPostW = p.width * 0.38;
         const goalPostLeft = (w - goalPostW) / 2;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-        ctx.fillRect(goalPostLeft, p.top - 12, goalPostW, 12);
-        ctx.strokeRect(goalPostLeft, p.top - 12, goalPostW, 12);
-        ctx.fillRect(goalPostLeft, p.bottom, goalPostW, 12);
-        ctx.strokeRect(goalPostLeft, p.bottom, goalPostW, 12);
+        const goalPostRight = goalPostLeft + goalPostW;
+        const postRadius = 3.5;
+
+        // Top Net background & cross-hatch pattern
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.fillRect(goalPostLeft, p.top - 16, goalPostW, 16);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.lineWidth = 1;
+        for (let ny = p.top - 12; ny < p.top; ny += 4) {
+          ctx.beginPath();
+          ctx.moveTo(goalPostLeft, ny);
+          ctx.lineTo(goalPostRight, ny);
+          ctx.stroke();
+        }
+        for (let nx = goalPostLeft + 6; nx < goalPostRight; nx += 8) {
+          ctx.beginPath();
+          ctx.moveTo(nx, p.top - 16);
+          ctx.lineTo(nx, p.top);
+          ctx.stroke();
+        }
+
+        // Top Goal Posts (Left, Right & Crossbar)
+        ctx.fillStyle = '#f8fafc';
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(goalPostLeft, p.top, postRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(goalPostRight, p.top, postRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(goalPostLeft, p.top - 15);
+        ctx.lineTo(goalPostRight, p.top - 15);
+        ctx.stroke();
+
+        // Bottom Net background & cross-hatch pattern
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.fillRect(goalPostLeft, p.bottom, goalPostW, 16);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.lineWidth = 1;
+        for (let ny = p.bottom + 4; ny <= p.bottom + 16; ny += 4) {
+          ctx.beginPath();
+          ctx.moveTo(goalPostLeft, ny);
+          ctx.lineTo(goalPostRight, ny);
+          ctx.stroke();
+        }
+        for (let nx = goalPostLeft + 6; nx < goalPostRight; nx += 8) {
+          ctx.beginPath();
+          ctx.moveTo(nx, p.bottom);
+          ctx.lineTo(nx, p.bottom + 16);
+          ctx.stroke();
+        }
+
+        // Bottom Goal Posts (Left, Right & Crossbar)
+        ctx.fillStyle = '#f8fafc';
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(goalPostLeft, p.bottom, postRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(goalPostRight, p.bottom, postRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(goalPostLeft, p.bottom + 15);
+        ctx.lineTo(goalPostRight, p.bottom + 15);
+        ctx.stroke();
 
         // 6. Draw OPPONENT PADDLE (Top)
         const oppKickOffset = s.opponent.kickAnim > 0 ? 6 : 0;
@@ -1068,11 +1157,12 @@ export const SoccerPitchCanvas = forwardRef<SoccerPitchCanvasHandle, SoccerPitch
             drawPentagon(ctx, px, py, s.ball.radius * 0.28);
           }
 
-          if (s.ball.isPowerShot) {
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-          }
+          // High-contrast outer stroke for crisp ball visibility against pitch markings
+          ctx.strokeStyle = s.ball.isPowerShot ? '#f59e0b' : '#0f172a';
+          ctx.lineWidth = s.ball.isPowerShot ? 2.5 : 1.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, s.ball.radius, 0, Math.PI * 2);
+          ctx.stroke();
 
           ctx.restore();
         }

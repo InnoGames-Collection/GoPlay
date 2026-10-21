@@ -1,17 +1,16 @@
 /**
- * GoPlay - Polished Navigation Drawer / Menu Panel
+ * GoPlay - Compact Horizontal Navigation Menu Panel
  * 
- * Strict Requirements:
- * - Occupies ~55-70% of viewport width on typical mobile portrait screens (64-66vw, min 225px, max 285px)
- * - Keeps underlying Profile screen recognizable beside panel with translucent backdrop overlay
- * - Avoids overlapping bottom navigation in an unusable way (stops above bottom nav: bottom-[calc(4rem+env(safe-area-inset-bottom,0px))])
- * - Prevents clipping of final menu items with overscroll-contain and smooth vertical scrolling
- * - Preserves all required destinations: Subscription, Pricing, FAQ, Games, Help & Support, Terms & Conditions, Privacy Policy, My High Scores
- * - Clean GoPlay visual hierarchy with unified icon containers, no random colors per row, restrained #82C341 active accent
- * - Obvious accessible close action, backdrop-tap dismissal, Escape key handler, and browser Back integration
+ * Strict Layout Requirements:
+ * - Compact menu panel that does not occupy half or more of the screen area (<45vh height).
+ * - Underlying page remains visible beneath with translucent backdrop overlay.
+ * - Main menu actions arranged horizontally (Games, My High Scores, Subscription, Pricing).
+ * - No more than three secondary action buttons side by side in a horizontal row (FAQ, Help & Support, Terms & Privacy).
+ * - Clearly labelled Log Out action calling the established sign-out flow with confirmation.
+ * - Accessible close control, outside-tap dismissal, and Escape key integration.
  */
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, 
   BadgePercent, 
@@ -22,7 +21,8 @@ import {
   FileText, 
   ShieldCheck, 
   X, 
-  ChevronRight
+  LogOut,
+  AlertTriangle
 } from 'lucide-react';
 import { GoPlayLogo } from './GoPlayLogo';
 
@@ -40,6 +40,7 @@ interface MainMenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectSection: (section: MainMenuSection) => void;
+  onSignOut?: () => void;
   activeSection?: string | null;
 }
 
@@ -47,9 +48,12 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
   isOpen,
   onClose,
   onSelectSection,
+  onSignOut,
   activeSection = null,
 }) => {
-  // Handle keyboard Escape to close drawer
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  // Handle keyboard Escape to close menu
   useEffect(() => {
     if (!isOpen) return;
 
@@ -65,128 +69,23 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
 
   if (!isOpen) return null;
 
-  // Preserved menu items grouped logically with dividers
-  const primaryMenuItems: {
-    id: MainMenuSection;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-  }[] = [
-    {
-      id: 'subscription',
-      label: 'Subscription',
-      icon: CreditCard,
-    },
-    {
-      id: 'pricing',
-      label: 'Pricing',
-      icon: BadgePercent,
-    },
-    {
-      id: 'games',
-      label: 'Games',
-      icon: Gamepad2,
-    },
-    {
-      id: 'my_scores',
-      label: 'My High Scores',
-      icon: Trophy,
-    },
-  ];
+  const handleItemClick = (section: MainMenuSection) => {
+    onSelectSection(section);
+    onClose();
+  };
 
-  const supportMenuItems: {
-    id: MainMenuSection;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-  }[] = [
-    {
-      id: 'faq',
-      label: 'FAQ',
-      icon: HelpCircle,
-    },
-    {
-      id: 'help_support',
-      label: 'Help & Support',
-      icon: Headphones,
-    },
-  ];
-
-  const legalMenuItems: {
-    id: MainMenuSection;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-  }[] = [
-    {
-      id: 'terms',
-      label: 'Terms & Conditions',
-      icon: FileText,
-    },
-    {
-      id: 'privacy',
-      label: 'Privacy Policy',
-      icon: ShieldCheck,
-    },
-  ];
-
-  const renderMenuItem = (item: {
-    id: MainMenuSection;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-  }) => {
-    const Icon = item.icon;
-    const isSelected = activeSection === item.id;
-
-    return (
-      <button
-        key={item.id}
-        id={`main-menu-item-${item.id}`}
-        type="button"
-        onClick={() => {
-          onSelectSection(item.id);
-          onClose();
-        }}
-        className={`w-full min-h-[44px] px-2.5 py-2 rounded-xl flex items-center justify-between gap-2.5 text-left transition-all cursor-pointer group ${
-          isSelected
-            ? 'bg-[#DFF7EA]/70 border-l-[3px] border-l-[#82C341] text-[#102B3F] shadow-2xs'
-            : 'bg-white hover:bg-[#F4F7F6] active:bg-[#DFF7EA]/30 border border-transparent hover:border-[#DCE7E8]'
-        }`}
-      >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div
-            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-              isSelected
-                ? 'bg-[#82C341] text-white shadow-2xs'
-                : 'bg-[#F4F7F6] text-[#087F8C] group-hover:bg-[#DFF7EA] group-hover:text-[#087F8C] border border-[#DCE7E8]'
-            }`}
-          >
-            <Icon className="w-4 h-4 stroke-[2.2]" />
-          </div>
-
-          <span
-            className={`text-xs sm:text-[13px] transition-colors leading-tight truncate ${
-              isSelected
-                ? 'font-black text-[#102B3F]'
-                : 'font-bold text-[#183345] group-hover:text-[#087F8C]'
-            }`}
-          >
-            {item.label}
-          </span>
-        </div>
-
-        <ChevronRight
-          className={`w-3.5 h-3.5 transition-all shrink-0 ${
-            isSelected
-              ? 'text-[#82C341] translate-x-0.5'
-              : 'text-[#607582] group-hover:text-[#087F8C] group-hover:translate-x-0.5'
-          }`}
-        />
-      </button>
-    );
+  const handleConfirmLogout = () => {
+    setShowLogoutConfirm(false);
+    onClose();
+    if (onSignOut) {
+      onSignOut();
+    }
   };
 
   return (
     <div 
       id="main-menu-overlay"
-      className="fixed top-0 left-0 right-0 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] z-50 bg-[#102B3F]/40 backdrop-blur-[2px] flex justify-start animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 bg-[#102B3F]/45 backdrop-blur-[2px] flex flex-col justify-start items-center p-2.5 sm:p-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] animate-in fade-in duration-150"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -194,18 +93,17 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
     >
       <div 
         id="main-menu-panel"
-        className="w-[66vw] min-w-[225px] max-w-[285px] bg-white h-full shadow-2xl flex flex-col justify-between select-none animate-in slide-in-from-left duration-200 border-r border-[#DCE7E8]"
+        className="w-full max-w-md md:max-w-xl bg-white rounded-3xl shadow-2xl border border-[#DCE7E8] overflow-hidden select-none animate-in slide-in-from-top-4 duration-200 flex flex-col max-h-[46vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 1. Drawer Header / Compact Brand Area */}
-        <div className="px-3.5 py-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))] bg-[#102B3F] text-white flex items-center justify-between shadow-xs border-b border-[#116B73]/30">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="bg-white px-2 py-1 rounded-xl shadow-xs flex items-center justify-center shrink-0">
+        {/* 1. Compact Header Bar */}
+        <div className="px-3.5 py-2.5 bg-[#102B3F] text-white flex items-center justify-between border-b border-[#116B73]/30 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="bg-white px-2 py-0.5 rounded-xl shadow-xs flex items-center justify-center shrink-0">
               <GoPlayLogo size="xs" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm font-black tracking-tight text-white truncate">GoPlay</h2>
-              <span className="text-[10px] text-[#DFF7EA] font-medium block -mt-0.5 truncate">Gaming Portal</span>
+              <h2 className="text-xs sm:text-sm font-black tracking-tight text-white leading-tight">GoPlay Menu</h2>
             </div>
           </div>
 
@@ -213,7 +111,7 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
             id="main-menu-close-btn"
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0"
+            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0"
             title="Close Menu"
             aria-label="Close Menu"
           >
@@ -221,34 +119,175 @@ export const MainMenuDrawer: React.FC<MainMenuDrawerProps> = ({
           </button>
         </div>
 
-        {/* 2. Menu Items in Vertical List */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-2.5 space-y-1 pb-4">
-          {/* Core Services */}
-          <div className="space-y-1">
-            {primaryMenuItems.map(renderMenuItem)}
+        {/* 2. Menu Content Container with Horizontal Flow */}
+        <div className="p-3 space-y-2.5 overflow-y-auto overscroll-contain flex-1">
+          {/* A. PRIMARY ACTIONS (Horizontal 4-column card layout) */}
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#607582] block mb-1.5 px-0.5">
+              Main Activities
+            </span>
+            <div className="grid grid-cols-4 gap-2">
+              <button
+                id="main-menu-item-games"
+                type="button"
+                onClick={() => handleItemClick('games')}
+                className={`flex flex-col items-center justify-center p-2 rounded-2xl border text-center transition-all cursor-pointer active:scale-95 min-h-[64px] ${
+                  activeSection === 'games'
+                    ? 'bg-[#DFF7EA] border-[#82C341] text-[#102B3F] shadow-xs'
+                    : 'bg-[#F4F7F6]/80 hover:bg-[#DFF7EA]/40 border-[#DCE7E8] text-[#183345]'
+                }`}
+              >
+                <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#087F8C] shadow-2xs mb-1">
+                  <Gamepad2 className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black truncate w-full">Games</span>
+              </button>
+
+              <button
+                id="main-menu-item-my_scores"
+                type="button"
+                onClick={() => handleItemClick('my_scores')}
+                className={`flex flex-col items-center justify-center p-2 rounded-2xl border text-center transition-all cursor-pointer active:scale-95 min-h-[64px] ${
+                  activeSection === 'my_scores'
+                    ? 'bg-[#DFF7EA] border-[#82C341] text-[#102B3F] shadow-xs'
+                    : 'bg-[#F4F7F6]/80 hover:bg-[#DFF7EA]/40 border-[#DCE7E8] text-[#183345]'
+                }`}
+              >
+                <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#E9B949] shadow-2xs mb-1">
+                  <Trophy className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black truncate w-full">High Scores</span>
+              </button>
+
+              <button
+                id="main-menu-item-subscription"
+                type="button"
+                onClick={() => handleItemClick('subscription')}
+                className={`flex flex-col items-center justify-center p-2 rounded-2xl border text-center transition-all cursor-pointer active:scale-95 min-h-[64px] ${
+                  activeSection === 'subscription'
+                    ? 'bg-[#DFF7EA] border-[#82C341] text-[#102B3F] shadow-xs'
+                    : 'bg-[#F4F7F6]/80 hover:bg-[#DFF7EA]/40 border-[#DCE7E8] text-[#183345]'
+                }`}
+              >
+                <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#087F8C] shadow-2xs mb-1">
+                  <CreditCard className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black truncate w-full">Subscription</span>
+              </button>
+
+              <button
+                id="main-menu-item-pricing"
+                type="button"
+                onClick={() => handleItemClick('pricing')}
+                className={`flex flex-col items-center justify-center p-2 rounded-2xl border text-center transition-all cursor-pointer active:scale-95 min-h-[64px] ${
+                  activeSection === 'pricing'
+                    ? 'bg-[#DFF7EA] border-[#82C341] text-[#102B3F] shadow-xs'
+                    : 'bg-[#F4F7F6]/80 hover:bg-[#DFF7EA]/40 border-[#DCE7E8] text-[#183345]'
+                }`}
+              >
+                <div className="w-7 h-7 rounded-xl bg-white flex items-center justify-center text-[#82C341] shadow-2xs mb-1">
+                  <BadgePercent className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-black truncate w-full">Pricing</span>
+              </button>
+            </div>
           </div>
 
-          {/* Divider */}
-          <div className="my-1.5 mx-1 border-t border-[#DCE7E8]" />
+          {/* B. SECONDARY ACTIONS (Horizontal 3-column row) */}
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#607582] block mb-1.5 px-0.5">
+              Support & Legal
+            </span>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                id="main-menu-item-faq"
+                type="button"
+                onClick={() => handleItemClick('faq')}
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                  activeSection === 'faq'
+                    ? 'bg-[#DFF7EA] border-[#82C341] text-[#102B3F]'
+                    : 'bg-white hover:bg-[#F4F7F6] border-[#DCE7E8] text-[#183345]'
+                }`}
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-[#087F8C] shrink-0" />
+                <span className="truncate">FAQ</span>
+              </button>
 
-          {/* Support */}
-          <div className="space-y-1">
-            {supportMenuItems.map(renderMenuItem)}
+              <button
+                id="main-menu-item-help_support"
+                type="button"
+                onClick={() => handleItemClick('help_support')}
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                  activeSection === 'help_support'
+                    ? 'bg-[#DFF7EA] border-[#82C341] text-[#102B3F]'
+                    : 'bg-white hover:bg-[#F4F7F6] border-[#DCE7E8] text-[#183345]'
+                }`}
+              >
+                <Headphones className="w-3.5 h-3.5 text-[#087F8C] shrink-0" />
+                <span className="truncate">Support</span>
+              </button>
+
+              <button
+                id="main-menu-item-terms"
+                type="button"
+                onClick={() => handleItemClick('terms')}
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                  activeSection === 'terms'
+                    ? 'bg-[#DFF7EA] border-[#82C341] text-[#102B3F]'
+                    : 'bg-white hover:bg-[#F4F7F6] border-[#DCE7E8] text-[#183345]'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 text-[#087F8C] shrink-0" />
+                <span className="truncate">Terms</span>
+              </button>
+            </div>
           </div>
 
-          {/* Divider */}
-          <div className="my-1.5 mx-1 border-t border-[#DCE7E8]" />
-
-          {/* Legal */}
-          <div className="space-y-1">
-            {legalMenuItems.map(renderMenuItem)}
+          {/* C. BOTTOM ROW: LOG OUT ACTION */}
+          <div className="pt-1 border-t border-[#DCE7E8]">
+            <button
+              id="main-menu-logout-btn"
+              type="button"
+              onClick={() => setShowLogoutConfirm(true)}
+              className="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-black text-xs uppercase flex items-center justify-center gap-2 cursor-pointer transition-colors active:scale-98"
+            >
+              <LogOut className="w-3.5 h-3.5 stroke-[2.2]" />
+              <span>Log Out</span>
+            </button>
           </div>
         </div>
 
-        {/* 3. Subtle Footer Brand Status */}
-        <div className="p-2.5 border-t border-[#DCE7E8] bg-[#F4F7F6]/60 text-center">
-          <span className="text-[10px] text-[#607582] font-bold">GoPlay v2.0 • Gaming Edition</span>
-        </div>
+        {/* 3. LOGOUT CONFIRMATION OVERLAY */}
+        {showLogoutConfirm && (
+          <div className="absolute inset-0 bg-[#102B3F]/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 text-center text-white animate-in fade-in duration-150">
+            <div className="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center mb-2">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-black uppercase tracking-wide text-white mb-1">
+              Log Out of GoPlay?
+            </h3>
+            <p className="text-[11px] text-slate-300 max-w-xs mb-3.5 leading-relaxed">
+              Your authenticated session will be cleared. Saved scores and game progress are preserved.
+            </p>
+            <div className="flex items-center gap-2 w-full max-w-xs">
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/15 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                id="main-menu-confirm-logout-btn"
+                type="button"
+                onClick={handleConfirmLogout}
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black uppercase cursor-pointer shadow-md"
+              >
+                Confirm Log Out
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

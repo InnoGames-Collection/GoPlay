@@ -121,10 +121,10 @@ export const DamaLevelSelect: React.FC<DamaLevelSelectProps> = ({
                 }`}
               >
                 {/* Card Top: Level Number + Tier Tag */}
-                <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-base font-black text-white font-mono">
-                      #{lvl}
+                    <span className="text-sm font-black text-white font-mono">
+                      LEVEL {lvl}
                     </span>
                     {isCleared && (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -139,11 +139,6 @@ export const DamaLevelSelect: React.FC<DamaLevelSelectProps> = ({
                     {config.tier}
                   </span>
                 </div>
-
-                {/* Level Title */}
-                <span className="text-xs font-bold text-slate-200 truncate block mb-2">
-                  {config.name}
-                </span>
 
                 {/* Center Content: Cleared details vs Locked status */}
                 {isUnlocked ? (

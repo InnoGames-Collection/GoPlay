@@ -1095,5 +1095,6 @@ const RAW_SOCCER_LEVELS: Omit<SoccerLevelConfig, 'targetGoals'>[] = [
 
 export const SOCCER_LEVELS: SoccerLevelConfig[] = RAW_SOCCER_LEVELS.map((lvl) => ({
   ...lvl,
+  title: `LEVEL ${lvl.level}`,
   targetGoals: lvl.level <= 5 ? 3 : lvl.level <= 20 ? 4 : 5,
 }));

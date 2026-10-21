@@ -70,6 +70,27 @@ export const CrazyColorsGame: React.FC<CrazyColorsGameProps> = ({ onExit, onGame
     crazyColorsAudio.setSoundEnabled(saveData.soundEnabled);
   }, [saveData.soundEnabled]);
 
+  // Backgrounding & audio suspension lifecycle handler
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        setGameState((prev) => {
+          if (prev === 'PLAYING') {
+            crazyColorsAudio.setSoundEnabled(false);
+            return 'PAUSED';
+          }
+          return prev;
+        });
+      } else {
+        if (saveData.soundEnabled) {
+          crazyColorsAudio.setSoundEnabled(true);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [saveData.soundEnabled]);
+
   // Persist save data on updates
   const updateAndPersistSaveData = useCallback((updater: (prev: CrazyColorsSaveData) => CrazyColorsSaveData) => {
     setSaveData((prev) => {

@@ -35,8 +35,18 @@ export const EmojiFunPlayView: React.FC<EmojiFunPlayViewProps> = ({
   const [timeLeft, setTimeLeft] = useState<number>(question.timeLimitSeconds);
   const [memoryRevealed, setMemoryRevealed] = useState<boolean>(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [isDocumentVisible, setIsDocumentVisible] = useState<boolean>(typeof document !== 'undefined' ? !document.hidden : true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const isMemory = question.type === 'EMOJI_MEMORY' && !!question.memoryEmojis;
+
+  // Backgrounding freeze tracking
+  useEffect(() => {
+    const handleVis = () => {
+      setIsDocumentVisible(!document.hidden);
+    };
+    document.addEventListener('visibilitychange', handleVis);
+    return () => document.removeEventListener('visibilitychange', handleVis);
+  }, []);
 
   // Reset timer on question change
   useEffect(() => {
@@ -55,10 +65,11 @@ export const EmojiFunPlayView: React.FC<EmojiFunPlayViewProps> = ({
     }
   }, [question.id, question.timeLimitSeconds, isMemory]);
 
-  // Main countdown timer interval
+  // Main countdown timer interval (freezes when backgrounded)
   useEffect(() => {
-    // If memory is still being revealed, don't count down game timer yet
+    // If memory is still being revealed or window is backgrounded, don't count down game timer
     if (isMemory && memoryRevealed) return;
+    if (!isDocumentVisible) return;
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -77,7 +88,7 @@ export const EmojiFunPlayView: React.FC<EmojiFunPlayViewProps> = ({
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [question.id, memoryRevealed, isMemory, onTimeExpired]);
+  }, [question.id, memoryRevealed, isMemory, isDocumentVisible, onTimeExpired]);
 
   const handleChoose = (index: number) => {
     if (selectedIdx !== null || eliminatedOptionIndices.includes(index)) return;

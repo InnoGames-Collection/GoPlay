@@ -36,10 +36,10 @@ export const CANDY_LEVELS: LevelConfig[] = [
     moves: 14,
     allowedCandies: BASE_CANDIES_5,
     objectives: [
-      { id: 'target_score', type: 'score', target: 1000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 120, label: 'Target Score' },
       { id: 'collect_red', type: 'collect_candy', candyType: 'red-jelly', target: 10, label: 'Crimson Jellies' },
     ],
-    starThresholds: [1000, 1600, 2400],
+    starThresholds: [120, 192, 288],
     tips: 'Every move counts! Look for 4-in-a-row line clears in the center to spark cascades.',
   },
 
@@ -62,7 +62,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'clear_jellies', type: 'clear_jelly', target: 14, label: 'Frozen Tiles' },
       { id: 'collect_blue', type: 'collect_candy', candyType: 'blue-gem', target: 12, label: 'Sapphire Gems' },
     ],
-    starThresholds: [1100, 1800, 2600],
+    starThresholds: [132, 216, 312],
     tips: 'Match candies directly over frosted tiles to crack the ice layer.',
   },
 
@@ -80,9 +80,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     ],
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 8, label: 'Stone Blocks' },
-      { id: 'target_score', type: 'score', target: 1200, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 144, label: 'Target Score' },
     ],
-    starThresholds: [1200, 1900, 2800],
+    starThresholds: [144, 228, 336],
     tips: 'Craft horizontal line blasts to pierce both stone spires simultaneously.',
   },
 
@@ -106,7 +106,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'create_specials', type: 'create_specials', target: 3, label: 'Special Candies' },
       { id: 'collect_yellow', type: 'collect_candy', candyType: 'yellow-hexagon', target: 16, label: 'Honeycomb Prisms' },
     ],
-    starThresholds: [1400, 2200, 3200],
+    starThresholds: [168, 264, 384],
     tips: 'Aim for 4-matches or L-shapes to generate line lasers and area bombs.',
   },
 
@@ -133,9 +133,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_jellies', type: 'clear_jelly', target: 12, label: 'Frozen Cells' },
       { id: 'collect_green', type: 'collect_candy', candyType: 'green-crystal', target: 16, label: 'Emeralds' },
-      { id: 'target_score', type: 'score', target: 1500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 180, label: 'Target Score' },
     ],
-    starThresholds: [1500, 2400, 3500],
+    starThresholds: [180, 288, 420],
     tips: 'Clear the flank blockers early to let new candies cascade into the frost zones.',
   },
 
@@ -161,9 +161,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     ],
     objectives: [
       { id: 'collect_purple', type: 'collect_candy', candyType: 'purple-candy', target: 14, label: 'Amethyst Candies' },
-      { id: 'target_score', type: 'score', target: 1500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 180, label: 'Target Score' },
     ],
-    starThresholds: [1500, 2500, 3600],
+    starThresholds: [180, 300, 432],
     tips: 'Vertical matches down the center neck trigger massive chain falls in the lower wing.',
   },
 
@@ -185,7 +185,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'clear_blockers', type: 'clear_blockers', target: 10, label: 'Blocker Layers' },
       { id: 'collect_orange', type: 'collect_candy', candyType: 'orange-sphere', target: 16, label: 'Amber Orbs' },
     ],
-    starThresholds: [1600, 2600, 3800],
+    starThresholds: [192, 312, 456],
     tips: 'Reinforced 2-HP blocks take two hits to crack. Use bombs for area impact.',
   },
 
@@ -209,7 +209,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'create_specials', type: 'create_specials', target: 4, label: 'Special Candies' },
       { id: 'collect_blue', type: 'collect_candy', candyType: 'blue-gem', target: 18, label: 'Sapphire Gems' },
     ],
-    starThresholds: [1700, 2800, 4000],
+    starThresholds: [204, 336, 480],
     tips: 'Combine a line blast with an area bomb for a devastating screen wipe.',
   },
 
@@ -231,9 +231,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 10, label: 'Stone Blocks' },
       { id: 'create_specials', type: 'create_specials', target: 3, label: 'Special Candies' },
-      { id: 'target_score', type: 'score', target: 1800, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 216, label: 'Target Score' },
     ],
-    starThresholds: [1800, 3000, 4200],
+    starThresholds: [216, 360, 504],
     tips: 'Special candy activations damage multiple ring blockers simultaneously.',
   },
 
@@ -257,9 +257,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'collect_red', type: 'collect_candy', candyType: 'red-jelly', target: 20, label: 'Crimson Jellies' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 12, label: 'Fortress Blocks' },
-      { id: 'target_score', type: 'score', target: 2000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 240, label: 'Target Score' },
     ],
-    starThresholds: [2000, 3200, 4500],
+    starThresholds: [240, 384, 540],
     tips: 'Breach the bottom wall first to open continuous gravity refill streams.',
   },
 
@@ -283,9 +283,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'collect_blue', type: 'collect_candy', candyType: 'blue-gem', target: 18, label: 'Sapphire Gems' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 12, label: 'Trench Blocks' },
-      { id: 'target_score', type: 'score', target: 2000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 240, label: 'Target Score' },
     ],
-    starThresholds: [2000, 3300, 4600],
+    starThresholds: [240, 396, 552],
     tips: 'Vertical line clears along columns 1, 2, 5, and 6 wipe the trenches clean.',
   },
 
@@ -309,7 +309,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'collect_yellow', type: 'collect_candy', candyType: 'yellow-hexagon', target: 20, label: 'Honeycomb Prisms' },
       { id: 'create_specials', type: 'create_specials', target: 4, label: 'Special Candies' },
     ],
-    starThresholds: [2100, 3400, 4800],
+    starThresholds: [252, 408, 576],
     tips: 'Use the left and right corridors to build 5-match color bombs.',
   },
 
@@ -329,9 +329,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     ],
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 14, label: 'Basalt Blocks' },
-      { id: 'target_score', type: 'score', target: 2200, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 264, label: 'Target Score' },
     ],
-    starThresholds: [2200, 3500, 5000],
+    starThresholds: [264, 420, 600],
     tips: 'A horizontal line blast in row 7 will demolish eight blockers in a single stroke.',
   },
 
@@ -356,7 +356,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'clear_blockers', type: 'clear_blockers', target: 12, label: 'Crossfire Blocks' },
       { id: 'create_specials', type: 'create_specials', target: 2, label: 'Special Candies' },
     ],
-    starThresholds: [2300, 3600, 5100],
+    starThresholds: [276, 432, 612],
     tips: 'Create specials early so their detonations clear the inner cross blockers.',
   },
 
@@ -381,11 +381,11 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { row: 3, col: 3, hp: 1 }, { row: 4, col: 4, hp: 1 },
     ],
     objectives: [
-      { id: 'target_score', type: 'score', target: 2500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 300, label: 'Target Score' },
       { id: 'collect_purple', type: 'collect_candy', candyType: 'purple-candy', target: 20, label: 'Amethysts' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 14, label: 'Citadel Blocks' },
     ],
-    starThresholds: [2500, 3800, 5300],
+    starThresholds: [300, 456, 636],
     tips: 'Concentrate on matching near the center to crack multiple perimeter blocks.',
   },
 
@@ -407,7 +407,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'create_specials', type: 'create_specials', target: 5, label: 'Special Candies' },
       { id: 'collect_orange', type: 'collect_candy', candyType: 'orange-sphere', target: 20, label: 'Amber Orbs' },
     ],
-    starThresholds: [2600, 4000, 5500],
+    starThresholds: [312, 480, 660],
     tips: 'Destroying even two checkerboard blockers re-establishes normal match lines.',
   },
 
@@ -429,7 +429,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'clear_blockers', type: 'clear_blockers', target: 16, label: 'Perimeter Blocks' },
       { id: 'collect_red', type: 'collect_candy', candyType: 'red-jelly', target: 22, label: 'Crimson Jellies' },
     ],
-    starThresholds: [2700, 4100, 5700],
+    starThresholds: [324, 492, 684],
     tips: 'Line blasts extending to the outer edges are mandatory to hit this quota.',
   },
 
@@ -446,11 +446,11 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { row: 2, col: 4, hp: 1 }, { row: 3, col: 4, hp: 1 }, { row: 4, col: 4, hp: 1 }, { row: 5, col: 4, hp: 1 },
     ],
     objectives: [
-      { id: 'target_score', type: 'score', target: 2800, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 336, label: 'Target Score' },
       { id: 'create_specials', type: 'create_specials', target: 4, label: 'Special Candies' },
       { id: 'collect_blue', type: 'collect_candy', candyType: 'blue-gem', target: 18, label: 'Sapphire Gems' },
     ],
-    starThresholds: [2800, 4200, 5900],
+    starThresholds: [336, 504, 708],
     tips: 'A Color Bomb combined with a Line Blast generates huge cascading point multipliers.',
   },
 
@@ -473,9 +473,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 18, label: 'Bastion Layers' },
       { id: 'collect_yellow', type: 'collect_candy', candyType: 'yellow-hexagon', target: 22, label: 'Honeycomb Prisms' },
-      { id: 'target_score', type: 'score', target: 3000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 360, label: 'Target Score' },
     ],
-    starThresholds: [3000, 4500, 6200],
+    starThresholds: [360, 540, 744],
     tips: 'Work from top to bottom so cascades continuously chip away at the lower bastions.',
   },
 
@@ -494,12 +494,12 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { row: 3, col: 2, hp: 1 }, { row: 4, col: 2, hp: 2 }, { row: 3, col: 5, hp: 1 }, { row: 4, col: 5, hp: 2 },
     ],
     objectives: [
-      { id: 'target_score', type: 'score', target: 3200, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 384, label: 'Target Score' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 18, label: 'Fortress Layers' },
       { id: 'collect_green', type: 'collect_candy', candyType: 'green-crystal', target: 24, label: 'Emeralds' },
       { id: 'create_specials', type: 'create_specials', target: 3, label: 'Special Candies' },
     ],
-    starThresholds: [3200, 4800, 6600],
+    starThresholds: [384, 576, 792],
     tips: 'A Special+Special combo is almost essential to clear this half-way trial.',
   },
 
@@ -525,7 +525,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'clear_blockers', type: 'clear_blockers', target: 20, label: 'Obsidian Layers' },
       { id: 'collect_purple', type: 'collect_candy', candyType: 'purple-candy', target: 24, label: 'Amethyst Candies' },
     ],
-    starThresholds: [3300, 5000, 6800],
+    starThresholds: [396, 600, 816],
     tips: 'Combine a Bomb with a Line Blast to crack 8-12 blocker layers in one strike.',
   },
 
@@ -549,9 +549,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     ],
     objectives: [
       { id: 'create_specials', type: 'create_specials', target: 5, label: 'Special Candies' },
-      { id: 'target_score', type: 'score', target: 3500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 420, label: 'Target Score' },
     ],
-    starThresholds: [3500, 5200, 7000],
+    starThresholds: [420, 624, 840],
     tips: 'Target 5-in-a-row matches for rainbow Color Bombs.',
   },
 
@@ -571,9 +571,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 20, label: 'Vortex Blocks' },
       { id: 'collect_red', type: 'collect_candy', candyType: 'red-jelly', target: 24, label: 'Crimson Jellies' },
-      { id: 'target_score', type: 'score', target: 3500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 420, label: 'Target Score' },
     ],
-    starThresholds: [3500, 5300, 7200],
+    starThresholds: [420, 636, 864],
     tips: 'Plan 2 moves ahead. A single idle swap will cost you the level.',
   },
 
@@ -599,7 +599,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'collect_blue', type: 'collect_candy', candyType: 'blue-gem', target: 26, label: 'Sapphire Gems' },
       { id: 'create_specials', type: 'create_specials', target: 4, label: 'Special Candies' },
     ],
-    starThresholds: [3600, 5400, 7400],
+    starThresholds: [432, 648, 888],
     tips: 'Vertical cascades down the outer wings provide the necessary blue matches.',
   },
 
@@ -624,9 +624,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 22, label: 'Fortress Layers' },
       { id: 'collect_yellow', type: 'collect_candy', candyType: 'yellow-hexagon', target: 24, label: 'Honeycomb Prisms' },
-      { id: 'target_score', type: 'score', target: 4000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 480, label: 'Target Score' },
     ],
-    starThresholds: [4000, 5800, 7800],
+    starThresholds: [480, 696, 936],
     tips: 'Synthesize an Area Bomb in row 3 to crack both upper and lower fortress pillars.',
   },
 
@@ -650,9 +650,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'create_specials', type: 'create_specials', target: 5, label: 'Special Candies' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 18, label: 'Plasma Blocks' },
-      { id: 'target_score', type: 'score', target: 4000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 480, label: 'Target Score' },
     ],
-    starThresholds: [4000, 5900, 8000],
+    starThresholds: [480, 708, 960],
     tips: 'Color Bomb combos fulfill both score and blocker requirements in one move.',
   },
 
@@ -675,7 +675,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'clear_blockers', type: 'clear_blockers', target: 24, label: 'Monolith Layers' },
       { id: 'collect_green', type: 'collect_candy', candyType: 'green-crystal', target: 26, label: 'Emerald Crystals' },
     ],
-    starThresholds: [4200, 6100, 8200],
+    starThresholds: [504, 732, 984],
     tips: 'Chain reactions are mandatory. Look for matches that trigger 3+ cascading falls.',
   },
 
@@ -694,11 +694,11 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { row: 5, col: 3, hp: 1 }, { row: 5, col: 4, hp: 1 },
     ],
     objectives: [
-      { id: 'target_score', type: 'score', target: 4500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 540, label: 'Target Score' },
       { id: 'create_specials', type: 'create_specials', target: 5, label: 'Special Candies' },
       { id: 'collect_purple', type: 'collect_candy', candyType: 'purple-candy', target: 24, label: 'Amethyst Candies' },
     ],
-    starThresholds: [4500, 6400, 8500],
+    starThresholds: [540, 768, 1020],
     tips: 'Match 5 to form a Color Bomb, then swap with a special for cosmic scores.',
   },
 
@@ -722,9 +722,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 24, label: 'Molten Layers' },
       { id: 'collect_orange', type: 'collect_candy', candyType: 'orange-sphere', target: 28, label: 'Amber Orbs' },
-      { id: 'target_score', type: 'score', target: 4500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 540, label: 'Target Score' },
     ],
-    starThresholds: [4500, 6500, 8700],
+    starThresholds: [540, 780, 1044],
     tips: 'With 6 candy colors active, special candy planning must be mathematically precise.',
   },
 
@@ -754,10 +754,10 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 26, label: 'Citadel Layers' },
       { id: 'collect_red', type: 'collect_candy', candyType: 'red-jelly', target: 28, label: 'Crimson Jellies' },
-      { id: 'target_score', type: 'score', target: 5000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 600, label: 'Target Score' },
       { id: 'create_specials', type: 'create_specials', target: 4, label: 'Special Candies' },
     ],
-    starThresholds: [5000, 7000, 9200],
+    starThresholds: [600, 840, 1104],
     tips: 'Focus on setting up a 5x5 area bomb combo or double line clear.',
   },
 
@@ -787,9 +787,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 26, label: 'Glacial Layers' },
       { id: 'collect_blue', type: 'collect_candy', candyType: 'blue-gem', target: 28, label: 'Sapphire Gems' },
-      { id: 'target_score', type: 'score', target: 5000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 600, label: 'Target Score' },
     ],
-    starThresholds: [5000, 7100, 9400],
+    starThresholds: [600, 852, 1128],
     tips: 'Use line blasts to slice through the vertical columns of reinforced ice.',
   },
 
@@ -813,9 +813,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'create_specials', type: 'create_specials', target: 6, label: 'Special Candies' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 20, label: 'Plasma Blocks' },
-      { id: 'target_score', type: 'score', target: 5200, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 624, label: 'Target Score' },
     ],
-    starThresholds: [5200, 7300, 9600],
+    starThresholds: [624, 876, 1152],
     tips: 'Special candy taps count toward the quota. Detonate them promptly!',
   },
 
@@ -841,9 +841,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 28, label: 'Fortress Layers' },
       { id: 'collect_yellow', type: 'collect_candy', candyType: 'yellow-hexagon', target: 30, label: 'Honeycomb Prisms' },
-      { id: 'target_score', type: 'score', target: 5500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 660, label: 'Target Score' },
     ],
-    starThresholds: [5500, 7600, 10000],
+    starThresholds: [660, 912, 1200],
     tips: 'Every move must hit at least 3-4 blocker layers via cascading specials.',
   },
 
@@ -870,7 +870,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'collect_green', type: 'collect_candy', candyType: 'green-crystal', target: 30, label: 'Emerald Crystals' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 24, label: 'Reactor Blocks' },
     ],
-    starThresholds: [5600, 7800, 10200],
+    starThresholds: [672, 936, 1224],
     tips: 'Form specials in the upper half to let new candies cascade into the lower blockers.',
   },
 
@@ -900,11 +900,11 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { row: 4, col: 3, hp: 1 }, { row: 4, col: 4, hp: 1 },
     ],
     objectives: [
-      { id: 'target_score', type: 'score', target: 6000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 720, label: 'Target Score' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 28, label: 'Void Layers' },
       { id: 'collect_purple', type: 'collect_candy', candyType: 'purple-candy', target: 30, label: 'Amethysts' },
     ],
-    starThresholds: [6000, 8200, 10600],
+    starThresholds: [720, 984, 1272],
     tips: 'Deliberate sequencing is critical. Clear central blockers first to unlock matches.',
   },
 
@@ -934,9 +934,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'create_specials', type: 'create_specials', target: 6, label: 'Special Candies' },
       { id: 'clear_blockers', type: 'clear_blockers', target: 26, label: 'Crucible Blocks' },
-      { id: 'target_score', type: 'score', target: 6000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 720, label: 'Target Score' },
     ],
-    starThresholds: [6000, 8300, 10800],
+    starThresholds: [720, 996, 1296],
     tips: 'Look for double-special swaps to generate massive secondary explosions.',
   },
 
@@ -963,9 +963,9 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 30, label: 'Apocalypse Blocks' },
       { id: 'collect_red', type: 'collect_candy', candyType: 'red-jelly', target: 32, label: 'Crimson Jellies' },
-      { id: 'target_score', type: 'score', target: 6500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 780, label: 'Target Score' },
     ],
-    starThresholds: [6500, 8800, 11400],
+    starThresholds: [780, 1056, 1368],
     tips: 'A Color Bomb combined with a Line Clear or Bomb will clear half the board at once.',
   },
 
@@ -993,7 +993,7 @@ export const CANDY_LEVELS: LevelConfig[] = [
       { id: 'clear_blockers', type: 'clear_blockers', target: 28, label: 'Singularity Blocks' },
       { id: 'collect_blue', type: 'collect_candy', candyType: 'blue-gem', target: 30, label: 'Sapphire Gems' },
     ],
-    starThresholds: [6600, 9000, 11600],
+    starThresholds: [792, 1080, 1392],
     tips: 'Tap created specials directly to detonate them without needing an adjacent swap.',
   },
 
@@ -1020,10 +1020,10 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 32, label: 'Abyssal Blocks' },
       { id: 'collect_yellow', type: 'collect_candy', candyType: 'yellow-hexagon', target: 34, label: 'Honeycomb Prisms' },
-      { id: 'target_score', type: 'score', target: 7000, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 840, label: 'Target Score' },
       { id: 'create_specials', type: 'create_specials', target: 4, label: 'Special Candies' },
     ],
-    starThresholds: [7000, 9500, 12200],
+    starThresholds: [840, 1140, 1464],
     tips: 'Only high-tier combos (Color Bomb + Bomb or Cross Laser) can achieve this in 6 moves.',
   },
 
@@ -1058,10 +1058,10 @@ export const CANDY_LEVELS: LevelConfig[] = [
     objectives: [
       { id: 'clear_blockers', type: 'clear_blockers', target: 32, label: 'Singularity Blocks' },
       { id: 'collect_purple', type: 'collect_candy', candyType: 'purple-candy', target: 34, label: 'Cosmic Candies' },
-      { id: 'target_score', type: 'score', target: 7500, label: 'Target Score' },
+      { id: 'target_score', type: 'score', target: 900, label: 'Target Score' },
       { id: 'create_specials', type: 'create_specials', target: 5, label: 'Special Candies' },
     ],
-    starThresholds: [7500, 10000, 13000],
+    starThresholds: [900, 1200, 1560],
     tips: 'The ultimate test of Candy Blast mastery. Forge special combos and trigger cosmic board wipes!',
   },
 ];

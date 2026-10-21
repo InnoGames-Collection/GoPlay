@@ -57,10 +57,10 @@ export const DamaResultModal: React.FC<DamaResultModalProps> = ({
           </div>
 
           <h2 className="text-xl font-black uppercase tracking-wide text-white">
-            Level {breakdown.levelNumber} {isWin ? 'Victory' : 'Defeat'}
+            LEVEL {breakdown.levelNumber} {isWin ? 'VICTORY' : 'DEFEAT'}
           </h2>
           <p className="text-xs font-semibold text-amber-300/90">
-            {breakdown.levelName} • <span className="uppercase">{breakdown.tier} Tier</span>
+            <span className="uppercase">{breakdown.tier} Tier</span>
           </p>
 
           {/* Stars */}
@@ -231,7 +231,7 @@ export const DamaResultModal: React.FC<DamaResultModalProps> = ({
         {unlockedNewLevel && (
           <div className="bg-amber-500/15 border border-amber-500/40 rounded-xl p-2.5 text-center my-1 text-amber-300 text-xs font-bold flex items-center justify-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-amber-400" />
-            <span>Level {breakdown.levelNumber + 1} Unlocked!</span>
+            <span>LEVEL {breakdown.levelNumber + 1} Unlocked!</span>
           </div>
         )}
 
@@ -259,7 +259,7 @@ export const DamaResultModal: React.FC<DamaResultModalProps> = ({
               className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Retry Level {breakdown.levelNumber}</span>
+              <span>Retry LEVEL {breakdown.levelNumber}</span>
             </button>
           )}
 

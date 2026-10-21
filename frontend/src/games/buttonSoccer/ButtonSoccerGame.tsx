@@ -44,9 +44,17 @@ import { GameLeaderboardModal } from '../../components/gameNavigation/GameLeader
 import { getGameConfig } from '../../components/gameNavigation/gameConfigs';
 
 // -----------------------------------------------------------------------------
-// Deterministic Scoring Engine (Competitive Tournament Integrity)
-// Distinguishes players by clean sheet, shot accuracy, turn efficiency & speed
+// Goal-Based Scoring Engine
+// Formula: Final score = max(0, player goals * 10 - conceded-goal penalty - time penalty)
+// 10 base points per player goal.
+// Conceded goal penalty: 3 points per opponent goal.
+// Bounded time penalty: 1 point per 25 seconds of active match time, capped at 5 points max.
+// Time penalty does not penalize paused or backgrounded time.
 // -----------------------------------------------------------------------------
+export const BASE_POINTS_PER_GOAL = 10;
+export const PENALTY_PER_CONCEDED_GOAL = 3;
+export const MAX_TIME_PENALTY = 5;
+
 export function computeDeterministicScore(
   userGoals: number,
   opponentGoals: number,
@@ -57,25 +65,18 @@ export function computeDeterministicScore(
   hasWon: boolean
 ): MatchStats {
   const cleanSheet = opponentGoals === 0;
-  const baseGoals = userGoals * 1000;
-  const cleanSheetBonus = hasWon ? (cleanSheet ? 800 : Math.max(0, 400 - opponentGoals * 150)) : 0;
-  const accuracyBonus = userShots > 0 ? Math.round((userGoals / Math.max(userGoals, userShots)) * 600) : 0;
-  const turnEfficiencyBonus = hasWon ? Math.max(0, 500 - (userTurns - userGoals) * 60) : 0;
-  const speedBonus = hasWon ? Math.max(0, 500 - Math.floor(durationSec * 3)) : 0;
-  const difficultyMultiplier = 1 + (levelNum - 1) * 0.05;
+  const baseGoals = userGoals * BASE_POINTS_PER_GOAL;
+  const concededPenalty = opponentGoals * PENALTY_PER_CONCEDED_GOAL;
+  const timePenalty = Math.min(MAX_TIME_PENALTY, Math.floor(durationSec / 25));
 
-  let rawTotal = baseGoals + cleanSheetBonus + accuracyBonus + turnEfficiencyBonus + speedBonus;
-  if (!hasWon) {
-    rawTotal = Math.max(100, userGoals * 350 + Math.max(0, 200 - opponentGoals * 50));
-  }
-  const finalScore = Math.round(rawTotal * difficultyMultiplier);
+  // Documented formula: max(0, player goals * 10 - conceded-goal penalty - time penalty)
+  const finalScore = Math.max(0, baseGoals - concededPenalty - timePenalty);
 
-  let stars = 1;
+  let stars = 0;
   if (hasWon) {
     if (opponentGoals === 0) stars = 3;
     else if (opponentGoals <= 1) stars = 2;
-  } else {
-    stars = 0;
+    else stars = 1;
   }
 
   return {
@@ -89,11 +90,13 @@ export function computeDeterministicScore(
     cleanSheet,
     scoreBreakdown: {
       baseGoals,
-      cleanSheetBonus,
-      accuracyBonus,
-      turnEfficiencyBonus,
-      speedBonus,
-      difficultyMultiplier: Number(difficultyMultiplier.toFixed(2)),
+      concededPenalty,
+      timePenalty,
+      cleanSheetBonus: cleanSheet && hasWon ? 0 : 0,
+      accuracyBonus: userShots > 0 ? Math.round((userGoals / Math.max(userGoals, userShots)) * 100) : 0,
+      turnEfficiencyBonus: 0,
+      speedBonus: 0,
+      difficultyMultiplier: 1,
     },
   };
 }
@@ -202,6 +205,11 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
   const opponentScoreRef = useRef<number>(0);
   const [targetGoals, setTargetGoals] = useState<number>(3);
   const [matchElapsedSec, setMatchElapsedSec] = useState<number>(0);
+  const matchElapsedSecRef = useRef<number>(0);
+  matchElapsedSecRef.current = matchElapsedSec;
+  const gameStateRef = useRef<GameState>(gameState);
+  gameStateRef.current = gameState;
+  const isHandlingGoalRef = useRef<boolean>(false);
 
   // Authoritative Match State Machine
   // HUMAN_AIM -> PHYSICS_SETTLING -> COMPUTER_THINKING -> COMPUTER_AIM -> PHYSICS_SETTLING -> HUMAN_AIM
@@ -255,11 +263,12 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
   });
 
   const [bestScore, setBestScore] = useState<number>(() => {
+    const profileBest = profile?.highScores?.['button-soccer'] || 0;
     try {
       const saved = localStorage.getItem(STORAGE_KEY_BEST);
-      return saved ? parseInt(saved, 10) : 0;
+      return Math.max(saved ? parseInt(saved, 10) : 0, profileBest);
     } catch {
-      return 0;
+      return profileBest;
     }
   });
 
@@ -581,6 +590,7 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
     if (physicsRef.current) {
       physicsRef.current.hasScoredThisPlay = false;
     }
+    isHandlingGoalRef.current = false;
   }, [userTeamId]);
 
   // ---------------------------------------------------------------------------
@@ -685,30 +695,36 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
       if (physics && renderer && canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          // 1. Step Physics Simulation
-          const { goalScored } = physics.step(dt, discsRef.current, ballRef.current);
+          // 1. Step Physics Simulation only while actively playing or celebrating a goal
+          const isSimulating = gameStateRef.current === 'PLAYING' || gameStateRef.current === 'GOAL_CELEBRATION';
+          let goalScored: 'user' | 'opponent' | null = null;
 
-          // 2. Goal Detection
-          if (goalScored) {
-            handleGoalScored(goalScored);
-          }
+          if (isSimulating) {
+            const stepResult = physics.step(dt, discsRef.current, ballRef.current);
+            goalScored = stepResult.goalScored;
 
-          // 3. Motion Settling Check when Physics is active
-          // Pure physics-settling driven turn transitions - NO timers controlling match
-          if (matchPhaseRef.current === 'PHYSICS_SETTLING' && !goalScored) {
-            const isSettled = physics.isMotionSettled(discsRef.current, ballRef.current);
-            const isSafetyTimeout = now - physicsSettlingStartTimeRef.current > 5500;
-            if (isSettled || isSafetyTimeout) {
-              // Bring residual motions to complete rest
-              ballRef.current.vx = 0;
-              ballRef.current.vy = 0;
-              for (const d of discsRef.current) {
-                d.vx = 0;
-                d.vy = 0;
+            // 2. Goal Detection
+            if (goalScored) {
+              handleGoalScored(goalScored);
+            }
+
+            // 3. Motion Settling Check when Physics is active
+            // Pure physics-settling driven turn transitions - NO timers controlling match
+            if (matchPhaseRef.current === 'PHYSICS_SETTLING' && !goalScored) {
+              const isSettled = physics.isMotionSettled(discsRef.current, ballRef.current);
+              const isSafetyTimeout = now - physicsSettlingStartTimeRef.current > 5500;
+              if (isSettled || isSafetyTimeout) {
+                // Bring residual motions to complete rest
+                ballRef.current.vx = 0;
+                ballRef.current.vy = 0;
+                for (const d of discsRef.current) {
+                  d.vx = 0;
+                  d.vy = 0;
+                }
+
+                // Switch turn automatically based on who took the last shot
+                handleTurnTransition();
               }
-
-              // Switch turn automatically based on who took the last shot
-              handleTurnTransition();
             }
           }
 
@@ -768,6 +784,8 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
 
     // AI analyzes field for 380ms
     aiShootTimeoutRef.current = setTimeout(() => {
+      if (gameStateRef.current !== 'PLAYING') return;
+
       const decision = ButtonSoccerAI.computeBestShot(
         discsRef.current,
         ballRef.current,
@@ -794,6 +812,8 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
 
           // Hold aim arrow for 360ms then release kick
           aiShootTimeoutRef.current = setTimeout(() => {
+            if (gameStateRef.current !== 'PLAYING') return;
+
             aiAimStateRef.current.isAiming = false;
             setSelectedDiscId(null);
 
@@ -817,6 +837,9 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
   // Goal Celebration & Reset Flow
   // ---------------------------------------------------------------------------
   const handleGoalScored = (scoringTeam: 'user' | 'opponent') => {
+    if (isHandlingGoalRef.current) return;
+    isHandlingGoalRef.current = true;
+
     setMatchPhase('GOAL_CELEBRATION');
     buttonSoccerAudio.playGoal();
     try {
@@ -863,6 +886,7 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
     // Check Match Finish condition or reset kickoff
     setTimeout(() => {
       particlesRef.current = [];
+      isHandlingGoalRef.current = false;
 
       if (nextUserScore >= targetGoals || nextOpponentScore >= targetGoals) {
         finishMatch(nextUserScore, nextOpponentScore);
@@ -893,7 +917,7 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     if (aiShootTimeoutRef.current) clearTimeout(aiShootTimeoutRef.current);
 
-    const duration = Math.max(1, Math.floor((Date.now() - matchStartTimeRef.current) / 1000));
+    const duration = Math.max(1, matchElapsedSecRef.current);
     const hasWon = finalUser > finalOpp;
     const isDraw = finalUser === finalOpp;
 
@@ -910,9 +934,11 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
     );
     setLastMatchStats(stats);
 
+    // Save final points score to My High Scores via onGameOver for win, draw, or defeat
+    onGameOver(stats.finalScore, duration);
+
     if (hasWon) {
       buttonSoccerAudio.playVictory();
-      onGameOver(stats.finalScore, duration);
 
       if (matchMode === 'CHAMPIONSHIP') {
         const updated = { ...levelProgress };
@@ -936,7 +962,12 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
       }
     } else {
       buttonSoccerAudio.playDefeat();
-      onGameOver(stats.finalScore, duration);
+      if (stats.finalScore > bestScore) {
+        setBestScore(stats.finalScore);
+        try {
+          localStorage.setItem(STORAGE_KEY_BEST, String(stats.finalScore));
+        } catch {}
+      }
     }
 
     setGameState('MATCH_OVER');
@@ -1216,22 +1247,36 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
   // ---------------------------------------------------------------------------
   const handlePause = () => {
     buttonSoccerAudio.playClick();
+    if (aiShootTimeoutRef.current) {
+      clearTimeout(aiShootTimeoutRef.current);
+      aiShootTimeoutRef.current = null;
+    }
     setGameState('PAUSED');
   };
 
   const handleResume = () => {
     buttonSoccerAudio.playClick();
-    setGameState('PLAYING');
     lastTimeRef.current = performance.now();
+    setGameState('PLAYING');
+    if (matchPhaseRef.current === 'COMPUTER_THINKING' || matchPhaseRef.current === 'COMPUTER_AIM') {
+      scheduleComputerTurn();
+    }
   };
 
   const handleRestart = () => {
     buttonSoccerAudio.playClick();
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (aiShootTimeoutRef.current) {
+      clearTimeout(aiShootTimeoutRef.current);
+      aiShootTimeoutRef.current = null;
+    }
+    isHandlingGoalRef.current = false;
     userScoreRef.current = 0;
     opponentScoreRef.current = 0;
     setUserScore(0);
     setOpponentScore(0);
     setMatchElapsedSec(0);
+    matchElapsedSecRef.current = 0;
     userShotsRef.current = 0;
     userTurnsRef.current = 0;
     lastShooterRef.current = 'opponent';
@@ -1247,17 +1292,70 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
       angle: 0,
       power: 0,
     };
+    aiAimStateRef.current = {
+      isAiming: false,
+      discId: null,
+      startX: 0,
+      startY: 0,
+      currentX: 0,
+      currentY: 0,
+      angle: 0,
+      power: 0,
+    };
     setMatchPhase('HUMAN_AIM');
     resetFormations('user');
     setGameState('PLAYING');
-    lastTimeRef.current = performance.now();
+    startMainGameLoop();
   };
 
   const handleBackToSelect = () => {
     buttonSoccerAudio.playClick();
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (aiShootTimeoutRef.current) {
+      clearTimeout(aiShootTimeoutRef.current);
+      aiShootTimeoutRef.current = null;
+    }
+
+    // If leaving during an active/paused attempt, persist current valid score
+    if (gameState === 'PLAYING' || gameState === 'PAUSED' || gameState === 'GOAL_CELEBRATION') {
+      const activeDuration = Math.max(1, matchElapsedSecRef.current);
+      const attemptStats = computeDeterministicScore(
+        userScoreRef.current,
+        opponentScoreRef.current,
+        userShotsRef.current,
+        userTurnsRef.current,
+        activeDuration,
+        currentLevelNum,
+        userScoreRef.current > opponentScoreRef.current
+      );
+      onGameOver(attemptStats.finalScore, activeDuration);
+      if (attemptStats.finalScore > bestScore) {
+        setBestScore(attemptStats.finalScore);
+      }
+    }
+
     setGameState('MENU');
   };
+
+  // Auto-pause and mute when browser or app is backgrounded
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        buttonSoccerAudio.setEnabled(false);
+        if (gameStateRef.current === 'PLAYING') {
+          handlePause();
+        }
+      } else {
+        if (!isMuted) {
+          buttonSoccerAudio.setEnabled(true);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isMuted]);
 
   const handleToggleSound = () => {
     const nextState = !isMuted;
@@ -2067,9 +2165,9 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
                 </div>
               </div>
 
-              {/* Match Subtitle: FIRST TO 3 • 00:45 */}
+              {/* Match Subtitle: SCORE: X PTS • FIRST TO 3 • 00:45 */}
               <span className="text-[10px] text-amber-400 font-extrabold uppercase tracking-wider mt-0.5">
-                FIRST TO {targetGoals} • {formatMatchTime(matchElapsedSec)}
+                SCORE: {Math.max(0, userScore * BASE_POINTS_PER_GOAL - opponentScore * PENALTY_PER_CONCEDED_GOAL - Math.min(MAX_TIME_PENALTY, Math.floor(matchElapsedSec / 25)))} PTS • FIRST TO {targetGoals} • {formatMatchTime(matchElapsedSec)}
               </span>
             </div>
 
@@ -2241,16 +2339,32 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
               </div>
 
               {lastMatchStats && (
-                <div className="pt-2 border-t border-white/10 space-y-1.5 text-left">
-                  <div className="flex items-center justify-between text-xs font-black text-amber-300">
-                    <span>TOURNAMENT SCORE</span>
-                    <span>{lastMatchStats.finalScore.toLocaleString()} PTS</span>
+                <div className="pt-2 border-t border-white/10 space-y-1.5 text-left text-xs">
+                  <div className="flex items-center justify-between text-sm font-black text-amber-300">
+                    <span>FINAL POINTS SCORE</span>
+                    <span className="font-mono text-base text-amber-400 font-extrabold">{lastMatchStats.finalScore} PTS</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1 text-[10px] text-slate-300 font-medium">
+
+                  <div className="space-y-1 text-[11px] text-slate-300 pt-1 border-t border-white/5">
+                    <div className="flex justify-between">
+                      <span className="text-emerald-400 font-semibold">Player Goals ({lastMatchStats.userGoals} × {BASE_POINTS_PER_GOAL}):</span>
+                      <span className="font-mono font-bold text-emerald-300">+{lastMatchStats.scoreBreakdown.baseGoals}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-rose-400 font-semibold">Goals Conceded ({lastMatchStats.opponentGoals} × {PENALTY_PER_CONCEDED_GOAL}):</span>
+                      <span className="font-mono font-bold text-rose-300">-{lastMatchStats.scoreBreakdown.concededPenalty || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-amber-400 font-semibold">Time Penalty ({formatMatchTime(lastMatchStats.durationSec)}):</span>
+                      <span className="font-mono font-bold text-amber-200">-{lastMatchStats.scoreBreakdown.timePenalty || 0}</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1 text-[10px] text-slate-400 font-medium pt-1 border-t border-white/5">
                     <span>Shots: {lastMatchStats.userShots}</span>
                     <span>Duration: {formatMatchTime(lastMatchStats.durationSec)}</span>
                     {lastMatchStats.cleanSheet && (
-                      <span className="text-emerald-400 font-bold col-span-2">🛡️ Clean Sheet Defense Bonus</span>
+                      <span className="text-emerald-400 font-bold col-span-2">🛡️ Clean Sheet Defense</span>
                     )}
                   </div>
                 </div>
@@ -2281,15 +2395,15 @@ export const ButtonSoccerGame: React.FC<ButtonSoccerGameProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleRestart}
-                  className="flex-1 h-11 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-white/15 transition-all cursor-pointer"
+                  className="flex-1 h-11 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-black text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>REPLAY</span>
+                  <span>RETRY</span>
                 </button>
 
                 <button
                   onClick={handleBackToSelect}
-                  className="flex-1 h-11 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-white/15 transition-all cursor-pointer"
+                  className="flex-1 h-11 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs uppercase flex items-center justify-center gap-1.5 border border-white/15 transition-all cursor-pointer"
                 >
                   <Home className="w-3.5 h-3.5" />
                   <span>MENU</span>

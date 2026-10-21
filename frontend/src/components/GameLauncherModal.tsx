@@ -38,6 +38,31 @@ export const GameLauncherModal: React.FC<GameLauncherModalProps> = ({
   onPlayAgain,
   isAudioEnabled = true,
 }) => {
+  // Global visibility change safety net to halt HTML Audio and audio leakage
+  React.useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        const audios = document.querySelectorAll('audio');
+        audios.forEach((a) => {
+          if (!a.paused) {
+            a.pause();
+            (a as any).__wasPlayingBeforeHidden = true;
+          }
+        });
+      } else {
+        const audios = document.querySelectorAll('audio');
+        audios.forEach((a) => {
+          if ((a as any).__wasPlayingBeforeHidden && isAudioEnabled) {
+            a.play().catch(() => {});
+            (a as any).__wasPlayingBeforeHidden = false;
+          }
+        });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isAudioEnabled]);
+
   const handleGameEnd = (scoreOrResult: any, duration?: number) => {
     if (typeof scoreOrResult === 'object' && scoreOrResult !== null) {
       onGameOver(Number(scoreOrResult.score) || 0, Number(scoreOrResult.durationSeconds) || duration || 30);
@@ -65,6 +90,7 @@ export const GameLauncherModal: React.FC<GameLauncherModalProps> = ({
         <JuicyMatchGame
           onBackToHub={onClose}
           onLevelComplete={(score, duration) => handleGameEnd(score, duration)}
+          onGameOver={(score, duration) => handleGameEnd(score, duration)}
         />
       </div>
     );

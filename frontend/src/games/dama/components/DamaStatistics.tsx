@@ -111,7 +111,7 @@ export const DamaStatistics: React.FC<DamaStatisticsProps> = ({
               <span>Highest Unlocked Level</span>
             </span>
             <span className="font-mono font-bold text-white text-xs">
-              Level {progress.highestUnlockedLevel} / 40
+              LEVEL {progress.highestUnlockedLevel} / 40
             </span>
           </div>
 

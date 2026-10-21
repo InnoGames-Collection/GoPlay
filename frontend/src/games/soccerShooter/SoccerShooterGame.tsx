@@ -38,6 +38,7 @@ import {
   calculateCascadeBonus,
   calculateDropScore,
   computeLevelScoreBreakdown,
+  getMaxShotsForLevel,
 } from './scoring';
 import { GameLeaderboardService } from '../../services/gameLeaderboardService';
 import {
@@ -157,6 +158,11 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
   const [comboCount, setComboCount] = useState<number>(0);
   const [foulsRemaining, setFoulsRemaining] = useState<number>(currentLevelConfig.maxFouls);
   const [shotsFired, setShotsFired] = useState<number>(0);
+  const [failReason, setFailReason] = useState<string>('Bubbles crossed the danger line!');
+  const scoreRef = useRef<number>(0);
+  scoreRef.current = score;
+  const gameStateRef = useRef<GameState>(gameState);
+  gameStateRef.current = gameState;
   const [isMuted, setIsMuted] = useState<boolean>(!isAudioEnabled);
   const [showTutorial, setShowTutorial] = useState<boolean>(true);
 
@@ -204,10 +210,53 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
     sideMargin: 12,
   });
 
+  // Level failure dispatcher (records earned score to persistence layer and profile)
+  const handleLevelFail = useCallback((reason: string) => {
+    setFailReason(reason);
+    setGameState('LEVEL_FAILED');
+    bubbleAudio.playLevelFail();
+    triggerHaptic(80);
+    const failScore = Math.max(0, scoreRef.current);
+    const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+    if (onGameOver && failScore > 0) {
+      onGameOver(failScore, elapsed);
+    }
+  }, [onGameOver, triggerHaptic]);
+
   // Audio mute sync
   useEffect(() => {
     bubbleAudio.setMuted(isMuted);
   }, [isMuted]);
+
+  // Auto-pause and mute when app is backgrounded or tab loses visibility
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        bubbleAudio.setMuted(true);
+        if (gameStateRef.current === 'READY' || gameStateRef.current === 'AIMING' || gameStateRef.current === 'FIRING') {
+          setGameState('PAUSED');
+        }
+      } else {
+        if (!isMuted) {
+          bubbleAudio.setMuted(false);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isMuted]);
+
+  // Save valid score on unmount if game is active or paused
+  useEffect(() => {
+    return () => {
+      if (scoreRef.current > 0 && onGameOver) {
+        const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+        onGameOver(scoreRef.current, elapsed);
+      }
+    };
+  }, [onGameOver]);
 
   // Save progress helper
   const saveProgress = useCallback((newProg: LevelProgress) => {
@@ -472,6 +521,8 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
   const shootCurrentBubble = useCallback(() => {
     if (gameState !== 'READY' && gameState !== 'AIMING') return;
     if (projectileRef.current) return;
+    const maxShots = getMaxShotsForLevel(currentLevelConfig);
+    if (shotsFired >= maxShots) return;
 
     const { radius } = boardDimsRef.current;
     const { x, y } = launcherPosRef.current;
@@ -495,7 +546,7 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
     setShotsFired((prev) => prev + 1);
     setGameState('SHOOTING');
     setShowTutorial(false);
-  }, [gameState, triggerHaptic]);
+  }, [gameState, triggerHaptic, shotsFired, currentLevelConfig]);
 
   /**
    * Create explosion sparkles on match pop
@@ -575,9 +626,7 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
     for (let r = dangerRow; r < MAX_GRID_ROWS; r++) {
       for (let c = 0; c < (gridRef.current[r]?.length || 0); c++) {
         if (gridRef.current[r][c] !== null) {
-          setGameState('LEVEL_FAILED');
-          bubbleAudio.playLevelFail();
-          triggerHaptic(80);
+          handleLevelFail('Bubbles crossed the danger line!');
           return true;
         }
       }
@@ -596,9 +645,7 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
     const snap = findSnapCell(proj.x, proj.y, grid, radius, ceilingOffset, sideMargin);
     if (!snap) {
       // Fallback: Level failed if no vacant slot
-      setGameState('LEVEL_FAILED');
-      bubbleAudio.playLevelFail();
-      triggerHaptic(80);
+      handleLevelFail('No vacant slot available!');
       return;
     }
 
@@ -857,6 +904,13 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
       if (onGameOver) {
         onGameOver(breakdown.finalLevelScore, timeTaken);
       }
+      return;
+    }
+
+    // Check if player has exhausted maximum allowed shots/moves
+    const maxShots = getMaxShotsForLevel(currentLevelConfig);
+    if (shotsFired >= maxShots) {
+      handleLevelFail('Out of shots/moves!');
       return;
     }
 
@@ -1413,7 +1467,13 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
           {/* Back button returns cleanly to Main Menu */}
           <button
             type="button"
-            onClick={() => setGameState('MAIN_MENU')}
+            onClick={() => {
+              if (scoreRef.current > 0 && onGameOver) {
+                const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+                onGameOver(scoreRef.current, elapsed);
+              }
+              setGameState('MAIN_MENU');
+            }}
             className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 active:scale-95 text-slate-200 border border-white/10 shadow-md backdrop-blur-md flex items-center justify-center transition-all cursor-pointer"
             title="Return to Main Menu"
             aria-label="Return to Main Menu"
@@ -1424,14 +1484,20 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
           {/* Level Indicator Pill (44dp touch target) */}
           <button
             type="button"
-            onClick={() => setGameState('LEVEL_SELECT')}
+            onClick={() => {
+              if (scoreRef.current > 0 && onGameOver) {
+                const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+                onGameOver(scoreRef.current, elapsed);
+              }
+              setGameState('LEVEL_SELECT');
+            }}
             className="min-h-[44px] h-11 px-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 active:scale-95 text-sky-300 border border-sky-500/25 shadow-md backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer"
             title="Select Level"
             aria-label={`Current Level ${currentLevelNum}. Tap to select level.`}
           >
             <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-            <span className="text-xs font-black tracking-wider uppercase font-mono text-sky-100">
-              LVL {currentLevelNum}
+            <span className="text-[11px] font-black tracking-wider uppercase font-mono text-sky-100">
+              LEVEL {currentLevelNum}
             </span>
             <ChevronRight className="w-3.5 h-3.5 text-sky-400/60 shrink-0 ml-0.5" />
           </button>
@@ -1474,6 +1540,30 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
           >
             <Pause className="w-5 h-5 text-slate-100" />
           </button>
+        </div>
+      </div>
+
+      {/* SUB-HUD: REMAINING SHOTS & ELAPSED ACTIVE TIME */}
+      <div className="relative z-20 px-3 py-1.5 bg-[#081b2e]/85 backdrop-blur-sm border-b border-white/5 flex items-center justify-around text-center text-white text-xs font-mono">
+        <div>
+          <span className="text-[9px] uppercase font-bold text-slate-400 font-sans block">Shots Left</span>
+          <span className={`font-extrabold ${getMaxShotsForLevel(currentLevelConfig) - shotsFired <= 5 ? 'text-rose-400 animate-pulse' : 'text-cyan-300'}`}>
+            {Math.max(0, getMaxShotsForLevel(currentLevelConfig) - shotsFired)} / {getMaxShotsForLevel(currentLevelConfig)}
+          </span>
+        </div>
+
+        <div>
+          <span className="text-[9px] uppercase font-bold text-slate-400 font-sans block">Active Time</span>
+          <span className="font-extrabold text-amber-300">
+            {Math.round(activeTimeRef.current)}s
+          </span>
+        </div>
+
+        <div>
+          <span className="text-[9px] uppercase font-bold text-slate-400 font-sans block">Fouls</span>
+          <span className="font-extrabold text-emerald-300">
+            {foulsRemaining}
+          </span>
         </div>
       </div>
 
@@ -1633,7 +1723,13 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
 
               <button
                 type="button"
-                onClick={() => setGameState('LEVEL_SELECT')}
+                onClick={() => {
+                  if (scoreRef.current > 0 && onGameOver) {
+                    const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+                    onGameOver(scoreRef.current, elapsed);
+                  }
+                  setGameState('LEVEL_SELECT');
+                }}
                 className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
                 <Trophy className="w-4 h-4 text-amber-400" />
@@ -1642,7 +1738,13 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
 
               <button
                 type="button"
-                onClick={() => setGameState('MAIN_MENU')}
+                onClick={() => {
+                  if (scoreRef.current > 0 && onGameOver) {
+                    const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+                    onGameOver(scoreRef.current, elapsed);
+                  }
+                  setGameState('MAIN_MENU');
+                }}
                 className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
                 <span>Main Menu</span>
@@ -1650,7 +1752,13 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
 
               <button
                 type="button"
-                onClick={onExit}
+                onClick={() => {
+                  if (scoreRef.current > 0 && onGameOver) {
+                    const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+                    onGameOver(scoreRef.current, elapsed);
+                  }
+                  onExit();
+                }}
                 className="w-full py-2.5 rounded-xl text-rose-400 hover:text-rose-300 font-semibold text-xs cursor-pointer"
               >
                 Exit to Portal
@@ -1682,7 +1790,7 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
             <div>
               <h2 className="text-xl font-black text-white">LEVEL FAILED</h2>
               <p className="text-xs text-rose-300/80 font-semibold mt-0.5">
-                Bubbles crossed the danger line!
+                {failReason}
               </p>
             </div>
 
@@ -1720,7 +1828,13 @@ export const SoccerShooterGame: React.FC<SoccerShooterGameProps> = ({
 
               <button
                 type="button"
-                onClick={onExit}
+                onClick={() => {
+                  if (scoreRef.current > 0 && onGameOver) {
+                    const elapsed = Math.max(1, Math.round(activeTimeRef.current));
+                    onGameOver(scoreRef.current, elapsed);
+                  }
+                  onExit();
+                }}
                 className="w-full py-2 rounded-xl text-slate-400 hover:text-white font-semibold text-xs cursor-pointer"
               >
                 Quit Game

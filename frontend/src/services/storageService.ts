@@ -122,6 +122,18 @@ export const StorageService = {
   },
 
   clearSession(): UserProfile {
+    let existingHighScores = {};
+    let existingDailyScores = {};
+    let existingRecentAttempts: any[] = [];
+    try {
+      const existing = this.getProfile();
+      if (existing) {
+        existingHighScores = existing.highScores || {};
+        existingDailyScores = existing.dailyScores || {};
+        existingRecentAttempts = existing.recentAttempts || [];
+      }
+    } catch {}
+
     const unauthenticated: UserProfile = {
       id: 'usr_guest_' + Math.random().toString(36).substring(2, 7),
       phoneNumber: '',
@@ -147,7 +159,9 @@ export const StorageService = {
         lastClaimedDate: '',
         hasClaimedToday: false,
       },
-      highScores: {},
+      highScores: existingHighScores,
+      dailyScores: existingDailyScores,
+      recentAttempts: existingRecentAttempts,
       achievements: [],
       matchesPlayed: 0,
       trophiesCount: 0,

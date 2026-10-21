@@ -343,6 +343,7 @@ export default function App() {
                 onOpenBuyCoins={() => setIsCoinTopupOpen(true)}
                 onOpenAuthModal={() => setIsAuthModalOpen(true)}
                 onProfileUpdate={setProfile}
+                onSignOut={signOut}
               />
             )}
           </>
@@ -355,6 +356,7 @@ export default function App() {
         onClose={handleCloseMainMenu}
         onSelectSection={navigateToContentSection}
         activeSection={contentView}
+        onSignOut={signOut}
       />
 
       {/* 4. Mobile-First Bottom Navigation Bar (5 Tabs) */}
